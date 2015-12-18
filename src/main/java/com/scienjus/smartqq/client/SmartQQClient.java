@@ -1,7 +1,9 @@
 package com.scienjus.smartqq.client;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.scienjus.smartqq.callback.MessageCallback;
 import com.scienjus.smartqq.model.Group;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -42,6 +44,8 @@ public class SmartQQClient {
 
     private String psessionid;
 
+    private long msgId = 43690001;
+
     public void login() {
         getQRCode();
         String url = verifyQRCode();
@@ -80,10 +84,7 @@ public class SmartQQClient {
                 "login=0&no_verifyimg=1&s_url=http%3A%2F%2Fw.qq.com%2Fproxy.html&f_url=loginerroralert&strong_login=1&login_state=10&t=20131024001");
 
         while (true) {
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {}
-
+            sleep(1);
             try (CloseableHttpResponse response = client.execute(get, context)) {
                 String responseText = getResponseText(response);
                 if (responseText.contains("成功")) {
@@ -176,16 +177,99 @@ public class SmartQQClient {
                 JSONObject responseJson = JSON.parseObject(getResponseText(response));
                 return JSON.parseArray(responseJson.getJSONObject("result").getJSONArray("gnamelist").toJSONString(), Group.class);
             } catch (IOException e) {
-                LOGGER.error("获取uin和psessionid失败");
+                LOGGER.error("获取群列表失败");
             }
         } catch (UnsupportedEncodingException e) {
-            LOGGER.error("获取uin和psessionid失败");
+            LOGGER.error("获取群列表失败");
         }
         return Collections.emptyList();
     }
 
+    public void pollMessage(MessageCallback callback) {
+        LOGGER.info("开始接受消息");
+        HttpPost post = defaultHttpPost(
+                "http://d1.web2.qq.com/channel/poll2",
+                "http://d1.web2.qq.com/proxy.html?v=20151105001&callback=1&id=2");
+        JSONObject r = new JSONObject();
+        r.put("ptwebqq", ptwebqq);
+        r.put("clientid", 53999199);
+        r.put("psessionid", psessionid);
+        r.put("key", "");
+        LOGGER.info(r.toJSONString());
+        try {
+            post.setEntity(new UrlEncodedFormEntity(Arrays.asList(new BasicNameValuePair("r", r.toJSONString()))));
+            while (true) {
+                sleep(1);
+                try (CloseableHttpResponse response = client.execute(post, context)) {
+                    JSONObject responseJson = JSON.parseObject(getResponseText(response));
+                    if (responseJson.getInteger("retcode") == 0) {
+                        JSONArray array = responseJson.getJSONArray("result");
+                    }
+                } catch (IOException e) {
+                    LOGGER.error("获取接受消息失败");
+                }
+            }
+        } catch (UnsupportedEncodingException e) {
+            LOGGER.error("获取接受消息失败");
+        }
+    }
+
+    public void sendGroupMessage(long groupId, String msg) {
+        LOGGER.info("开始发送群消息");
+        HttpPost post = defaultHttpPost(
+                "http://d1.web2.qq.com/channel/send_qun_msg2",
+                "http://d1.web2.qq.com/proxy.html?v=20151105001&callback=1&id=2");
+        JSONObject r = new JSONObject();
+        r.put("group_uin", groupId);
+        r.put("content", "[\"" + msg + "\",[\"font\",{\"name\":\"宋体\",\"size\":10,\"style\":[0,0,0],\"color\":\"000000\"}]]");
+        r.put("face", 573);
+        r.put("clientid", 53999199);
+        r.put("msg_id", msgId++);
+        r.put("psessionid", psessionid);
+        System.out.println(r.toJSONString());
+        try {
+            UrlEncodedFormEntity entity = new UrlEncodedFormEntity(Arrays.asList(new BasicNameValuePair("r", r.toJSONString())), "UTF-8");
+            post.setEntity(entity);
+            try (CloseableHttpResponse response = client.execute(post, context)) {
+                JSONObject responseJson = JSON.parseObject(getResponseText(response));
+                System.out.println(responseJson.toJSONString());
+            } catch (IOException e) {
+                LOGGER.error("发送群消息失败");
+            }
+        } catch (UnsupportedEncodingException e) {
+            LOGGER.error("发送群消息失败");
+        }
+    }
+
+    public void getFriendList() {
+        LOGGER.info("开始获取好友列表");
+        HttpPost post = defaultHttpPost(
+                "http://s.web2.qq.com/api/get_user_friends2",
+                "http://s.web2.qq.com/proxy.html?v=20130916001&callback=1&id=1");
+        JSONObject r = new JSONObject();
+        r.put("vfwebqq", vfwebqq);
+        r.put("hash", hash());
+        try {
+            post.setEntity(new UrlEncodedFormEntity(Arrays.asList(new BasicNameValuePair("r", r.toJSONString()))));
+            try (CloseableHttpResponse response = client.execute(post, context)) {
+                JSONObject responseJson = JSON.parseObject(getResponseText(response));
+                System.out.println(responseJson.toJSONString());
+            } catch (IOException e) {
+                LOGGER.error("获取好友列表失败");
+            }
+        } catch (UnsupportedEncodingException e) {
+            LOGGER.error("获取好友列表失败");
+        }
+    }
+
     private String hash() {
         return hash(uin, ptwebqq);
+    }
+
+    private static void sleep(long seconds) {
+        try {
+            Thread.sleep(seconds * 1000);
+        } catch (InterruptedException e) {}
     }
 
     private static String hash(long x, String K) {
@@ -229,7 +313,7 @@ public class SmartQQClient {
         return "";
     }
 
-    private HttpGet defaultHttpGet(String url, String referer) {
+    private static HttpGet defaultHttpGet(String url, String referer) {
         HttpGet get = new HttpGet(url);
         if (referer != null) {
             get.setHeader("Referer", referer);
@@ -238,7 +322,7 @@ public class SmartQQClient {
         return get;
     }
 
-    private HttpPost defaultHttpPost(String url, String referer) {
+    private static HttpPost defaultHttpPost(String url, String referer) {
         HttpPost post = new HttpPost(url);
         if (referer != null) {
             post.setHeader("Referer", referer);
@@ -248,7 +332,7 @@ public class SmartQQClient {
         return post;
     }
 
-    private String getOrigin(String url) {
+    private static String getOrigin(String url) {
         return url.substring(0, url.lastIndexOf("/"));
     }
 
