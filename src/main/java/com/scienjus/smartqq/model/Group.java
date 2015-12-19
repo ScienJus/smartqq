@@ -3,7 +3,8 @@ package com.scienjus.smartqq.model;
 import com.alibaba.fastjson.annotation.JSONField;
 
 /**
- * @author XieEnlong
+ * 群模型
+ * @author ScienJus
  * @date 2015/12/18.
  */
 public class Group {
@@ -47,5 +48,15 @@ public class Group {
 
     public void setCode(long code) {
         this.code = code;
+    }
+
+    @Override
+    public String toString() {
+        return "Group{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", flag=" + flag +
+                ", code=" + code +
+                '}';
     }
 }

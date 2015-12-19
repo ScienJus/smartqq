@@ -4,7 +4,10 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.scienjus.smartqq.callback.MessageCallback;
+import com.scienjus.smartqq.model.Font;
 import com.scienjus.smartqq.model.Group;
+import com.scienjus.smartqq.model.GroupMessage;
+import com.scienjus.smartqq.model.Message;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -22,7 +25,8 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * @author XieEnlong
+ * Api客户端
+ * @author ScienJus
  * @date 2015/12/18.
  */
 public class SmartQQClient {
@@ -57,16 +61,17 @@ public class SmartQQClient {
     //登录流程1：获取二维码
     private void getQRCode() {
         LOGGER.info("开始获取二维码");
+        String filePath = getClass().getResource("/").getPath().concat("qrcode.png");
         HttpGet get = defaultHttpGet("https://ssl.ptlogin2.qq.com/ptqrshow?appid=501004106&e=0&l=M&s=5&d=72&v=4&t=" + Math.random(), null);
         try (CloseableHttpResponse response = client.execute(get, context);
-             FileOutputStream out = new FileOutputStream("D:/1.png");) {
+             FileOutputStream out = new FileOutputStream(filePath)) {
             int len;
             byte[] buffer = new byte[1024];
             while ((len = response.getEntity().getContent().read(buffer)) != -1) {
                 out.write(buffer, 0, len);
             }
             out.close();
-            LOGGER.info("二维码已保存在 D:/1.png 文件中，请打开手机QQ并扫描二维码");
+            LOGGER.info("二维码已保存在 " + filePath + " 文件中，请打开手机QQ并扫描二维码");
         } catch (IOException e) {
             LOGGER.error("获取二维码失败");
         }
@@ -77,11 +82,11 @@ public class SmartQQClient {
         LOGGER.info("等待扫描二维码");
         HttpGet get = defaultHttpGet(
                 "https://ssl.ptlogin2.qq.com/ptqrlogin?webqq_type=10&remember_uin=1&login2qq=1&aid=501004106&u1=h" +
-                "ttp%3A%2F%2Fw.qq.com%2Fproxy.html%3Flogin2qq%3D1%26webqq_type%3D10&ptredirect=0&ptlang=2052&daid=164&from_ui=1&ptty" +
-                "pe=1&dumy=&fp=loginerroralert&action=0-0-157510&mibao_css=m_webqq&t=1&g=1&js_type=0&js_ver=10143&login_sig=&pt_randsalt=0",
+                        "ttp%3A%2F%2Fw.qq.com%2Fproxy.html%3Flogin2qq%3D1%26webqq_type%3D10&ptredirect=0&ptlang=2052&daid=164&from_ui=1&ptty" +
+                        "pe=1&dumy=&fp=loginerroralert&action=0-0-157510&mibao_css=m_webqq&t=1&g=1&js_type=0&js_ver=10143&login_sig=&pt_randsalt=0",
 
                 "https://ui.ptlogin2.qq.com/cgi-bin/login?daid=164&target=self&style=16&mibao_css=m_webqq&appid=501004106&enable_q" +
-                "login=0&no_verifyimg=1&s_url=http%3A%2F%2Fw.qq.com%2Fproxy.html&f_url=loginerroralert&strong_login=1&login_state=10&t=20131024001");
+                        "login=0&no_verifyimg=1&s_url=http%3A%2F%2Fw.qq.com%2Fproxy.html&f_url=loginerroralert&strong_login=1&login_state=10&t=20131024001");
 
         while (true) {
             sleep(1);
@@ -195,7 +200,6 @@ public class SmartQQClient {
         r.put("clientid", 53999199);
         r.put("psessionid", psessionid);
         r.put("key", "");
-        LOGGER.info(r.toJSONString());
         try {
             post.setEntity(new UrlEncodedFormEntity(Arrays.asList(new BasicNameValuePair("r", r.toJSONString()))));
             while (true) {
@@ -204,6 +208,15 @@ public class SmartQQClient {
                     JSONObject responseJson = JSON.parseObject(getResponseText(response));
                     if (responseJson.getInteger("retcode") == 0) {
                         JSONArray array = responseJson.getJSONArray("result");
+                        for (int i = 0; array != null && i < array.size(); i++) {
+                            JSONObject message = array.getJSONObject(i);
+                            String type = message.getString("poll_type");
+                            if ("message".equals(type)) {
+                                callback.onMessage(new Message(message.getJSONObject("value")));
+                            } else if ("group_message".equals(type)) {
+                                callback.onGroupMessage(new GroupMessage(message.getJSONObject("value")));
+                            }
+                        }
                     }
                 } catch (IOException e) {
                     LOGGER.error("获取接受消息失败");
@@ -214,30 +227,63 @@ public class SmartQQClient {
         }
     }
 
-    public void sendGroupMessage(long groupId, String msg) {
+    public void sendMessageToGroup(long groupId, String msg) {
         LOGGER.info("开始发送群消息");
         HttpPost post = defaultHttpPost(
                 "http://d1.web2.qq.com/channel/send_qun_msg2",
                 "http://d1.web2.qq.com/proxy.html?v=20151105001&callback=1&id=2");
         JSONObject r = new JSONObject();
         r.put("group_uin", groupId);
-        r.put("content", "[\"" + msg + "\",[\"font\",{\"name\":\"宋体\",\"size\":10,\"style\":[0,0,0],\"color\":\"000000\"}]]");
+        r.put("content", JSON.toJSONString(Arrays.asList(msg, Arrays.asList("font", Font.DEFAULT_FONT))));  //注意这里虽然格式是Json，但是实际是String
         r.put("face", 573);
         r.put("clientid", 53999199);
         r.put("msg_id", msgId++);
         r.put("psessionid", psessionid);
-        System.out.println(r.toJSONString());
         try {
             UrlEncodedFormEntity entity = new UrlEncodedFormEntity(Arrays.asList(new BasicNameValuePair("r", r.toJSONString())), "UTF-8");
             post.setEntity(entity);
             try (CloseableHttpResponse response = client.execute(post, context)) {
                 JSONObject responseJson = JSON.parseObject(getResponseText(response));
-                System.out.println(responseJson.toJSONString());
+                if (0 == responseJson.getInteger("errCode")) {
+                    LOGGER.error("发送群消息成功");
+                } else {
+                    LOGGER.error("发送群消息失败");
+                }
             } catch (IOException e) {
                 LOGGER.error("发送群消息失败");
             }
         } catch (UnsupportedEncodingException e) {
             LOGGER.error("发送群消息失败");
+        }
+    }
+
+    public void sendMessageToFriend(long friendId, String msg) {
+        LOGGER.info("开始发送消息");
+        HttpPost post = defaultHttpPost(
+                "http://d1.web2.qq.com/channel/send_buddy_msg2",
+                "http://d1.web2.qq.com/proxy.html?v=20151105001&callback=1&id=2");
+        JSONObject r = new JSONObject();
+        r.put("to", friendId);
+        r.put("content", JSON.toJSONString(Arrays.asList(msg, Arrays.asList("font", Font.DEFAULT_FONT))));  //注意这里虽然格式是Json，但是实际是String
+        r.put("face", 573);
+        r.put("clientid", 53999199);
+        r.put("msg_id", msgId++);
+        r.put("psessionid", psessionid);
+        try {
+            UrlEncodedFormEntity entity = new UrlEncodedFormEntity(Arrays.asList(new BasicNameValuePair("r", r.toJSONString())), "UTF-8");
+            post.setEntity(entity);
+            try (CloseableHttpResponse response = client.execute(post, context)) {
+                JSONObject responseJson = JSON.parseObject(getResponseText(response));
+                if (0 == responseJson.getInteger("errCode")) {
+                    LOGGER.error("发送消息成功");
+                } else {
+                    LOGGER.error("发送消息失败");
+                }
+            } catch (IOException e) {
+                LOGGER.error("发送消息失败");
+            }
+        } catch (UnsupportedEncodingException e) {
+            LOGGER.error("发送消息失败");
         }
     }
 
@@ -253,7 +299,6 @@ public class SmartQQClient {
             post.setEntity(new UrlEncodedFormEntity(Arrays.asList(new BasicNameValuePair("r", r.toJSONString()))));
             try (CloseableHttpResponse response = client.execute(post, context)) {
                 JSONObject responseJson = JSON.parseObject(getResponseText(response));
-                System.out.println(responseJson.toJSONString());
             } catch (IOException e) {
                 LOGGER.error("获取好友列表失败");
             }

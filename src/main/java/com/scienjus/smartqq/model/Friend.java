@@ -1,7 +1,8 @@
 package com.scienjus.smartqq.model;
 
 /**
- * @author XieEnlong
+ * 好友模型
+ * @author ScienJus
  * @date 2015/12/18.
  */
 public class Friend {
