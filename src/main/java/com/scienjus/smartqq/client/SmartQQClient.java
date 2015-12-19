@@ -4,10 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.scienjus.smartqq.callback.MessageCallback;
-import com.scienjus.smartqq.model.Font;
-import com.scienjus.smartqq.model.Group;
-import com.scienjus.smartqq.model.GroupMessage;
-import com.scienjus.smartqq.model.Message;
+import com.scienjus.smartqq.model.*;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -20,9 +17,7 @@ import org.apache.http.message.BasicNameValuePair;
 import org.apache.log4j.Logger;
 
 import java.io.*;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 /**
  * Api客户端
@@ -155,7 +150,7 @@ public class SmartQQClient {
             try (CloseableHttpResponse response = client.execute(post, context)) {
                 JSONObject responseJson = JSON.parseObject(getResponseText(response));
                 this.psessionid = responseJson.getJSONObject("result").getString("psessionid");
-                this.uin = responseJson.getJSONObject("result").getLong("uin");
+                this.uin = responseJson.getJSONObject("result").getLongValue("uin");
             } catch (IOException e) {
                 LOGGER.error("获取uin和psessionid失败");
             }
@@ -206,7 +201,7 @@ public class SmartQQClient {
                 sleep(1);
                 try (CloseableHttpResponse response = client.execute(post, context)) {
                     JSONObject responseJson = JSON.parseObject(getResponseText(response));
-                    if (responseJson.getInteger("retcode") == 0) {
+                    if (responseJson.getIntValue("retcode") == 0) {
                         JSONArray array = responseJson.getJSONArray("result");
                         for (int i = 0; array != null && i < array.size(); i++) {
                             JSONObject message = array.getJSONObject(i);
@@ -244,7 +239,7 @@ public class SmartQQClient {
             post.setEntity(entity);
             try (CloseableHttpResponse response = client.execute(post, context)) {
                 JSONObject responseJson = JSON.parseObject(getResponseText(response));
-                if (0 == responseJson.getInteger("errCode")) {
+                if (0 == responseJson.getIntValue("errCode")) {
                     LOGGER.error("发送群消息成功");
                 } else {
                     LOGGER.error("发送群消息失败");
@@ -274,7 +269,7 @@ public class SmartQQClient {
             post.setEntity(entity);
             try (CloseableHttpResponse response = client.execute(post, context)) {
                 JSONObject responseJson = JSON.parseObject(getResponseText(response));
-                if (0 == responseJson.getInteger("errCode")) {
+                if (0 == responseJson.getIntValue("errCode")) {
                     LOGGER.error("发送消息成功");
                 } else {
                     LOGGER.error("发送消息失败");
@@ -287,7 +282,7 @@ public class SmartQQClient {
         }
     }
 
-    public void getFriendList() {
+    public List<Category> getFriendList() {
         LOGGER.info("开始获取好友列表");
         HttpPost post = defaultHttpPost(
                 "http://s.web2.qq.com/api/get_user_friends2",
@@ -299,12 +294,54 @@ public class SmartQQClient {
             post.setEntity(new UrlEncodedFormEntity(Arrays.asList(new BasicNameValuePair("r", r.toJSONString()))));
             try (CloseableHttpResponse response = client.execute(post, context)) {
                 JSONObject responseJson = JSON.parseObject(getResponseText(response));
+                if (0 == responseJson.getIntValue("retcode")) {
+                    JSONObject result = responseJson.getJSONObject("result");
+                    //获得分组
+                    JSONArray categories = result.getJSONArray("categories");
+                    Map<Integer, Category> categoryMap = new HashMap<>();
+                    categoryMap.put(0, Category.defaultCategory());
+                    for (int i = 0; categories != null && i < categories.size(); i++) {
+                        Category category = categories.getObject(i, Category.class);
+                        categoryMap.put(category.getIndex(), category);
+                    }
+                    //获得好友信息
+                    Map<Long, Friend> friendMap = new HashMap<>();
+                    JSONArray friends = result.getJSONArray("friends");
+                    for (int i = 0; friends != null && i < friends.size(); i++) {
+                        JSONObject item = friends.getJSONObject(i);
+                        Friend friend = new Friend();
+                        friend.setUserId(item.getLongValue("uin"));
+                        friendMap.put(friend.getUserId(), friend);
+                        categoryMap.get(item.getIntValue("categories")).addFriend(friend);
+                    }
+                    JSONArray marknames = result.getJSONArray("marknames");
+                    for (int i = 0; marknames != null && i < marknames.size(); i++) {
+                        JSONObject item = marknames.getJSONObject(i);
+                        friendMap.get(item.getLongValue("uin")).setMarkname(item.getString("markname"));
+                    }
+                    JSONArray info = result.getJSONArray("info");
+                    for (int i = 0; info != null && i < info.size(); i++) {
+                        JSONObject item = info.getJSONObject(i);
+                        friendMap.get(item.getLongValue("uin")).setNickname(item.getString("nick"));
+                    }
+                    JSONArray vipinfo = result.getJSONArray("vipinfo");
+                    for (int i = 0; vipinfo != null && i < vipinfo.size(); i++) {
+                        JSONObject item = vipinfo.getJSONObject(i);
+                        Friend friend = friendMap.get(item.getLongValue("u"));
+                        friend.setVip(item.getIntValue("is_vip") == 1);
+                        friend.setVipLevel(item.getIntValue("vip_level"));
+                    }
+                    return new ArrayList<>(categoryMap.values());
+                } else {
+                    LOGGER.error("获取好友列表失败");
+                }
             } catch (IOException e) {
                 LOGGER.error("获取好友列表失败");
             }
         } catch (UnsupportedEncodingException e) {
             LOGGER.error("获取好友列表失败");
         }
+        return Collections.EMPTY_LIST;
     }
 
     private String hash() {

@@ -7,19 +7,64 @@ package com.scienjus.smartqq.model;
  */
 public class Friend {
 
-    private long uin;
+    private long userId;
 
-    private int flag;
+    private String markname = "";
 
-    private int categories;
+    private String nickname;
 
-    private String markname;
+    private boolean vip;
 
-    private int type;
+    private int vipLevel;
 
-    private int face;
+    public long getUserId() {
+        return userId;
+    }
 
-    private int nickname;
+    public void setUserId(long userId) {
+        this.userId = userId;
+    }
 
+    public String getMarkname() {
+        return markname;
+    }
 
+    public void setMarkname(String markname) {
+        this.markname = markname;
+    }
+
+    public String getNickname() {
+        return nickname;
+    }
+
+    public void setNickname(String nickname) {
+        this.nickname = nickname;
+    }
+
+    public boolean isVip() {
+        return vip;
+    }
+
+    public void setVip(boolean vip) {
+        this.vip = vip;
+    }
+
+    public int getVipLevel() {
+        return vipLevel;
+    }
+
+    public void setVipLevel(int vipLevel) {
+        this.vipLevel = vipLevel;
+    }
+
+    @Override
+    public String toString() {
+        return "Friend{" +
+                "userId=" + userId +
+                ", markname='" + markname + '\'' +
+                ", nickname='" + nickname + '\'' +
+                ", vip=" + vip +
+                ", vipLevel=" + vipLevel +
+                '}';
+    }
 }
