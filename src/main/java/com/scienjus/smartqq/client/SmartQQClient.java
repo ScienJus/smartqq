@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.scienjus.smartqq.callback.MessageCallback;
 import com.scienjus.smartqq.model.*;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -14,6 +15,7 @@ import org.apache.http.cookie.Cookie;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.params.CoreConnectionPNames;
 import org.apache.log4j.Logger;
 
 import java.io.*;
@@ -55,7 +57,6 @@ public class SmartQQClient {
 
     //拉取消息的线程
     private ScheduledFuture pollMessageFuture;
-
 
     /**
      * 登录
@@ -434,6 +435,12 @@ public class SmartQQClient {
         if (referer != null) {
             get.setHeader("Referer", referer);
         }
+        RequestConfig requestConfig = RequestConfig.custom()
+                .setConnectTimeout(5000)
+                .setConnectionRequestTimeout(1000)
+                .setSocketTimeout(5000)
+                .build();
+        get.setConfig(requestConfig);
         get.setHeader("User-Agent", "Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/45.0.2454.101 Safari/537.36");
         return get;
     }
@@ -444,6 +451,12 @@ public class SmartQQClient {
         if (referer != null) {
             post.setHeader("Referer", referer);
         }
+        RequestConfig requestConfig = RequestConfig.custom()
+                .setConnectTimeout(5000)
+                .setConnectionRequestTimeout(1000)
+                .setSocketTimeout(5000)
+                .build();
+        post.setConfig(requestConfig);
         post.setHeader("Origin", getOrigin(url));
         post.setHeader("User-Agent", "Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/45.0.2454.101 Safari/537.36");
         return post;
@@ -473,6 +486,7 @@ public class SmartQQClient {
         public void run() {
             try (CloseableHttpResponse response = client.execute(post, context)) {
                 JSONObject responseJson = JSON.parseObject(getResponseText(response));
+
                 if (responseJson.getIntValue("retcode") == 0) {
                     JSONArray array = responseJson.getJSONArray("result");
                     for (int i = 0; array != null && i < array.size(); i++) {
@@ -484,6 +498,8 @@ public class SmartQQClient {
                             callback.onGroupMessage(new GroupMessage(message.getJSONObject("value")));
                         }
                     }
+                } else {
+                    LOGGER.error("接受消息失败 retcode: " + responseJson.getIntValue("retcode"));
                 }
             } catch (IOException e) {
                 LOGGER.error("获取接受消息失败");
