@@ -436,9 +436,9 @@ public class SmartQQClient {
             get.setHeader("Referer", referer);
         }
         RequestConfig requestConfig = RequestConfig.custom()
-                .setConnectTimeout(5000)
-                .setConnectionRequestTimeout(1000)
-                .setSocketTimeout(5000)
+                .setConnectTimeout(120 * 1000)
+                .setConnectionRequestTimeout(120 * 1000)
+                .setSocketTimeout(120 * 1000)
                 .build();
         get.setConfig(requestConfig);
         get.setHeader("User-Agent", "Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/45.0.2454.101 Safari/537.36");
@@ -452,9 +452,9 @@ public class SmartQQClient {
             post.setHeader("Referer", referer);
         }
         RequestConfig requestConfig = RequestConfig.custom()
-                .setConnectTimeout(5000)
-                .setConnectionRequestTimeout(1000)
-                .setSocketTimeout(5000)
+                .setConnectTimeout(120 * 1000)
+                .setConnectionRequestTimeout(120 * 1000)
+                .setSocketTimeout(120 * 1000)
                 .build();
         post.setConfig(requestConfig);
         post.setHeader("Origin", getOrigin(url));
