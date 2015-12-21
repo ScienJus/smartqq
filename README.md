@@ -1,12 +1,18 @@
 # Smart QQ Java
 
-【挖新坑】Smart QQ 的 Api —— 2015 年 12 月
+基于 Smart QQ（Web QQ） 的 Api 封装，你可以用这个 Api 制作属于自己的 QQ 机器人！
+
+注：由于 Smart QQ 不支持收发图片等功能，所以此 Api 也只可以发送文字消息（不包含@命令）
 
 ### Api 列表
 
 [登录][1]
 
 [收发消息][2]
+
+### 联系方式
+
+如果你有什么问题可以在 Issues 中提给我，或是联系我的邮箱：`i@scienjus.com`
 
 
 [1]: https://github.com/ScienJus/smart-qq-java/wiki/%E7%99%BB%E5%BD%95-Api
