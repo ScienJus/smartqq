@@ -12,7 +12,7 @@
 
 ### 联系方式
 
-如果你有什么问题可以在 Issues 中提给我，或是联系我的邮箱：`i@scienjus.com`
+如果你有什么问题可以在 Issues 中提给我，或是通过邮件联系我：`i@scienjus.com`
 
 
 [1]: https://github.com/ScienJus/smart-qq-java/wiki/%E7%99%BB%E5%BD%95-Api
