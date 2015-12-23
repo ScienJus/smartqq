@@ -5,7 +5,7 @@ package com.scienjus.smartqq.constant;
  * @author ScienJus
  * @date 15/12/19.
  */
-public enum ApiUrl {
+public enum ApiURL {
 
     GET_QE_CODE(
             "https://ssl.ptlogin2.qq.com/ptqrshow?appid=501004106&e=0&l=M&s=5&d=72&v=4&t=0.1",
@@ -52,13 +52,21 @@ public enum ApiUrl {
     SEND_MESSAGE_TO_FRIEND(
             "http://d1.web2.qq.com/channel/send_buddy_msg2",
             "http://d1.web2.qq.com/proxy.html?v=20151105001&callback=1&id=2"
+    ),
+    GET_DISCUSS_LIST(
+            "http://s.web2.qq.com/api/get_discus_list?clientid=53999199&psessionid={1}&vfwebqq={2}&t=0.1",
+            "http://s.web2.qq.com/proxy.html?v=20130916001&callback=1&id=1"
+    ),
+    SEND_MESSAGE_TO_DISCUSS(
+            "http://d1.web2.qq.com/channel/send_discu_msg2",
+            "http://d1.web2.qq.com/proxy.html?v=20151105001&callback=1&id=2"
     );
 
     private String url;
 
     private String referer;
 
-    ApiUrl(String url, String referer) {
+    ApiURL(String url, String referer) {
         this.url = url;
         this.referer = referer;
     }
@@ -76,7 +84,7 @@ public enum ApiUrl {
         int i = 1;
         String url = this.url;
         for (Object param : params) {
-            url = url.replace("{" + i + "}", param.toString());
+            url = url.replace("{" + i++ + "}", param.toString());
         }
         return url;
     }

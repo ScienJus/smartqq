@@ -22,8 +22,8 @@ public class Message {
         JSONArray content = json.getJSONArray("content");
         this.font = content.getJSONArray(0).getObject(1, Font.class);
         this.content = content.getString(1);
-        this.time = json.getLong("time");
-        this.userId = json.getLong("from_uin");
+        this.time = json.getLongValue("time");
+        this.userId = json.getLongValue("from_uin");
     }
 
     public long getTime() {

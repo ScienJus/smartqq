@@ -4,13 +4,13 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
 /**
- * 群消息模型
+ * 讨论组消息模型
  * @author ScienJus
  * @date 15/12/19.
  */
-public class GroupMessage {
+public class DiscussMessage {
 
-    private long groupId;
+    private long discussId;
 
     private long time;
 
@@ -20,21 +20,21 @@ public class GroupMessage {
 
     private Font font;
 
-    public GroupMessage(JSONObject json) {
+    public DiscussMessage(JSONObject json) {
         JSONArray content = json.getJSONArray("content");
         this.font = content.getJSONArray(0).getObject(1, Font.class);
         this.content = content.getString(1);
         this.time = json.getLongValue("time");
-        this.groupId = json.getLongValue("group_code");
+        this.discussId = json.getLongValue("did");
         this.userId = json.getLongValue("send_uin");
     }
 
-    public long getGroupId() {
-        return groupId;
+    public long getDiscussId() {
+        return discussId;
     }
 
-    public void setGroupId(long groupId) {
-        this.groupId = groupId;
+    public void setDiscussId(long discussId) {
+        this.discussId = discussId;
     }
 
     public long getTime() {
@@ -71,8 +71,8 @@ public class GroupMessage {
 
     @Override
     public String toString() {
-        return "GroupMessage{" +
-                "groupId=" + groupId +
+        return "DiscussMessage{" +
+                "discussId=" + discussId +
                 ", time=" + time +
                 ", content='" + content + '\'' +
                 ", userId=" + userId +

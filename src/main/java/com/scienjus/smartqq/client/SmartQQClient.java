@@ -4,7 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.scienjus.smartqq.callback.MessageCallback;
-import com.scienjus.smartqq.constant.ApiUrl;
+import com.scienjus.smartqq.constant.ApiURL;
 import com.scienjus.smartqq.model.*;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -40,6 +40,9 @@ public class SmartQQClient {
     //消息id，这个好像可以随便设置，所以设成全局的
     private static long MESSAGE_ID = 43690001;
 
+    //客户端id，固定的
+    private static final long Client_ID= 53999199;
+
     //保存cookie信息
     private HttpClientContext context = HttpClientContext.create();
 
@@ -72,7 +75,7 @@ public class SmartQQClient {
         //发送请求的客户端
         CloseableHttpClient client = HttpClients.createDefault();
         String filePath = getClass().getResource("/").getPath().concat("qrcode.png");
-        HttpGet get = defaultHttpGet(ApiUrl.GET_QE_CODE);
+        HttpGet get = defaultHttpGet(ApiURL.GET_QE_CODE);
         try (CloseableHttpResponse response = client.execute(get, context);
             FileOutputStream out = new FileOutputStream(filePath)) {
             int len;
@@ -90,7 +93,7 @@ public class SmartQQClient {
     //登录流程2：校验二维码
     private String verifyQRCode() {
         LOGGER.info("等待扫描二维码");
-        HttpGet get = defaultHttpGet(ApiUrl.VERIFY_QR_CODE);
+        HttpGet get = defaultHttpGet(ApiURL.VERIFY_QR_CODE);
         //发送请求的客户端
         CloseableHttpClient client = HttpClients.createDefault();
 
@@ -121,7 +124,7 @@ public class SmartQQClient {
         LOGGER.info("开始获取ptwebqq");
         //发送请求的客户端
         CloseableHttpClient client = HttpClients.createDefault();
-        HttpGet get = defaultHttpGet(ApiUrl.GET_PTWEBQQ, url);
+        HttpGet get = defaultHttpGet(ApiURL.GET_PTWEBQQ, url);
         try {
             client.execute(get, context);
             for (Cookie cookie : context.getCookieStore().getCookies()) {
@@ -139,7 +142,7 @@ public class SmartQQClient {
         LOGGER.info("开始获取vfwebqq");
         //发送请求的客户端
         CloseableHttpClient client = HttpClients.createDefault();
-        HttpGet get = defaultHttpGet(ApiUrl.GET_VFWEBQQ, ptwebqq);
+        HttpGet get = defaultHttpGet(ApiURL.GET_VFWEBQQ, ptwebqq);
         try (CloseableHttpResponse response = client.execute(get, context)) {
             JSONObject responseJson = JSON.parseObject(getResponseText(response));
             this.vfwebqq = responseJson.getJSONObject("result").getString("vfwebqq");
@@ -153,11 +156,11 @@ public class SmartQQClient {
         LOGGER.info("开始获取uin和psessionid");
         JSONObject r = new JSONObject();
         r.put("ptwebqq", ptwebqq);
-        r.put("clientid", 53999199);
+        r.put("clientid", Client_ID);
         r.put("psessionid", "");
         r.put("status", "online");
 
-        HttpPost post = defaultHttpPost(ApiUrl.GET_UIN_AND_PSESSIONID, new BasicNameValuePair("r", r.toJSONString()));
+        HttpPost post = defaultHttpPost(ApiURL.GET_UIN_AND_PSESSIONID, new BasicNameValuePair("r", r.toJSONString()));
         try (CloseableHttpClient client = HttpClients.createDefault();
              CloseableHttpResponse response = client.execute(post, context)) {
             JSONObject responseJson = JSON.parseObject(getResponseText(response));
@@ -179,7 +182,7 @@ public class SmartQQClient {
         r.put("hash", hash());
         try {
             //发送请求的客户端
-            HttpPost post = defaultHttpPost(ApiUrl.GET_GROUP_LIST, new BasicNameValuePair("r", r.toJSONString()));
+            HttpPost post = defaultHttpPost(ApiURL.GET_GROUP_LIST, new BasicNameValuePair("r", r.toJSONString()));
             post.setEntity(new UrlEncodedFormEntity(Arrays.asList(new BasicNameValuePair("r", r.toJSONString()))));
             try (CloseableHttpClient client = HttpClients.createDefault();
                  CloseableHttpResponse response = client.execute(post, context)) {
@@ -202,11 +205,11 @@ public class SmartQQClient {
         LOGGER.info("开始接受消息");
         JSONObject r = new JSONObject();
         r.put("ptwebqq", ptwebqq);
-        r.put("clientid", 53999199);
+        r.put("clientid", Client_ID);
         r.put("psessionid", psessionid);
         r.put("key", "");
 
-        HttpPost post = defaultHttpPost(ApiUrl.POLL_MESSAGE, new BasicNameValuePair("r", r.toJSONString()));
+        HttpPost post = defaultHttpPost(ApiURL.POLL_MESSAGE, new BasicNameValuePair("r", r.toJSONString()));
         if (pollMessageFuture != null) {
             pollMessageFuture.cancel(false);
         }
@@ -234,11 +237,40 @@ public class SmartQQClient {
         r.put("group_uin", groupId);
         r.put("content", JSON.toJSONString(Arrays.asList(msg, Arrays.asList("font", Font.DEFAULT_FONT))));  //注意这里虽然格式是Json，但是实际是String
         r.put("face", 573);
-        r.put("clientid", 53999199);
+        r.put("clientid", Client_ID);
         r.put("msg_id", MESSAGE_ID++);
         r.put("psessionid", psessionid);
 
-        HttpPost post = defaultHttpPost(ApiUrl.SEND_MESSAGE_TO_GROUP, new BasicNameValuePair("r", r.toJSONString()));
+        HttpPost post = defaultHttpPost(ApiURL.SEND_MESSAGE_TO_GROUP, new BasicNameValuePair("r", r.toJSONString()));
+        try (CloseableHttpClient client = HttpClients.createDefault();
+             CloseableHttpResponse response = client.execute(post, context)) {
+            JSONObject responseJson = JSON.parseObject(getResponseText(response));
+            if (0 == responseJson.getIntValue("errCode")) {
+                LOGGER.error("发送群消息成功");
+            } else {
+                LOGGER.error("发送群消息失败");
+            }
+        } catch (IOException e) {
+            LOGGER.error("发送群消息失败");
+        }
+    }
+
+    /**
+     * 发送讨论组消息
+     * @param discussId
+     * @param msg
+     */
+    public void sendMessageToDiscuss(long discussId, String msg) {
+        LOGGER.info("开始发送群消息");
+        JSONObject r = new JSONObject();
+        r.put("did", discussId);
+        r.put("content", JSON.toJSONString(Arrays.asList(msg, Arrays.asList("font", Font.DEFAULT_FONT))));  //注意这里虽然格式是Json，但是实际是String
+        r.put("face", 573);
+        r.put("clientid", Client_ID);
+        r.put("msg_id", MESSAGE_ID++);
+        r.put("psessionid", psessionid);
+
+        HttpPost post = defaultHttpPost(ApiURL.SEND_MESSAGE_TO_DISCUSS, new BasicNameValuePair("r", r.toJSONString()));
         try (CloseableHttpClient client = HttpClients.createDefault();
              CloseableHttpResponse response = client.execute(post, context)) {
             JSONObject responseJson = JSON.parseObject(getResponseText(response));
@@ -263,12 +295,12 @@ public class SmartQQClient {
         r.put("to", friendId);
         r.put("content", JSON.toJSONString(Arrays.asList(msg, Arrays.asList("font", Font.DEFAULT_FONT))));  //注意这里虽然格式是Json，但是实际是String
         r.put("face", 573);
-        r.put("clientid", 53999199);
+        r.put("clientid", Client_ID);
         r.put("msg_id", MESSAGE_ID++);
         r.put("psessionid", psessionid);
 
         //发送请求的客户端
-        HttpPost post = defaultHttpPost(ApiUrl.SEND_MESSAGE_TO_FRIEND, new BasicNameValuePair("r", r.toJSONString()));
+        HttpPost post = defaultHttpPost(ApiURL.SEND_MESSAGE_TO_FRIEND, new BasicNameValuePair("r", r.toJSONString()));
         try (CloseableHttpClient client = HttpClients.createDefault();
              CloseableHttpResponse response = client.execute(post, context)) {
             JSONObject responseJson = JSON.parseObject(getResponseText(response));
@@ -282,6 +314,23 @@ public class SmartQQClient {
         }
     }
 
+    public List<Discuss> getDiscussList() {
+        LOGGER.info("开始获取讨论组列表");
+        HttpGet get = defaultHttpGet(ApiURL.GET_DISCUSS_LIST, psessionid, vfwebqq);
+        try (CloseableHttpClient client = HttpClients.createDefault();
+             CloseableHttpResponse response = client.execute(get, context)) {
+            JSONObject responseJson = JSON.parseObject(getResponseText(response));
+            if (0 == responseJson.getIntValue("retcode")) {
+                return JSON.parseArray(responseJson.getJSONObject("result").getJSONArray("dnamelist").toJSONString(), Discuss.class);
+            } else {
+                LOGGER.error("获取讨论组列表失败");
+            }
+        } catch (IOException e) {
+            LOGGER.error("获取讨论组列表失败");
+        }
+        return new ArrayList<>();
+    }
+
     /**
      * 获取好友列表
      * @return
@@ -292,7 +341,7 @@ public class SmartQQClient {
         r.put("vfwebqq", vfwebqq);
         r.put("hash", hash());
 
-        HttpPost post = defaultHttpPost(ApiUrl.GET_FRIEND_LIST, new BasicNameValuePair("r", r.toJSONString()));
+        HttpPost post = defaultHttpPost(ApiURL.GET_FRIEND_LIST, new BasicNameValuePair("r", r.toJSONString()));
         try (CloseableHttpClient client = HttpClients.createDefault();
              CloseableHttpResponse response = client.execute(post, context)) {
             JSONObject responseJson = JSON.parseObject(getResponseText(response));
@@ -352,7 +401,7 @@ public class SmartQQClient {
     private static void sleep(long seconds) {
         try {
             Thread.sleep(seconds * 1000);
-        } catch (InterruptedException e) {}
+        } catch (InterruptedException ignored) {}
     }
 
     //hash加密方法
@@ -399,25 +448,25 @@ public class SmartQQClient {
     }
 
     //默认的http get
-    private static HttpGet defaultHttpGet(ApiUrl apiUrl, Object... params) {
+    private static HttpGet defaultHttpGet(ApiURL apiUrl, Object... params) {
         String url = apiUrl.buildUrl(params);
         HttpGet get = new HttpGet(url);
         if (apiUrl.getReferer() != null) {
             get.setHeader("Referer", apiUrl.getReferer());
         }
-        get.setHeader("User-Agent", ApiUrl.getUserAgent());
+        get.setHeader("User-Agent", ApiURL.getUserAgent());
         return get;
     }
 
     //默认的http post
-    private static HttpPost defaultHttpPost(ApiUrl apiUrl, BasicNameValuePair... params) {
+    private static HttpPost defaultHttpPost(ApiURL apiUrl, BasicNameValuePair... params) {
         HttpPost post = new HttpPost(apiUrl.getUrl());
         if (apiUrl.getReferer() != null) {
             post.setHeader("Referer", apiUrl.getReferer());
         }
         post.setEntity(new UrlEncodedFormEntity(Arrays.asList(params), Charset.forName("UTF-8")));
         post.setHeader("Origin", apiUrl.getOrigin());
-        post.setHeader("User-Agent", ApiUrl.getUserAgent());
+        post.setHeader("User-Agent", ApiURL.getUserAgent());
         return post;
     }
 
@@ -450,6 +499,8 @@ public class SmartQQClient {
                             callback.onMessage(new Message(message.getJSONObject("value")));
                         } else if ("group_message".equals(type)) {
                             callback.onGroupMessage(new GroupMessage(message.getJSONObject("value")));
+                        } else if ("discu_message".equals(type)) {
+                            callback.onDiscussMessage(new DiscussMessage(message.getJSONObject("value")));
                         }
                     }
                 } else {
