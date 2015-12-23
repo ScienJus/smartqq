@@ -12,13 +12,12 @@
 
 [收发消息][2]
 
-[获取好友、群列表][3]
+[获取好友、群、讨论组列表][3]
 
 ### 联系方式
 
 如果你有什么问题可以在 Issues 中提给我，或是通过邮件联系我：`i@scienjus.com`
 
-
 [1]: https://github.com/ScienJus/smart-qq-java/wiki/%E7%99%BB%E5%BD%95-Api
 [2]: https://github.com/ScienJus/smart-qq-java/wiki/%E6%94%B6%E5%8F%91%E6%B6%88%E6%81%AF-Api
-[3]: https://github.com/ScienJus/smart-qq-java/wiki/%E8%8E%B7%E5%8F%96%E5%A5%BD%E5%8F%8B%E3%80%81%E7%BE%A4%E5%88%97%E8%A1%A8-Api
+[3]: https://github.com/ScienJus/smart-qq-java/wiki/%E8%8E%B7%E5%8F%96%E5%A5%BD%E5%8F%8B%E3%80%81%E7%BE%A4%E3%80%81%E8%AE%A8%E8%AE%BA%E7%BB%84%E5%88%97%E8%A1%A8-Api
