@@ -18,6 +18,7 @@ import org.apache.http.message.BasicNameValuePair;
 import org.apache.log4j.Logger;
 
 import java.io.*;
+import java.nio.charset.Charset;
 import java.util.*;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
@@ -155,20 +156,16 @@ public class SmartQQClient {
         r.put("clientid", 53999199);
         r.put("psessionid", "");
         r.put("status", "online");
-        try {
-            HttpPost post = defaultHttpPost(ApiUrl.GET_UIN_AND_PSESSIONID, new BasicNameValuePair("r", r.toJSONString()));
-            try (CloseableHttpClient client = HttpClients.createDefault();
-                 CloseableHttpResponse response = client.execute(post, context)) {
-                JSONObject responseJson = JSON.parseObject(getResponseText(response));
-                this.psessionid = responseJson.getJSONObject("result").getString("psessionid");
-                this.uin = responseJson.getJSONObject("result").getLongValue("uin");
-            } catch (IOException e) {
-                LOGGER.error("获取uin和psessionid失败");
-            }
-        } catch (UnsupportedEncodingException e) {
+
+        HttpPost post = defaultHttpPost(ApiUrl.GET_UIN_AND_PSESSIONID, new BasicNameValuePair("r", r.toJSONString()));
+        try (CloseableHttpClient client = HttpClients.createDefault();
+             CloseableHttpResponse response = client.execute(post, context)) {
+            JSONObject responseJson = JSON.parseObject(getResponseText(response));
+            this.psessionid = responseJson.getJSONObject("result").getString("psessionid");
+            this.uin = responseJson.getJSONObject("result").getLongValue("uin");
+        } catch (IOException e) {
             LOGGER.error("获取uin和psessionid失败");
         }
-
     }
 
     /**
@@ -208,15 +205,12 @@ public class SmartQQClient {
         r.put("clientid", 53999199);
         r.put("psessionid", psessionid);
         r.put("key", "");
-        try {
-            HttpPost post = defaultHttpPost(ApiUrl.POLL_MESSAGE, new BasicNameValuePair("r", r.toJSONString()));
-            if (pollMessageFuture != null) {
-                pollMessageFuture.cancel(false);
-            }
-            pollMessageFuture = POOL.scheduleWithFixedDelay(new PollMessageTask(post, callback), 1, 1, TimeUnit.MILLISECONDS);
-        } catch (UnsupportedEncodingException e) {
-            LOGGER.error("获取接受消息失败");
+
+        HttpPost post = defaultHttpPost(ApiUrl.POLL_MESSAGE, new BasicNameValuePair("r", r.toJSONString()));
+        if (pollMessageFuture != null) {
+            pollMessageFuture.cancel(false);
         }
+        pollMessageFuture = POOL.scheduleWithFixedDelay(new PollMessageTask(post, callback), 1, 1, TimeUnit.MILLISECONDS);
     }
 
     /**
@@ -243,20 +237,17 @@ public class SmartQQClient {
         r.put("clientid", 53999199);
         r.put("msg_id", MESSAGE_ID++);
         r.put("psessionid", psessionid);
-        try {
-            HttpPost post = defaultHttpPost(ApiUrl.SEND_MESSAGE_TO_GROUP, new BasicNameValuePair("r", r.toJSONString()));
-            try (CloseableHttpClient client = HttpClients.createDefault();
-                 CloseableHttpResponse response = client.execute(post, context)) {
-                JSONObject responseJson = JSON.parseObject(getResponseText(response));
-                if (0 == responseJson.getIntValue("errCode")) {
-                    LOGGER.error("发送群消息成功");
-                } else {
-                    LOGGER.error("发送群消息失败");
-                }
-            } catch (IOException e) {
+
+        HttpPost post = defaultHttpPost(ApiUrl.SEND_MESSAGE_TO_GROUP, new BasicNameValuePair("r", r.toJSONString()));
+        try (CloseableHttpClient client = HttpClients.createDefault();
+             CloseableHttpResponse response = client.execute(post, context)) {
+            JSONObject responseJson = JSON.parseObject(getResponseText(response));
+            if (0 == responseJson.getIntValue("errCode")) {
+                LOGGER.error("发送群消息成功");
+            } else {
                 LOGGER.error("发送群消息失败");
             }
-        } catch (UnsupportedEncodingException e) {
+        } catch (IOException e) {
             LOGGER.error("发送群消息失败");
         }
     }
@@ -275,21 +266,18 @@ public class SmartQQClient {
         r.put("clientid", 53999199);
         r.put("msg_id", MESSAGE_ID++);
         r.put("psessionid", psessionid);
-        try {
-            //发送请求的客户端
-            HttpPost post = defaultHttpPost(ApiUrl.SEND_MESSAGE_TO_FRIEND, new BasicNameValuePair("r", r.toJSONString()));
-            try (CloseableHttpClient client = HttpClients.createDefault();
-                 CloseableHttpResponse response = client.execute(post, context)) {
-                JSONObject responseJson = JSON.parseObject(getResponseText(response));
-                if (0 == responseJson.getIntValue("errCode")) {
-                    LOGGER.error("发送消息成功");
-                } else {
-                    LOGGER.error("发送消息失败");
-                }
-            } catch (IOException e) {
+
+        //发送请求的客户端
+        HttpPost post = defaultHttpPost(ApiUrl.SEND_MESSAGE_TO_FRIEND, new BasicNameValuePair("r", r.toJSONString()));
+        try (CloseableHttpClient client = HttpClients.createDefault();
+             CloseableHttpResponse response = client.execute(post, context)) {
+            JSONObject responseJson = JSON.parseObject(getResponseText(response));
+            if (0 == responseJson.getIntValue("errCode")) {
+                LOGGER.error("发送消息成功");
+            } else {
                 LOGGER.error("发送消息失败");
             }
-        } catch (UnsupportedEncodingException e) {
+        } catch (IOException e) {
             LOGGER.error("发送消息失败");
         }
     }
@@ -303,59 +291,56 @@ public class SmartQQClient {
         JSONObject r = new JSONObject();
         r.put("vfwebqq", vfwebqq);
         r.put("hash", hash());
-        try {
-            HttpPost post = defaultHttpPost(ApiUrl.GET_FRIEND_LIST, new BasicNameValuePair("r", r.toJSONString()));
-            try (CloseableHttpClient client = HttpClients.createDefault();
-                 CloseableHttpResponse response = client.execute(post, context)) {
-                JSONObject responseJson = JSON.parseObject(getResponseText(response));
-                if (0 == responseJson.getIntValue("retcode")) {
-                    JSONObject result = responseJson.getJSONObject("result");
-                    //获得分组
-                    JSONArray categories = result.getJSONArray("categories");
-                    Map<Integer, Category> categoryMap = new HashMap<>();
-                    categoryMap.put(0, Category.defaultCategory());
-                    for (int i = 0; categories != null && i < categories.size(); i++) {
-                        Category category = categories.getObject(i, Category.class);
-                        categoryMap.put(category.getIndex(), category);
-                    }
-                    //获得好友信息
-                    Map<Long, Friend> friendMap = new HashMap<>();
-                    JSONArray friends = result.getJSONArray("friends");
-                    for (int i = 0; friends != null && i < friends.size(); i++) {
-                        JSONObject item = friends.getJSONObject(i);
-                        Friend friend = new Friend();
-                        friend.setUserId(item.getLongValue("uin"));
-                        friendMap.put(friend.getUserId(), friend);
-                        categoryMap.get(item.getIntValue("categories")).addFriend(friend);
-                    }
-                    JSONArray marknames = result.getJSONArray("marknames");
-                    for (int i = 0; marknames != null && i < marknames.size(); i++) {
-                        JSONObject item = marknames.getJSONObject(i);
-                        friendMap.get(item.getLongValue("uin")).setMarkname(item.getString("markname"));
-                    }
-                    JSONArray info = result.getJSONArray("info");
-                    for (int i = 0; info != null && i < info.size(); i++) {
-                        JSONObject item = info.getJSONObject(i);
-                        friendMap.get(item.getLongValue("uin")).setNickname(item.getString("nick"));
-                    }
-                    JSONArray vipinfo = result.getJSONArray("vipinfo");
-                    for (int i = 0; vipinfo != null && i < vipinfo.size(); i++) {
-                        JSONObject item = vipinfo.getJSONObject(i);
-                        Friend friend = friendMap.get(item.getLongValue("u"));
-                        friend.setVip(item.getIntValue("is_vip") == 1);
-                        friend.setVipLevel(item.getIntValue("vip_level"));
-                    }
-                    return new ArrayList<>(categoryMap.values());
-                } else {
-                    LOGGER.error("获取好友列表失败");
+
+        HttpPost post = defaultHttpPost(ApiUrl.GET_FRIEND_LIST, new BasicNameValuePair("r", r.toJSONString()));
+        try (CloseableHttpClient client = HttpClients.createDefault();
+             CloseableHttpResponse response = client.execute(post, context)) {
+            JSONObject responseJson = JSON.parseObject(getResponseText(response));
+            if (0 == responseJson.getIntValue("retcode")) {
+                JSONObject result = responseJson.getJSONObject("result");
+                //获得分组
+                JSONArray categories = result.getJSONArray("categories");
+                Map<Integer, Category> categoryMap = new HashMap<>();
+                categoryMap.put(0, Category.defaultCategory());
+                for (int i = 0; categories != null && i < categories.size(); i++) {
+                    Category category = categories.getObject(i, Category.class);
+                    categoryMap.put(category.getIndex(), category);
                 }
-            } catch (IOException e) {
+                //获得好友信息
+                Map<Long, Friend> friendMap = new HashMap<>();
+                JSONArray friends = result.getJSONArray("friends");
+                for (int i = 0; friends != null && i < friends.size(); i++) {
+                    JSONObject item = friends.getJSONObject(i);
+                    Friend friend = new Friend();
+                    friend.setUserId(item.getLongValue("uin"));
+                    friendMap.put(friend.getUserId(), friend);
+                    categoryMap.get(item.getIntValue("categories")).addFriend(friend);
+                }
+                JSONArray marknames = result.getJSONArray("marknames");
+                for (int i = 0; marknames != null && i < marknames.size(); i++) {
+                    JSONObject item = marknames.getJSONObject(i);
+                    friendMap.get(item.getLongValue("uin")).setMarkname(item.getString("markname"));
+                }
+                JSONArray info = result.getJSONArray("info");
+                for (int i = 0; info != null && i < info.size(); i++) {
+                    JSONObject item = info.getJSONObject(i);
+                    friendMap.get(item.getLongValue("uin")).setNickname(item.getString("nick"));
+                }
+                JSONArray vipinfo = result.getJSONArray("vipinfo");
+                for (int i = 0; vipinfo != null && i < vipinfo.size(); i++) {
+                    JSONObject item = vipinfo.getJSONObject(i);
+                    Friend friend = friendMap.get(item.getLongValue("u"));
+                    friend.setVip(item.getIntValue("is_vip") == 1);
+                    friend.setVipLevel(item.getIntValue("vip_level"));
+                }
+                return new ArrayList<>(categoryMap.values());
+            } else {
                 LOGGER.error("获取好友列表失败");
             }
-        } catch (UnsupportedEncodingException e) {
+        } catch (IOException e) {
             LOGGER.error("获取好友列表失败");
         }
-        return Collections.EMPTY_LIST;
+        return new ArrayList<>(0);
     }
 
     //hash加密方法
@@ -425,12 +410,12 @@ public class SmartQQClient {
     }
 
     //默认的http post
-    private static HttpPost defaultHttpPost(ApiUrl apiUrl, BasicNameValuePair... params) throws UnsupportedEncodingException {
+    private static HttpPost defaultHttpPost(ApiUrl apiUrl, BasicNameValuePair... params) {
         HttpPost post = new HttpPost(apiUrl.getUrl());
         if (apiUrl.getReferer() != null) {
             post.setHeader("Referer", apiUrl.getReferer());
         }
-        post.setEntity(new UrlEncodedFormEntity(Arrays.asList(params), "UTF-8"));
+        post.setEntity(new UrlEncodedFormEntity(Arrays.asList(params), Charset.forName("UTF-8")));
         post.setHeader("Origin", apiUrl.getOrigin());
         post.setHeader("User-Agent", ApiUrl.getUserAgent());
         return post;
