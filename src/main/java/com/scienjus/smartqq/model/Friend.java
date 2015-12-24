@@ -1,7 +1,7 @@
 package com.scienjus.smartqq.model;
 
 /**
- * 好友模型
+ * 好友
  * @author ScienJus
  * @date 2015/12/18.
  */

@@ -3,7 +3,7 @@ package com.scienjus.smartqq.model;
 import com.alibaba.fastjson.annotation.JSONField;
 
 /**
- * 群模型
+ * 群
  * @author ScienJus
  * @date 2015/12/18.
  */

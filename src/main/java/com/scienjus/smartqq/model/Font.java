@@ -3,7 +3,7 @@ package com.scienjus.smartqq.model;
 import java.util.Arrays;
 
 /**
- * 字体模型
+ * 字体
  * @author ScienJus
  * @date 15/12/19.
  */

@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 分组模型
+ * 分组
  * @author ScienJus
  * @date 15/12/19.
  */

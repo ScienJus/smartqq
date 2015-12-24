@@ -4,7 +4,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
 /**
- * 消息模型
+ * 消息
  * @author ScienJus
  * @date 15/12/19.
  */

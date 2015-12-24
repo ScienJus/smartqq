@@ -2,17 +2,23 @@ package com.scienjus.smartqq.model;
 
 import com.alibaba.fastjson.annotation.JSONField;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
- * 讨论组
+ * 讨论组资料
  * @author ScienJus
- * @date 2015/12/23.
+ * @date 2015/12/24.
  */
-public class Discuss {
+public class DiscussInfo {
 
     @JSONField(name = "did")
     private long id;
 
+    @JSONField(name = "discu_name")
     private String name;
+
+    private List<DiscussUser> users = new ArrayList<>();
 
     public long getId() {
         return id;
@@ -30,11 +36,24 @@ public class Discuss {
         this.name = name;
     }
 
+    public List<DiscussUser> getUsers() {
+        return users;
+    }
+
+    public void setUsers(List<DiscussUser> users) {
+        this.users = users;
+    }
+
+    public void addUser(DiscussUser user) {
+        this.users.add(user);
+    }
+
     @Override
     public String toString() {
-        return "Discuss{" +
+        return "DiscussInfo{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
+                ", users=" + users +
                 '}';
     }
 }

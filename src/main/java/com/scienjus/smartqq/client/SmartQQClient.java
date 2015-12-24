@@ -328,7 +328,7 @@ public class SmartQQClient {
         } catch (IOException e) {
             LOGGER.error("获取讨论组列表失败");
         }
-        return new ArrayList<>();
+        return null;
     }
 
     /**
@@ -389,7 +389,162 @@ public class SmartQQClient {
         } catch (IOException e) {
             LOGGER.error("获取好友列表失败");
         }
-        return new ArrayList<>(0);
+        return null;
+    }
+
+    public Account getAccountInfo() {
+        LOGGER.info("开始获取登录用户信息");
+        HttpGet get = defaultHttpGet(ApiURL.GET_ACCOUNT_INFO);
+        try (CloseableHttpClient client = HttpClients.createDefault();
+             CloseableHttpResponse response = client.execute(get, context)) {
+            JSONObject responseJson = JSON.parseObject(getResponseText(response));
+            if (0 == responseJson.getIntValue("retcode")) {
+                return responseJson.getObject("result", Account.class);
+            } else {
+                LOGGER.error("获取登录用户信息失败 retcode:" + responseJson.getIntValue("retcode"));
+            }
+        } catch (IOException e) {
+            LOGGER.error("获取登录用户信息失败");
+        }
+        return null;
+    }
+
+    public List<Recent> getRecentList() {
+        LOGGER.info("开始获取最近会话列表");
+        JSONObject r = new JSONObject();
+        r.put("vfwebqq", vfwebqq);
+        r.put("clientid", Client_ID);
+        r.put("psessionid", "");
+
+        HttpPost post = defaultHttpPost(ApiURL.GET_RECENT_LIST, new BasicNameValuePair("r", r.toJSONString()));
+        try (CloseableHttpClient client = HttpClients.createDefault();
+             CloseableHttpResponse response = client.execute(post, context)) {
+            JSONObject responseJson = JSON.parseObject(getResponseText(response));
+            if (0 == responseJson.getIntValue("retcode")) {
+                return JSON.parseArray(responseJson.getJSONArray("result").toJSONString(), Recent.class);
+            } else {
+                LOGGER.error("获取最近会话列表失败 retcode:" + responseJson.getIntValue("retcode"));
+            }
+        } catch (IOException e) {
+            LOGGER.error("获取最近会话列表失败");
+        }
+        return null;
+    }
+
+    public long getQQById(long id) {
+        LOGGER.info("开始获取QQ号");
+
+        HttpGet get = defaultHttpGet(ApiURL.GET_QQ_BY_ID, id, vfwebqq);
+        try (CloseableHttpClient client = HttpClients.createDefault();
+             CloseableHttpResponse response = client.execute(get, context)) {
+            JSONObject responseJson = JSON.parseObject(getResponseText(response));
+            if (0 == responseJson.getIntValue("retcode")) {
+                return responseJson.getJSONObject("result").getLongValue("account");
+            } else {
+                LOGGER.error("获取QQ号失败 retcode:" + responseJson.getIntValue("retcode"));
+            }
+        } catch (IOException e) {
+            LOGGER.error("获取QQ号失败");
+        }
+        return 0L;
+    }
+
+    public List<FriendStatus> getFriendStatus() {
+        LOGGER.info("开始获取好友状态");
+        HttpGet get = defaultHttpGet(ApiURL.GET_FRIEND_STATUS, vfwebqq, psessionid);
+        try (CloseableHttpClient client = HttpClients.createDefault();
+             CloseableHttpResponse response = client.execute(get, context)) {
+            JSONObject responseJson = JSON.parseObject(getResponseText(response));
+            if (0 == responseJson.getIntValue("retcode")) {
+                return JSON.parseArray(responseJson.getJSONArray("result").toJSONString(), FriendStatus.class);
+            } else {
+                LOGGER.error("获取好友状态失败 retcode:" + responseJson.getIntValue("retcode"));
+            }
+        } catch (IOException e) {
+            LOGGER.error("获取好友状态失败");
+        }
+        return null;
+    }
+
+
+    public GroupInfo getGroupInfo(long groupCode) {
+        LOGGER.info("开始获取群资料");
+        HttpGet get = defaultHttpGet(ApiURL.GET_GROUP_INFO, groupCode, vfwebqq);
+        try (CloseableHttpClient client = HttpClients.createDefault();
+             CloseableHttpResponse response = client.execute(get, context)) {
+            JSONObject responseJson = JSON.parseObject(getResponseText(response));
+            if (0 == responseJson.getIntValue("retcode")) {
+                JSONObject result = responseJson.getJSONObject("result");
+                GroupInfo groupInfo = result.getObject("ginfo", GroupInfo.class);
+                //获得群成员信息
+                Map<Long, GroupUser> groupUserMap = new HashMap<>();
+                JSONArray minfo = result.getJSONArray("minfo");
+                for (int i = 0; minfo != null && i < minfo.size(); i++) {
+                    GroupUser groupUser = minfo.getObject(i, GroupUser.class);
+                    groupUserMap.put(groupUser.getUin(), groupUser);
+                    groupInfo.addUser(groupUser);
+                }
+                JSONArray stats = result.getJSONArray("stats");
+                for (int i = 0; stats != null && i < stats.size(); i++) {
+                    JSONObject item = stats.getJSONObject(i);
+                    GroupUser groupUser = groupUserMap.get(item.getLongValue("uin"));
+                    groupUser.setClientType(item.getIntValue("client_type"));
+                    groupUser.setStatus(item.getIntValue("stat"));
+                }
+                JSONArray cards = result.getJSONArray("cards");
+                for (int i = 0; cards != null && i < cards.size(); i++) {
+                    JSONObject item = cards.getJSONObject(i);
+                    groupUserMap.get(item.getLongValue("muin")).setCard(item.getString("card"));
+                }
+                JSONArray vipinfo = result.getJSONArray("vipinfo");
+                for (int i = 0; vipinfo != null && i < vipinfo.size(); i++) {
+                    JSONObject item = vipinfo.getJSONObject(i);
+                    GroupUser groupUser = groupUserMap.get(item.getLongValue("u"));
+                    groupUser.setVip(item.getIntValue("is_vip") == 1);
+                    groupUser.setVipLevel(item.getIntValue("vip_level"));
+                }
+                return groupInfo;
+            } else {
+                LOGGER.error("获取群资料失败 retcode:" + responseJson.getIntValue("retcode"));
+            }
+        } catch (IOException e) {
+            LOGGER.error("获取群资料失败");
+        }
+        return null;
+    }
+
+    public DiscussInfo getDiscussInfo(long discussId) {
+        LOGGER.info("开始获取讨论组资料");
+        HttpGet get = defaultHttpGet(ApiURL.GET_DISCUSS_INFO, discussId, vfwebqq, psessionid);
+        try (CloseableHttpClient client = HttpClients.createDefault();
+             CloseableHttpResponse response = client.execute(get, context)) {
+            JSONObject responseJson = JSON.parseObject(getResponseText(response));
+            if (0 == responseJson.getIntValue("retcode")) {
+                JSONObject result = responseJson.getJSONObject("result");
+                DiscussInfo discussInfo = result.getObject("info", DiscussInfo.class);
+                //获得讨论组成员信息
+                Map<Long, DiscussUser> discussUserMap = new HashMap<>();
+                JSONArray minfo = result.getJSONArray("mem_info");
+                for (int i = 0; minfo != null && i < minfo.size(); i++) {
+                    DiscussUser discussUser = minfo.getObject(i, DiscussUser.class);
+                    discussUserMap.put(discussUser.getUin(), discussUser);
+                    discussInfo.addUser(discussUser);
+                }
+                JSONArray stats = result.getJSONArray("mem_status");
+                for (int i = 0; stats != null && i < stats.size(); i++) {
+                    JSONObject item = stats.getJSONObject(i);
+                    DiscussUser discussUser = discussUserMap.get(item.getLongValue("uin"));
+                    discussUser.setClientType(item.getIntValue("client_type"));
+                    discussUser.setStatus(item.getString("status"));
+                }
+                return discussInfo;
+            } else {
+                LOGGER.error("获取讨论组资料失败 retcode:" + responseJson.getIntValue("retcode"));
+            }
+        } catch (IOException e) {
+            LOGGER.error("获取讨论组资料失败");
+        }
+        return null;
     }
 
     //hash加密方法
