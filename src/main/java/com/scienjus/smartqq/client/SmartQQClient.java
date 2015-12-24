@@ -6,6 +6,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.scienjus.smartqq.callback.MessageCallback;
 import com.scienjus.smartqq.constant.ApiURL;
 import com.scienjus.smartqq.model.*;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -636,6 +637,13 @@ public class SmartQQClient {
 
         public PollMessageTask(HttpPost post, MessageCallback callback) {
             this.post = post;
+            RequestConfig config = RequestConfig
+                    .custom()
+                    .setConnectTimeout(10000)
+                    .setSocketTimeout(10000)
+                    .setConnectionRequestTimeout(10000)
+                    .build();
+            this.post.setConfig(config);
             this.callback = callback;
         }
 
