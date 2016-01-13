@@ -246,10 +246,11 @@ public class SmartQQClient {
         try (CloseableHttpClient client = HttpClients.createDefault();
              CloseableHttpResponse response = client.execute(post, context)) {
             JSONObject responseJson = JSON.parseObject(getResponseText(response));
-            if (0 == responseJson.getIntValue("errCode")) {
+            Integer result = responseJson.getInteger("errCode");
+            if (result != null && result == 0) {
                 LOGGER.error("发送群消息成功");
             } else {
-                LOGGER.error("发送群消息失败");
+                LOGGER.error("发送群消息失败 返回码：" + responseJson.getIntValue("retcode"));
             }
         } catch (IOException e) {
             LOGGER.error("发送群消息失败");
@@ -275,10 +276,11 @@ public class SmartQQClient {
         try (CloseableHttpClient client = HttpClients.createDefault();
              CloseableHttpResponse response = client.execute(post, context)) {
             JSONObject responseJson = JSON.parseObject(getResponseText(response));
-            if (0 == responseJson.getIntValue("errCode")) {
-                LOGGER.error("发送群消息成功");
+            Integer result = responseJson.getInteger("errCode");
+            if (result != null && result == 0) {
+                LOGGER.error("发送讨论组消息成功");
             } else {
-                LOGGER.error("发送群消息失败");
+                LOGGER.error("发送讨论组消息失败 返回码：" + responseJson.getIntValue("retcode"));
             }
         } catch (IOException e) {
             LOGGER.error("发送群消息失败");
@@ -305,10 +307,11 @@ public class SmartQQClient {
         try (CloseableHttpClient client = HttpClients.createDefault();
              CloseableHttpResponse response = client.execute(post, context)) {
             JSONObject responseJson = JSON.parseObject(getResponseText(response));
-            if (0 == responseJson.getIntValue("errCode")) {
+            Integer result = responseJson.getInteger("errCode");
+            if (result != null && result == 0) {
                 LOGGER.error("发送消息成功");
             } else {
-                LOGGER.error("发送消息失败");
+                LOGGER.error("发送消息失败 返回码：" + responseJson.getIntValue("retcode"));
             }
         } catch (IOException e) {
             LOGGER.error("发送消息失败");
