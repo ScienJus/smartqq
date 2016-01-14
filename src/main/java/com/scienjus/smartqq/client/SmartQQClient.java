@@ -248,7 +248,7 @@ public class SmartQQClient {
             JSONObject responseJson = JSON.parseObject(getResponseText(response));
             Integer result = responseJson.getInteger("errCode");
             if (result != null && result == 0) {
-                LOGGER.error("发送群消息成功");
+                LOGGER.info("发送群消息成功");
             } else {
                 LOGGER.error("发送群消息失败 返回码：" + responseJson.getIntValue("retcode"));
             }
@@ -278,7 +278,7 @@ public class SmartQQClient {
             JSONObject responseJson = JSON.parseObject(getResponseText(response));
             Integer result = responseJson.getInteger("errCode");
             if (result != null && result == 0) {
-                LOGGER.error("发送讨论组消息成功");
+                LOGGER.info("发送讨论组消息成功");
             } else {
                 LOGGER.error("发送讨论组消息失败 返回码：" + responseJson.getIntValue("retcode"));
             }
@@ -309,7 +309,7 @@ public class SmartQQClient {
             JSONObject responseJson = JSON.parseObject(getResponseText(response));
             Integer result = responseJson.getInteger("errCode");
             if (result != null && result == 0) {
-                LOGGER.error("发送消息成功");
+                LOGGER.info("发送消息成功");
             } else {
                 LOGGER.error("发送消息失败 返回码：" + responseJson.getIntValue("retcode"));
             }
@@ -673,7 +673,7 @@ public class SmartQQClient {
                     LOGGER.error("接受消息失败 retcode: " + responseJson.getIntValue("retcode"));
                 }
             } catch (IOException e) {
-                LOGGER.error("暂时没有消息");
+                LOGGER.info("暂时没有消息");
             }
         }
     }
