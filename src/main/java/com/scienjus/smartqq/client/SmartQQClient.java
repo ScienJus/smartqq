@@ -229,8 +229,8 @@ public class SmartQQClient {
 
     /**
      * 发送群消息
-     * @param groupId
-     * @param msg
+     * @param groupId   群id
+     * @param msg       消息内容
      */
     public void sendMessageToGroup(long groupId, String msg) {
         LOGGER.info("开始发送群消息");
@@ -259,8 +259,8 @@ public class SmartQQClient {
 
     /**
      * 发送讨论组消息
-     * @param discussId
-     * @param msg
+     * @param discussId 讨论组id
+     * @param msg       消息内容
      */
     public void sendMessageToDiscuss(long discussId, String msg) {
         LOGGER.info("开始发送群消息");
@@ -289,8 +289,8 @@ public class SmartQQClient {
 
     /**
      * 发送消息
-     * @param friendId
-     * @param msg
+     * @param friendId  好友id
+     * @param msg       消息内容
      */
     public void sendMessageToFriend(long friendId, String msg) {
         LOGGER.info("开始发送消息");
@@ -318,6 +318,10 @@ public class SmartQQClient {
         }
     }
 
+    /**
+     * 获得讨论组列表
+     * @return
+     */
     public List<Discuss> getDiscussList() {
         LOGGER.info("开始获取讨论组列表");
         HttpGet get = defaultHttpGet(ApiURL.GET_DISCUSS_LIST, psessionid, vfwebqq);
@@ -428,6 +432,11 @@ public class SmartQQClient {
         }
         return friendMap;
     }
+
+    /**
+     * 获得当前登录用户信息
+     * @return
+     */
     public Account getAccountInfo() {
         LOGGER.info("开始获取登录用户信息");
         HttpGet get = defaultHttpGet(ApiURL.GET_ACCOUNT_INFO);
@@ -445,6 +454,10 @@ public class SmartQQClient {
         return null;
     }
 
+    /**
+     * 获得最近会话列表
+     * @return
+     */
     public List<Recent> getRecentList() {
         LOGGER.info("开始获取最近会话列表");
         JSONObject r = new JSONObject();
@@ -467,6 +480,11 @@ public class SmartQQClient {
         return null;
     }
 
+    /**
+     * 获得qq号
+     * @param id    用户id
+     * @return
+     */
     public long getQQById(long id) {
         LOGGER.info("开始获取QQ号");
 
@@ -485,6 +503,10 @@ public class SmartQQClient {
         return 0L;
     }
 
+    /**
+     * 获得登录状态
+     * @return
+     */
     public List<FriendStatus> getFriendStatus() {
         LOGGER.info("开始获取好友状态");
         HttpGet get = defaultHttpGet(ApiURL.GET_FRIEND_STATUS, vfwebqq, psessionid);
@@ -502,7 +524,11 @@ public class SmartQQClient {
         return null;
     }
 
-
+    /**
+     * 获得群的详细信息
+     * @param groupCode 群编号
+     * @return
+     */
     public GroupInfo getGroupInfo(long groupCode) {
         LOGGER.info("开始获取群资料");
         HttpGet get = defaultHttpGet(ApiURL.GET_GROUP_INFO, groupCode, vfwebqq);
@@ -549,6 +575,11 @@ public class SmartQQClient {
         return null;
     }
 
+    /**
+     * 获得讨论组的详细信息
+     * @param discussId 讨论组id
+     * @return
+     */
     public DiscussInfo getDiscussInfo(long discussId) {
         LOGGER.info("开始获取讨论组资料");
         HttpGet get = defaultHttpGet(ApiURL.GET_DISCUSS_INFO, discussId, vfwebqq, psessionid);
