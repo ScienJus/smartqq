@@ -1,12 +1,13 @@
 package com.scienjus.smartqq.model;
 
-import java.util.Arrays;
+import lombok.Data;
 
 /**
  * 字体
  * @author ScienJus
  * @date 15/12/19.
  */
+@Data
 public class Font {
 
     public static final Font DEFAULT_FONT = defaultFont();
@@ -28,45 +29,4 @@ public class Font {
 
     private int size;
 
-    public int[] getStyle() {
-        return style;
-    }
-
-    public void setStyle(int[] style) {
-        this.style = style;
-    }
-
-    public String getColor() {
-        return color;
-    }
-
-    public void setColor(String color) {
-        this.color = color;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public int getSize() {
-        return size;
-    }
-
-    public void setSize(int size) {
-        this.size = size;
-    }
-
-    @Override
-    public String toString() {
-        return "Font{" +
-                "style=" + Arrays.toString(style) +
-                ", color='" + color + '\'' +
-                ", name='" + name + '\'' +
-                ", size=" + size +
-                '}';
-    }
 }

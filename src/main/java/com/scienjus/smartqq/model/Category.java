@@ -1,5 +1,7 @@
 package com.scienjus.smartqq.model;
 
+import lombok.Data;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -8,6 +10,7 @@ import java.util.List;
  * @author ScienJus
  * @date 15/12/19.
  */
+@Data
 public class Category {
 
     private int index;
@@ -18,40 +21,8 @@ public class Category {
 
     private List<Friend> friends = new ArrayList<>();
 
-    public int getIndex() {
-        return index;
-    }
-
-    public void setIndex(int index) {
-        this.index = index;
-    }
-
-    public int getSort() {
-        return sort;
-    }
-
-    public void setSort(int sort) {
-        this.sort = sort;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public List<Friend> getFriends() {
-        return friends;
-    }
-
     public void addFriend(Friend friend) {
         this.friends.add(friend);
-    }
-
-    public void setFriends(List<Friend> friends) {
-        this.friends = friends;
     }
 
     @Override
