@@ -9,7 +9,7 @@ import lombok.Data;
  * @date 2015/12/24.
  */
 @Data
-public class Account {
+public class UserInfo {
 
     private Birthday birthday;
 

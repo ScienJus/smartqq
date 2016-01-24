@@ -84,6 +84,10 @@ public enum ApiURL {
     GET_DISCUSS_INFO(
             "http://d1.web2.qq.com/channel/get_discu_info?did={1}&vfwebqq={2}&clientid=53999199&psessionid={3}&t=0.1",
             "http://d1.web2.qq.com/proxy.html?v=20151105001&callback=1&id=2"
+    ),
+    GET_FRIEND_INFO(
+            "http://s.web2.qq.com/api/get_friend_info2?tuin={1}&vfwebqq={2}&clientid=53999199&psessionid={3}&t=0.1",
+            "http://s.web2.qq.com/proxy.html?v=20130916001&callback=1&id=1"
     );
 
     private String url;

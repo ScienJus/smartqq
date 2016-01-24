@@ -434,22 +434,43 @@ public class SmartQQClient {
     }
 
     /**
-     * 获得当前登录用户信息
+     * 获得当前登录用户的详细信息
      * @return
      */
-    public Account getAccountInfo() {
+    public UserInfo getAccountInfo() {
         LOGGER.info("开始获取登录用户信息");
         HttpGet get = defaultHttpGet(ApiURL.GET_ACCOUNT_INFO);
         try (CloseableHttpClient client = HttpClients.createDefault();
              CloseableHttpResponse response = client.execute(get, context)) {
             JSONObject responseJson = JSON.parseObject(getResponseText(response));
             if (0 == responseJson.getIntValue("retcode")) {
-                return responseJson.getObject("result", Account.class);
+                return responseJson.getObject("result", UserInfo.class);
             } else {
                 LOGGER.error("获取登录用户信息失败 retcode:" + responseJson.getIntValue("retcode"));
             }
         } catch (IOException e) {
             LOGGER.error("获取登录用户信息失败");
+        }
+        return null;
+    }
+
+    /**
+     * 获得好友的详细信息
+     * @return
+     */
+    public UserInfo getFriendInfo(long friendId) {
+        LOGGER.info("开始获取好友信息");
+        HttpGet get = defaultHttpGet(ApiURL.GET_ACCOUNT_INFO, friendId, vfwebqq, psessionid);
+        try (CloseableHttpClient client = HttpClients.createDefault();
+             CloseableHttpResponse response = client.execute(get, context)) {
+            JSONObject responseJson = JSON.parseObject(getResponseText(response));
+            if (0 == responseJson.getIntValue("retcode")) {
+                return responseJson.getObject("result", UserInfo.class);
+            } else {
+                LOGGER.error("获取好友信息失败 retcode:" + responseJson.getIntValue("retcode"));
+            }
+        } catch (IOException e) {
+            LOGGER.error("获取好友信息失败");
         }
         return null;
     }
