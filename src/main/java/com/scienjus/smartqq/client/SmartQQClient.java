@@ -336,10 +336,10 @@ public class SmartQQClient {
     }
 
     /**
-     * 获取好友列表
+     * 获得好友列表（包含分组信息）
      * @return
      */
-    public List<Category> getFriendList() {
+    public List<Category> getFriendListWithCategory() {
         LOGGER.info("开始获取好友列表");
         JSONObject r = new JSONObject();
         r.put("vfwebqq", vfwebqq);
@@ -351,6 +351,8 @@ public class SmartQQClient {
             JSONObject responseJson = JSON.parseObject(getResponseText(response));
             if (0 == responseJson.getIntValue("retcode")) {
                 JSONObject result = responseJson.getJSONObject("result");
+                //获得好友信息
+                Map<Long, Friend> friendMap = parseFriendMap(result);
                 //获得分组
                 JSONArray categories = result.getJSONArray("categories");
                 Map<Integer, Category> categoryMap = new HashMap<>();
@@ -359,32 +361,11 @@ public class SmartQQClient {
                     Category category = categories.getObject(i, Category.class);
                     categoryMap.put(category.getIndex(), category);
                 }
-                //获得好友信息
-                Map<Long, Friend> friendMap = new HashMap<>();
                 JSONArray friends = result.getJSONArray("friends");
                 for (int i = 0; friends != null && i < friends.size(); i++) {
                     JSONObject item = friends.getJSONObject(i);
-                    Friend friend = new Friend();
-                    friend.setUserId(item.getLongValue("uin"));
-                    friendMap.put(friend.getUserId(), friend);
+                    Friend friend = friendMap.get(item.getLongValue("uin"));
                     categoryMap.get(item.getIntValue("categories")).addFriend(friend);
-                }
-                JSONArray marknames = result.getJSONArray("marknames");
-                for (int i = 0; marknames != null && i < marknames.size(); i++) {
-                    JSONObject item = marknames.getJSONObject(i);
-                    friendMap.get(item.getLongValue("uin")).setMarkname(item.getString("markname"));
-                }
-                JSONArray info = result.getJSONArray("info");
-                for (int i = 0; info != null && i < info.size(); i++) {
-                    JSONObject item = info.getJSONObject(i);
-                    friendMap.get(item.getLongValue("uin")).setNickname(item.getString("nick"));
-                }
-                JSONArray vipinfo = result.getJSONArray("vipinfo");
-                for (int i = 0; vipinfo != null && i < vipinfo.size(); i++) {
-                    JSONObject item = vipinfo.getJSONObject(i);
-                    Friend friend = friendMap.get(item.getLongValue("u"));
-                    friend.setVip(item.getIntValue("is_vip") == 1);
-                    friend.setVipLevel(item.getIntValue("vip_level"));
                 }
                 return new ArrayList<>(categoryMap.values());
             } else {
@@ -396,6 +377,57 @@ public class SmartQQClient {
         return null;
     }
 
+    /**
+     * 获取好友列表
+     * @return
+     */
+    public List<Friend> getFriendList() {
+        LOGGER.info("开始获取好友列表");
+        JSONObject r = new JSONObject();
+        r.put("vfwebqq", vfwebqq);
+        r.put("hash", hash());
+
+        HttpPost post = defaultHttpPost(ApiURL.GET_FRIEND_LIST, new BasicNameValuePair("r", r.toJSONString()));
+        try (CloseableHttpClient client = HttpClients.createDefault();
+             CloseableHttpResponse response = client.execute(post, context)) {
+            JSONObject responseJson = JSON.parseObject(getResponseText(response));
+            if (0 == responseJson.getIntValue("retcode")) {
+                JSONObject result = responseJson.getJSONObject("result");
+                return new ArrayList<>(parseFriendMap(result).values());
+            } else {
+                LOGGER.error("获取好友列表失败");
+            }
+        } catch (IOException e) {
+            LOGGER.error("获取好友列表失败");
+        }
+        return null;
+    }
+
+    //将json解析为好友列表
+    private static Map<Long, Friend> parseFriendMap(JSONObject result) {
+        Map<Long, Friend> friendMap = new HashMap<>();
+        JSONArray info = result.getJSONArray("info");
+        for (int i = 0; info != null && i < info.size(); i++) {
+            JSONObject item = info.getJSONObject(i);
+            Friend friend = new Friend();
+            friend.setUserId(item.getLongValue("uin"));
+            friend.setNickname(item.getString("nick"));
+            friendMap.put(friend.getUserId(), friend);
+        }
+        JSONArray marknames = result.getJSONArray("marknames");
+        for (int i = 0; marknames != null && i < marknames.size(); i++) {
+            JSONObject item = marknames.getJSONObject(i);
+            friendMap.get(item.getLongValue("uin")).setMarkname(item.getString("markname"));
+        }
+        JSONArray vipinfo = result.getJSONArray("vipinfo");
+        for (int i = 0; vipinfo != null && i < vipinfo.size(); i++) {
+            JSONObject item = vipinfo.getJSONObject(i);
+            Friend friend = friendMap.get(item.getLongValue("u"));
+            friend.setVip(item.getIntValue("is_vip") == 1);
+            friend.setVipLevel(item.getIntValue("vip_level"));
+        }
+        return friendMap;
+    }
     public Account getAccountInfo() {
         LOGGER.info("开始获取登录用户信息");
         HttpGet get = defaultHttpGet(ApiURL.GET_ACCOUNT_INFO);
