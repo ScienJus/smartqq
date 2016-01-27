@@ -6,7 +6,7 @@ import com.scienjus.smartqq.model.Group;
 import java.util.List;
 
 /**
- * @author XieEnlong
+ * @author ScienJus
  * @date 2015/12/18.
  */
 public class Application {

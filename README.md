@@ -14,6 +14,19 @@
 
 注：由于 Smart QQ 不支持收发图片等功能，所以此 Api 也只可以发送文字消息（不包含 @ 命令）。
 
+### 使用方法
+
+```
+public static void main(String[] args) {
+    SmartQQClient client = new SmartQQClient();
+    
+    //需要使用手机扫描二维码登录
+    client.login();
+    
+    //do something...
+}
+```
+
 ### Api 列表
 
 如果你想要了解 Web QQ 的通讯协议，并自己实现一个通讯接口。我在博客中详细的记录了抓包获取的请求和对应参数信息。你可以直接点击下面的目录：

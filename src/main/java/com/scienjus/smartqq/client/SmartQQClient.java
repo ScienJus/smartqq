@@ -42,7 +42,7 @@ public class SmartQQClient {
     private static long MESSAGE_ID = 43690001;
 
     //客户端id，固定的
-    private static final long Client_ID= 53999199;
+    private static final long Client_ID = 53999199;
 
     //保存cookie信息
     private HttpClientContext context = HttpClientContext.create();
