@@ -7,9 +7,9 @@ package com.scienjus.smartqq.constant;
  */
 public enum ApiURL {
 
-    GET_QE_CODE(
+    GET_QR_CODE(
             "https://ssl.ptlogin2.qq.com/ptqrshow?appid=501004106&e=0&l=M&s=5&d=72&v=4&t=0.1",
-            null
+            ""
     ),
     VERIFY_QR_CODE(
             "https://ssl.ptlogin2.qq.com/ptqrlogin?" +
@@ -23,7 +23,7 @@ public enum ApiURL {
     ),
     GET_PTWEBQQ(
             "{1}",
-            null
+            ""
     ),
     GET_VFWEBQQ(
             "http://s.web2.qq.com/api/getvfwebqq?ptwebqq={1}&clientid=53999199&psessionid=&t=0.1",
@@ -90,6 +90,8 @@ public enum ApiURL {
             "http://s.web2.qq.com/proxy.html?v=20130916001&callback=1&id=1"
     );
 
+    public static final String USER_AGENT = "Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/45.0.2454.101 Safari/537.36";
+
     private String url;
 
     private String referer;
@@ -115,10 +117,6 @@ public enum ApiURL {
             url = url.replace("{" + i++ + "}", param.toString());
         }
         return url;
-    }
-
-    public static String getUserAgent() {
-        return "Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/45.0.2454.101 Safari/537.36";
     }
 
     public String getOrigin() {
