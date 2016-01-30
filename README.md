@@ -16,14 +16,46 @@
 
 ### 使用方法
 
+如果你需要将此Api嵌入到别的项目，需要Clone后自行通过Maven打成Jar包，然后引用到你的项目中。
+
+如果你只是想要尝试一下，可以直接Clone本项目并随便写个Main方法运行。
+
 ```
-public static void main(String[] args) {
-    SmartQQClient client = new SmartQQClient();
-    
-    //需要使用手机扫描二维码登录
-    client.login();
-    
-    //do something...
+public class Application {
+
+    public static void main(String[] args) {
+        //创建一个新对象时需要扫描二维码登录，并且传一个处理接收到消息的回调，如果你不需要接收消息，可以传null
+        SmartQQClient client = new SmartQQClient(new MessageCallback() {
+            @Override
+            public void onMessage(Message message) {
+                System.out.println(message.getContent());
+            }
+
+            @Override
+            public void onGroupMessage(GroupMessage message) {
+                System.out.println(message.getContent());
+            }
+
+            @Override
+            public void onDiscussMessage(DiscussMessage message) {
+                System.out.println(message.getContent());
+            }
+        });
+        //登录成功后便可以编写你自己的业务逻辑了
+        List<Category> categories = client.getFriendListWithCategory();
+        for (Category category : categories) {
+            System.out.println(category.getName());
+            for (Friend friend : category.getFriends()) {
+                System.out.println("————" + friend.getNickname());
+            }
+        }
+        //使用后调用close方法关闭，你也可以使用try-with-resource创建该对象并自动关闭
+        try {
+            client.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }
 ```
 
@@ -43,9 +75,13 @@ public static void main(String[] args) {
 
 [Web QQ协议分析（六）：其他][6]
 
+### 感谢
+
+现在使用[requests][7]进行 Http 请求
+
 ### 联系方式
 
-如果你有什么问题可以在 Issues 中提给我，或是通过邮件联系我：`i@scienjus.com`
+由于 Web QQ 协议变更比较频繁，而我也不可能时时都去测试 Api 的可用性，所以如果您在使用途中发现了问题，欢迎给我提 Issue ，或是通过邮件联系我：`i@scienjus.com`，意见和建议也欢迎。
 
 [ruby]: https://github.com/ScienJus/qqbot
 [1]: http://www.scienjus.com/webqq-analysis-1/
@@ -54,3 +90,4 @@ public static void main(String[] args) {
 [4]: http://www.scienjus.com/webqq-analysis-1/
 [5]: http://www.scienjus.com/webqq-analysis-1/
 [6]: http://www.scienjus.com/webqq-analysis-1/
+[7]: https://github.com/caoqianli/requests
