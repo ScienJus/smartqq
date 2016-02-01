@@ -1,5 +1,7 @@
 # Smart QQ Java
 
+**注意：2016-2-1开始，程序无法接收消息，同时登录[官网][8]后也无法接收消息。我尝试了一个之前完全没有使用过软件的QQ号从官网登录也是如此，所以推测为Smart QQ后端的问题，暂时只能等后端修复了。**
+
 基于 Smart QQ（Web QQ） 的 Api 封装，你可以用这个 Api 制作属于自己的 QQ 机器人！
 
 该项目目前（2016年1月）为止还可以正常使用，我也会尽量一直维护这个项目，[Ruby版][ruby]也是如此。
@@ -75,6 +77,16 @@ public class Application {
 
 [Web QQ协议分析（六）：其他][6]
 
+### 常见错误
+
+**程序无法控制的错误**
+
+错误码103：这个是由于Smart QQ多点登录，后端校验失败。需要手动进入[官网][8]，检查是否能正常接收消息。如果可以的话点击[设置]->[退出登录]后再重新启动程序
+
+**正常流程不应该发生的错误**
+
+错误码100001、1000000：基本是由于参数错误或者Cookie错误所引起的，如果遇到这种情况，请提交Issue反馈
+
 ### 感谢
 
 现在使用[requests][7]进行 Http 请求
@@ -91,3 +103,4 @@ public class Application {
 [5]: http://www.scienjus.com/webqq-analysis-1/
 [6]: http://www.scienjus.com/webqq-analysis-1/
 [7]: https://github.com/caoqianli/requests
+[8]: http://w.qq.com

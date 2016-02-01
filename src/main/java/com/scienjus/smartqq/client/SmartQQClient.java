@@ -7,7 +7,6 @@ import com.scienjus.smartqq.callback.MessageCallback;
 import com.scienjus.smartqq.constant.ApiURL;
 import com.scienjus.smartqq.model.*;
 import net.dongliu.requests.Client;
-import net.dongliu.requests.HeadOnlyRequestBuilder;
 import net.dongliu.requests.Response;
 import net.dongliu.requests.Session;
 import net.dongliu.requests.exception.RequestException;
@@ -509,7 +508,11 @@ public class SmartQQClient implements Closeable {
         JSONObject json = JSON.parseObject(response.getBody());
         Integer retCode = json.getInteger("retcode");
         if (retCode == null || retCode != 0) {
-            throw new RuntimeException(String.format("请求失败，Api返回码[%d]", retCode));
+            if (retCode != null && retCode == 103) {
+                LOGGER.error("请求失败，Api返回码[103]。你需要进入http://w.qq.com，检查是否能正常接收消息。如果可以的话点击[设置]->[退出登录]后查看是否恢复正常");
+            } else {
+                throw new RuntimeException(String.format("请求失败，Api返回码[%d]", retCode));
+            }
         }
         return json.getJSONArray("result");
     }
