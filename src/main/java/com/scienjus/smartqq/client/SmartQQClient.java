@@ -13,6 +13,7 @@ import net.dongliu.requests.exception.RequestException;
 import org.apache.log4j.Logger;
 
 import java.io.Closeable;
+import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
@@ -88,7 +89,12 @@ public class SmartQQClient implements Closeable {
         LOGGER.info("开始获取二维码");
 
         //本地存储二维码图片
-        String filePath = getClass().getResource("/").getPath().concat("qrcode.png");
+        String filePath;
+        try {
+            filePath = new File("qrcode.png").getCanonicalPath();
+        } catch (IOException e) {
+            throw new RuntimeException("二维码保存失败");
+        }
         session.get(ApiURL.GET_QR_CODE.getUrl())
                 .addHeader("User-Agent", ApiURL.USER_AGENT)
                 .file(filePath);
