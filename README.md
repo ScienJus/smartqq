@@ -2,7 +2,7 @@
 
 基于 Smart QQ（Web QQ） 的 Api 封装，你可以用这个 Api 制作属于自己的 QQ 机器人！
 
-该项目目前（2016年1月）为止还可以正常使用，我也会尽量一直维护这个项目，[Ruby版][ruby]也是如此。
+该项目目前（2016年2月）为止还可以正常使用，我也会尽量一直维护这个项目，[Ruby版][ruby]也是如此。
 
 该项目仅提供了最基本的通信协议，你可以在此基础上实现自己的业务逻辑，包括且不限于：
 
@@ -98,6 +98,24 @@ public class Application {
 
 [Web QQ协议分析（六）：其他][6]
 
+### 常见错误
+
+**程序无法控制的错误**
+
+错误码103：这个是由于Smart QQ多点登录，后端校验失败。需要手动进入[官网][8]，检查是否能正常接收消息。如果可以的话点击[设置]->[退出登录]后查看是否恢复正常
+
+**正常流程不应该发生的错误**
+
+错误码100001、1000000：基本是由于参数错误或者Cookie错误所引起的，如果遇到这种情况，请提交Issue反馈
+
+错误码6：如果是在`getGroupInfo`方法中出现，可能是误把`group.id`当成`group.code`作为参数了，这里的参数应该是`code`。
+
+#### 更新日志
+
+2016-2-2：修改了Jar运行时保存二维码失败的Bug，感谢@oldjunyi的反馈！
+
+2016-2-1：程序无法接收消息，同时登录[官网][8]后也无法接收消息。大约 15:44 左右恢复正常，程序不需要更新。感谢@WiseClock提供信息！
+
 ### 感谢
 
 现在使用[requests][7]进行 Http 请求
@@ -114,3 +132,4 @@ public class Application {
 [5]: http://www.scienjus.com/webqq-analysis-1/
 [6]: http://www.scienjus.com/webqq-analysis-1/
 [7]: https://github.com/caoqianli/requests
+[8]: http://w.qq.com

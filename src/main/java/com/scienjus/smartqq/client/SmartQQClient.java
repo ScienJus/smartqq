@@ -7,13 +7,13 @@ import com.scienjus.smartqq.callback.MessageCallback;
 import com.scienjus.smartqq.constant.ApiURL;
 import com.scienjus.smartqq.model.*;
 import net.dongliu.requests.Client;
-import net.dongliu.requests.HeadOnlyRequestBuilder;
 import net.dongliu.requests.Response;
 import net.dongliu.requests.Session;
 import net.dongliu.requests.exception.RequestException;
 import org.apache.log4j.Logger;
 
 import java.io.Closeable;
+import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
@@ -89,7 +89,12 @@ public class SmartQQClient implements Closeable {
         LOGGER.info("开始获取二维码");
 
         //本地存储二维码图片
-        String filePath = getClass().getResource("/").getPath().concat("qrcode.png");
+        String filePath;
+        try {
+            filePath = new File("qrcode.png").getCanonicalPath();
+        } catch (IOException e) {
+            throw new RuntimeException("二维码保存失败");
+        }
         session.get(ApiURL.GET_QR_CODE.getUrl())
                 .addHeader("User-Agent", ApiURL.USER_AGENT)
                 .file(filePath);
@@ -490,28 +495,12 @@ public class SmartQQClient implements Closeable {
 
     //获取返回json的result字段（JSONObject类型）
     private static JSONObject getJsonObjectResult(Response<String> response) {
-        if (response.getStatusCode() != 200) {
-            throw new RuntimeException(String.format("请求失败，Http返回码[%d]", response.getStatusCode()));
-        }
-        JSONObject json = JSON.parseObject(response.getBody());
-        Integer retCode = json.getInteger("retcode");
-        if (retCode == null || retCode != 0) {
-            throw new RuntimeException(String.format("请求失败，Api返回码[%d]", retCode));
-        }
-        return json.getJSONObject("result");
+        return getResponseJson(response).getJSONObject("result");
     }
 
     //获取返回json的result字段（JSONArray类型）
     private static JSONArray getJsonArrayResult(Response<String> response) {
-        if (response.getStatusCode() != 200) {
-            throw new RuntimeException(String.format("请求失败，Http返回码[%d]", response.getStatusCode()));
-        }
-        JSONObject json = JSON.parseObject(response.getBody());
-        Integer retCode = json.getInteger("retcode");
-        if (retCode == null || retCode != 0) {
-            throw new RuntimeException(String.format("请求失败，Api返回码[%d]", retCode));
-        }
-        return json.getJSONArray("result");
+        return getResponseJson(response).getJSONArray("result");
     }
 
     //检查消息是否发送成功
@@ -525,6 +514,23 @@ public class SmartQQClient implements Closeable {
             LOGGER.info("发送成功!");
         }
         LOGGER.error(String.format("发送失败，Api返回码[%d]", json.getInteger("retcode")));
+    }
+
+    //检验Json返回结果
+    private static JSONObject getResponseJson(Response<String> response) {
+        if (response.getStatusCode() != 200) {
+            throw new RuntimeException(String.format("请求失败，Http返回码[%d]", response.getStatusCode()));
+        }
+        JSONObject json = JSON.parseObject(response.getBody());
+        Integer retCode = json.getInteger("retcode");
+        if (retCode == null || retCode != 0) {
+            if (retCode != null && retCode == 103) {
+                LOGGER.error("请求失败，Api返回码[103]。你需要进入http://w.qq.com，检查是否能正常接收消息。如果可以的话点击[设置]->[退出登录]后查看是否恢复正常");
+            } else {
+                throw new RuntimeException(String.format("请求失败，Api返回码[%d]", retCode));
+            }
+        }
+        return json;
     }
 
     //hash加密方法
