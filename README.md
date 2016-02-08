@@ -36,7 +36,7 @@
 ```
 <dependency>
     <groupId>com.scienjus</groupId>
-    <artifactId>mybatis-redis-counter</artifactId>
+    <artifactId>smartqq</artifactId>
     <version>1.0-SNAPSHOT</version>
 </dependency>
 ```
