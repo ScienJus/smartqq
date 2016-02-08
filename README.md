@@ -16,7 +16,30 @@
 
 ### 使用方法
 
-如果你需要将此Api嵌入到别的项目，需要Clone后自行通过Maven打成Jar包，然后引用到你的项目中。
+如果你需要将此Api嵌入到别的项目，可以使用Maven依赖：
+
+仓库：
+
+```
+<repository>
+    <id>scienjus-mvn-repo</id>
+    <url>https://raw.github.com/ScienJus/maven/mvn-repo/</url>
+    <snapshots>
+        <enabled>true</enabled>
+        <updatePolicy>always</updatePolicy>
+    </snapshots>
+</repository>
+```
+
+依赖：
+
+```
+<dependency>
+    <groupId>com.scienjus</groupId>
+    <artifactId>mybatis-redis-counter</artifactId>
+    <version>1.0-SNAPSHOT</version>
+</dependency>
+```
 
 如果你只是想要尝试一下，可以直接Clone本项目并随便写个Main方法运行。
 
