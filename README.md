@@ -130,10 +130,10 @@ public class Application {
 
 [ruby]: https://github.com/ScienJus/qqbot
 [1]: http://www.scienjus.com/webqq-analysis-1/
-[2]: http://www.scienjus.com/webqq-analysis-1/
-[3]: http://www.scienjus.com/webqq-analysis-1/
-[4]: http://www.scienjus.com/webqq-analysis-1/
-[5]: http://www.scienjus.com/webqq-analysis-1/
-[6]: http://www.scienjus.com/webqq-analysis-1/
+[2]: http://www.scienjus.com/webqq-analysis-2/
+[3]: http://www.scienjus.com/webqq-analysis-3/
+[4]: http://www.scienjus.com/webqq-analysis-4/
+[5]: http://www.scienjus.com/webqq-analysis-5/
+[6]: http://www.scienjus.com/webqq-analysis-6/
 [7]: https://github.com/caoqianli/requests
 [8]: http://w.qq.com
