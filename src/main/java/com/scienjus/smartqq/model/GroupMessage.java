@@ -28,11 +28,12 @@ public class GroupMessage {
         JSONArray cont = json.getJSONArray("content");
         this.font = cont.getJSONArray(0).getObject(1, Font.class);
 
-        if (2 == cont.size()) { // 接收群内普通消息
-            this.content = cont.getString(1);
-        } else if (4 == cont.size()) { // 接收群内 @用户 的消息
-            this.content = cont.getString(3);
+        final int size = cont.size();
+        final StringBuilder contentBuilder = new StringBuilder();
+        for (int i = 1; i < size; i++) {
+            contentBuilder.append(cont.getString(i));
         }
+        this.content = contentBuilder.toString();
 
         this.time = json.getLongValue("time");
         this.groupId = json.getLongValue("group_code");
