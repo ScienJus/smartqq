@@ -18,8 +18,10 @@ import java.io.IOException;
 import java.util.*;
 
 /**
- * Api客户端
+ * Api客户端.
+ * 
  * @author ScienJus
+ * @author <a href="http://88250.b3log.org">Liang Ding</a>
  * @date 2015/12/18.
  */
 public class SmartQQClient implements Closeable {
@@ -177,7 +179,7 @@ public class SmartQQClient implements Closeable {
      * @param callback  获取消息后的回调
      */
     private void pollMessage(MessageCallback callback) {
-        LOGGER.info("开始接收消息");
+        LOGGER.trace("开始接收消息");
 
         JSONObject r = new JSONObject();
         r.put("ptwebqq", ptwebqq);
