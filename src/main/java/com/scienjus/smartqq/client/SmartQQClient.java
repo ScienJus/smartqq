@@ -68,7 +68,9 @@ public class SmartQQClient implements Closeable {
                         }
                         try {
                             pollMessage(callback);
-                        } catch (RequestException ignore) {}
+                        } catch (RequestException ignore) {
+                            LOGGER.error(ignore.getMessage());
+                        }
                     }
                 }
             }).start();
@@ -95,7 +97,7 @@ public class SmartQQClient implements Closeable {
         try {
             filePath = new File("qrcode.png").getCanonicalPath();
         } catch (IOException e) {
-            throw new RuntimeException("二维码保存失败");
+            throw new IllegalStateException("二维码保存失败");
         }
         session.get(ApiURL.GET_QR_CODE.getUrl())
                 .addHeader("User-Agent", ApiURL.USER_AGENT)
@@ -524,7 +526,7 @@ public class SmartQQClient implements Closeable {
     //检验Json返回结果
     private static JSONObject getResponseJson(Response<String> response) {
         if (response.getStatusCode() != 200) {
-            throw new RuntimeException(String.format("请求失败，Http返回码[%d]", response.getStatusCode()));
+            throw new RequestException(String.format("请求失败，Http返回码[%d]", response.getStatusCode()));
         }
         JSONObject json = JSON.parseObject(response.getBody());
         Integer retCode = json.getInteger("retcode");
@@ -532,7 +534,7 @@ public class SmartQQClient implements Closeable {
             if (retCode != null && retCode == 103) {
                 LOGGER.error("请求失败，Api返回码[103]。你需要进入http://w.qq.com，检查是否能正常接收消息。如果可以的话点击[设置]->[退出登录]后查看是否恢复正常");
             } else {
-                throw new RuntimeException(String.format("请求失败，Api返回码[%d]", retCode));
+                throw new RequestException(String.format("请求失败，Api返回码[%d]", retCode));
             }
         }
         return json;
