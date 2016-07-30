@@ -10,7 +10,9 @@ import com.scienjus.smartqq.model.*;
 import org.apache.log4j.Logger;
 import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.client.api.ContentResponse;
+import org.eclipse.jetty.client.util.FormContentProvider;
 import org.eclipse.jetty.http.HttpMethod;
+import org.eclipse.jetty.util.Fields;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 
 import java.io.Closeable;
@@ -515,12 +517,14 @@ public class SmartQQClient implements Closeable {
 
     //发送post请求
     private ContentResponse post(ApiURL url, JSONObject r) throws InterruptedException, ExecutionException, TimeoutException {
+        Fields fields = new Fields();
+        fields.add("r", r.toJSONString());
         return httpClient.newRequest(url.getUrl())
                 .method(HttpMethod.POST)
                 .agent(ApiURL.USER_AGENT)
                 .header("Referer", url.getReferer())
                 .header("Origin", url.getOrigin())
-                .param("r", r.toJSONString())
+                .content(new FormContentProvider(fields))
                 .send();
     }
 
