@@ -5,6 +5,7 @@ import java.util.Objects;
 /**
  * 最近会话
  * @author ScienJus
+ * @author Xianguang Zhou <xianguang.zhou@outlook.com>
  * @date 2015/12/24.
  */
 public class Recent {

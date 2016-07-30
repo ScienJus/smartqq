@@ -6,6 +6,7 @@ import java.util.Objects;
  * 生日
  *
  * @author ScienJus
+ * @author Xianguang Zhou <xianguang.zhou@outlook.com>
  * @date 2015/12/24.
  */
 public class Birthday {

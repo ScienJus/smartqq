@@ -1,15 +1,16 @@
-package com.scienjus.smartqq.callback;
+package com.scienjus.smartqq.listener;
 
 import com.scienjus.smartqq.model.DiscussMessage;
 import com.scienjus.smartqq.model.GroupMessage;
 import com.scienjus.smartqq.model.Message;
 
 /**
- * 收到消息的回调
+ * Smart QQ的监听器
  * @author ScienJus
+ * @author Xianguang Zhou <xianguang.zhou@outlook.com>
  * @date 2015/12/18.
  */
-public interface MessageCallback {
+public interface SmartqqListener {
 
     /**
      * 收到私聊消息后的回调
@@ -28,4 +29,11 @@ public interface MessageCallback {
      * @param message
      */
     void onDiscussMessage(DiscussMessage message);
+
+    /**
+     * 收到二维码后的回调
+     * @param imageBytes
+     */
+    void onQrCodeImage(byte[] imageBytes);
+
 }

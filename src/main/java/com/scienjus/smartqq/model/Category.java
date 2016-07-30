@@ -7,6 +7,7 @@ import java.util.Objects;
 /**
  * 分组
  * @author ScienJus
+ * @author Xianguang Zhou <xianguang.zhou@outlook.com>
  * @date 15/12/19.
  */
 public class Category {

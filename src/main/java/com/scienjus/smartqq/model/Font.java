@@ -6,6 +6,7 @@ import java.util.Objects;
 /**
  * 字体
  * @author ScienJus
+ * @author Xianguang Zhou <xianguang.zhou@outlook.com>
  * @date 15/12/19.
  */
 public class Font {

@@ -8,6 +8,7 @@ import java.util.Objects;
 /**
  * 讨论组消息
  * @author ScienJus
+ * @author Xianguang Zhou <xianguang.zhou@outlook.com>
  * @date 15/12/19.
  */
 public class DiscussMessage {

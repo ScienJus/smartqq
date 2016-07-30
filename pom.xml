@@ -30,21 +30,20 @@
         </dependency>
 
         <dependency>
-            <groupId>net.dongliu</groupId>
-            <artifactId>requests</artifactId>
-            <version>2.1.5</version>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-client</artifactId>
+            <version>9.3.11.v20160721</version>
         </dependency>
     </dependencies>
 
     <build>
-        <finalName>${project.artifactId}</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
-                    <source>1.7</source>
-                    <target>1.7</target>
+                    <source>1.8</source>
+                    <target>1.8</target>
                     <encoding>UTF-8</encoding>
                 </configuration>
             </plugin>

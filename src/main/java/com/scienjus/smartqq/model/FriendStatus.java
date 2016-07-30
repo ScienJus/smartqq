@@ -7,6 +7,7 @@ import java.util.Objects;
 /**
  * 好友状态
  * @author ScienJus
+ * @author Xianguang Zhou <xianguang.zhou@outlook.com>
  * @date 2015/12/24.
  */
 public class FriendStatus {
