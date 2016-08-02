@@ -3,12 +3,13 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.scienjus</groupId>
-    <artifactId>smartqq</artifactId>
+    <artifactId>smartqq-client</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
-    <name>smartqq</name>
-    <url>https://github.com/Xianguang-Zhou/smartqq</url>
+    <name>smartqq-client</name>
+    <description>Smart QQ client for Java</description>
+    <url>https://github.com/Xianguang-Zhou/smartqq-client</url>
 
     <!-- Properties -->
     <properties>
