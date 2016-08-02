@@ -1,7 +1,8 @@
 package com.scienjus.smartqq.model;
 
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.scienjus.smartqq.json.GsonUtil;
 
 import java.util.Objects;
 
@@ -23,13 +24,13 @@ public class DiscussMessage {
 
     private Font font;
 
-    public DiscussMessage(JSONObject json) {
-        JSONArray content = json.getJSONArray("content");
-        this.font = content.getJSONArray(0).getObject(1, Font.class);
-        this.content = content.getString(1);
-        this.time = json.getLongValue("time");
-        this.discussId = json.getLongValue("did");
-        this.userId = json.getLongValue("send_uin");
+    public DiscussMessage(JsonObject json) {
+        JsonArray content = json.getAsJsonArray("content");
+        this.font = GsonUtil.gson.fromJson(content.get(0).getAsJsonArray().get(1), Font.class);
+        this.content = content.get(1).getAsString();
+        this.time = json.get("time").getAsLong();
+        this.discussId = json.get("did").getAsLong();
+        this.userId = json.get("send_uin").getAsLong();
     }
 
     public long getDiscussId() {

@@ -1,6 +1,6 @@
 package com.scienjus.smartqq.model;
 
-import com.alibaba.fastjson.annotation.JSONField;
+import com.google.gson.annotations.SerializedName;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,10 +14,10 @@ import java.util.Objects;
  */
 public class DiscussInfo {
 
-    @JSONField(name = "did")
+    @SerializedName("did")
     private long id;
 
-    @JSONField(name = "discu_name")
+    @SerializedName("discu_name")
     private String name;
 
     private List<DiscussUser> users = new ArrayList<>();

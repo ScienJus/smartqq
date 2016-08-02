@@ -1,25 +1,32 @@
 package com.scienjus.smartqq.client;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.reflect.TypeToken;
 import com.scienjus.smartqq.constant.ApiURL;
 import com.scienjus.smartqq.exception.SmartqqRuntimeException;
+import com.scienjus.smartqq.json.GsonUtil;
 import com.scienjus.smartqq.listener.SmartqqListener;
 import com.scienjus.smartqq.model.*;
-import org.apache.log4j.Logger;
 import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.client.api.ContentResponse;
+import org.eclipse.jetty.client.api.Request;
 import org.eclipse.jetty.client.util.FormContentProvider;
+import org.eclipse.jetty.http.HttpField;
+import org.eclipse.jetty.http.HttpHeader;
 import org.eclipse.jetty.http.HttpMethod;
 import org.eclipse.jetty.util.Fields;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.Closeable;
 import java.io.IOException;
 import java.net.HttpCookie;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 /**
@@ -33,7 +40,7 @@ import java.util.concurrent.TimeoutException;
 public class SmartQQClient implements Closeable {
 
     //日志
-    private static final Logger LOGGER = Logger.getLogger(SmartQQClient.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SmartQQClient.class);
 
     //消息id，这个好像可以随便设置，所以设成全局的
     private static long MESSAGE_ID = 43690001;
@@ -58,16 +65,19 @@ public class SmartQQClient implements Closeable {
 
     private SmartqqListener listener;
 
+    private Thread pollThread;
+
     public SmartQQClient(final SmartqqListener listener) throws Exception {
         this.listener = listener;
 
         this.httpClient = new HttpClient(new SslContextFactory());
+        this.httpClient.setUserAgentField(new HttpField(HttpHeader.USER_AGENT, ApiURL.USER_AGENT));
         this.httpClient.start();
 
         login();
         if (listener != null) {
             this.pollStarted = true;
-            new Thread(new Runnable() {
+            pollThread = new Thread(new Runnable() {
                 @Override
                 public void run() {
                     while (true) {
@@ -77,11 +87,12 @@ public class SmartQQClient implements Closeable {
                         try {
                             pollMessage(listener);
                         } catch (Exception ignore) {
-                            LOGGER.error(ignore.getMessage());
+                            LOGGER.error(ignore.getMessage(), ignore);
                         }
                     }
                 }
-            }).start();
+            });
+            pollThread.start();
         }
     }
 
@@ -153,23 +164,23 @@ public class SmartQQClient implements Closeable {
         LOGGER.debug("开始获取vfwebqq");
 
         ContentResponse response = get(ApiURL.GET_VFWEBQQ, ptwebqq);
-        this.vfwebqq = getJsonObjectResult(response).getString("vfwebqq");
+        this.vfwebqq = getJsonObjectResult(response).get("vfwebqq").getAsString();
     }
 
     //登录流程5：获取uin和psessionid
     private void getUinAndPsessionid() throws InterruptedException, ExecutionException, TimeoutException {
         LOGGER.debug("开始获取uin和psessionid");
 
-        JSONObject r = new JSONObject();
-        r.put("ptwebqq", ptwebqq);
-        r.put("clientid", Client_ID);
-        r.put("psessionid", "");
-        r.put("status", "online");
+        JsonObject r = new JsonObject();
+        r.addProperty("ptwebqq", ptwebqq);
+        r.addProperty("clientid", Client_ID);
+        r.addProperty("psessionid", "");
+        r.addProperty("status", "online");
 
         ContentResponse response = post(ApiURL.GET_UIN_AND_PSESSIONID, r);
-        JSONObject result = getJsonObjectResult(response);
-        this.psessionid = result.getString("psessionid");
-        this.uin = result.getLongValue("uin");
+        JsonObject result = getJsonObjectResult(response);
+        this.psessionid = result.get("psessionid").getAsString();
+        this.uin = result.get("uin").getAsLong();
     }
 
     /**
@@ -180,13 +191,14 @@ public class SmartQQClient implements Closeable {
     public List<Group> getGroupList() throws InterruptedException, ExecutionException, TimeoutException {
         LOGGER.debug("开始获取群列表");
 
-        JSONObject r = new JSONObject();
-        r.put("vfwebqq", vfwebqq);
-        r.put("hash", hash());
+        JsonObject r = new JsonObject();
+        r.addProperty("vfwebqq", vfwebqq);
+        r.addProperty("hash", hash());
 
         ContentResponse response = post(ApiURL.GET_GROUP_LIST, r);
-        JSONObject result = getJsonObjectResult(response);
-        return JSON.parseArray(result.getJSONArray("gnamelist").toJSONString(), Group.class);
+        JsonObject result = getJsonObjectResult(response);
+        return GsonUtil.gson.fromJson(result.get("gnamelist"), new TypeToken<List<Group>>() {
+        }.getType());
     }
 
     /**
@@ -197,23 +209,22 @@ public class SmartQQClient implements Closeable {
     private void pollMessage(SmartqqListener callback) throws InterruptedException, ExecutionException, TimeoutException {
         LOGGER.debug("开始接收消息");
 
-        JSONObject r = new JSONObject();
-        r.put("ptwebqq", ptwebqq);
-        r.put("clientid", Client_ID);
-        r.put("psessionid", psessionid);
-        r.put("key", "");
-
-        ContentResponse response = post(ApiURL.POLL_MESSAGE, r);
-        JSONArray array = getJsonArrayResult(response);
+        JsonObject r = new JsonObject();
+        r.addProperty("ptwebqq", ptwebqq);
+        r.addProperty("clientid", Client_ID);
+        r.addProperty("psessionid", psessionid);
+        r.addProperty("key", "");
+        ContentResponse response = post(ApiURL.POLL_MESSAGE, r, new Timeout(3, TimeUnit.MINUTES));
+        JsonArray array = getJsonArrayResult(response);
         for (int i = 0; array != null && i < array.size(); i++) {
-            JSONObject message = array.getJSONObject(i);
-            String type = message.getString("poll_type");
+            JsonObject message = array.get(i).getAsJsonObject();
+            String type = message.get("poll_type").getAsString();
             if ("message".equals(type)) {
-                callback.onMessage(new Message(message.getJSONObject("value")));
+                callback.onMessage(new Message(message.getAsJsonObject("value")));
             } else if ("group_message".equals(type)) {
-                callback.onGroupMessage(new GroupMessage(message.getJSONObject("value")));
+                callback.onGroupMessage(new GroupMessage(message.getAsJsonObject("value")));
             } else if ("discu_message".equals(type)) {
-                callback.onDiscussMessage(new DiscussMessage(message.getJSONObject("value")));
+                callback.onDiscussMessage(new DiscussMessage(message.getAsJsonObject("value")));
             }
         }
     }
@@ -227,13 +238,13 @@ public class SmartQQClient implements Closeable {
     public void sendMessageToGroup(long groupId, String msg) throws InterruptedException, ExecutionException, TimeoutException {
         LOGGER.debug("开始发送群消息");
 
-        JSONObject r = new JSONObject();
-        r.put("group_uin", groupId);
-        r.put("content", JSON.toJSONString(Arrays.asList(msg, Arrays.asList("font", Font.DEFAULT_FONT))));  //注意这里虽然格式是Json，但是实际是String
-        r.put("face", 573);
-        r.put("clientid", Client_ID);
-        r.put("msg_id", MESSAGE_ID++);
-        r.put("psessionid", psessionid);
+        JsonObject r = new JsonObject();
+        r.addProperty("group_uin", groupId);
+        r.addProperty("content", GsonUtil.gson.toJson(Arrays.asList(msg, Arrays.asList("font", Font.DEFAULT_FONT))));  //注意这里虽然格式是Json，但是实际是String
+        r.addProperty("face", 573);
+        r.addProperty("clientid", Client_ID);
+        r.addProperty("msg_id", MESSAGE_ID++);
+        r.addProperty("psessionid", psessionid);
 
         ContentResponse response = post(ApiURL.SEND_MESSAGE_TO_GROUP, r);
         checkSendMsgResult(response);
@@ -248,13 +259,13 @@ public class SmartQQClient implements Closeable {
     public void sendMessageToDiscuss(long discussId, String msg) throws InterruptedException, ExecutionException, TimeoutException {
         LOGGER.debug("开始发送讨论组消息");
 
-        JSONObject r = new JSONObject();
-        r.put("did", discussId);
-        r.put("content", JSON.toJSONString(Arrays.asList(msg, Arrays.asList("font", Font.DEFAULT_FONT))));  //注意这里虽然格式是Json，但是实际是String
-        r.put("face", 573);
-        r.put("clientid", Client_ID);
-        r.put("msg_id", MESSAGE_ID++);
-        r.put("psessionid", psessionid);
+        JsonObject r = new JsonObject();
+        r.addProperty("did", discussId);
+        r.addProperty("content",  GsonUtil.gson.toJson(Arrays.asList(msg, Arrays.asList("font", Font.DEFAULT_FONT))));  //注意这里虽然格式是Json，但是实际是String
+        r.addProperty("face", 573);
+        r.addProperty("clientid", Client_ID);
+        r.addProperty("msg_id", MESSAGE_ID++);
+        r.addProperty("psessionid", psessionid);
 
         ContentResponse response = post(ApiURL.SEND_MESSAGE_TO_DISCUSS, r);
         checkSendMsgResult(response);
@@ -269,13 +280,13 @@ public class SmartQQClient implements Closeable {
     public void sendMessageToFriend(long friendId, String msg) throws InterruptedException, ExecutionException, TimeoutException {
         LOGGER.debug("开始发送消息");
 
-        JSONObject r = new JSONObject();
-        r.put("to", friendId);
-        r.put("content", JSON.toJSONString(Arrays.asList(msg, Arrays.asList("font", Font.DEFAULT_FONT))));  //注意这里虽然格式是Json，但是实际是String
-        r.put("face", 573);
-        r.put("clientid", Client_ID);
-        r.put("msg_id", MESSAGE_ID++);
-        r.put("psessionid", psessionid);
+        JsonObject r = new JsonObject();
+        r.addProperty("to", friendId);
+        r.addProperty("content",  GsonUtil.gson.toJson(Arrays.asList(msg, Arrays.asList("font", Font.DEFAULT_FONT))));  //注意这里虽然格式是Json，但是实际是String
+        r.addProperty("face", 573);
+        r.addProperty("clientid", Client_ID);
+        r.addProperty("msg_id", MESSAGE_ID++);
+        r.addProperty("psessionid", psessionid);
 
         ContentResponse response = post(ApiURL.SEND_MESSAGE_TO_FRIEND, r);
         checkSendMsgResult(response);
@@ -290,7 +301,8 @@ public class SmartQQClient implements Closeable {
         LOGGER.debug("开始获取讨论组列表");
 
         ContentResponse response = get(ApiURL.GET_DISCUSS_LIST, psessionid, vfwebqq);
-        return JSON.parseArray(getJsonObjectResult(response).getJSONArray("dnamelist").toJSONString(), Discuss.class);
+        return GsonUtil.gson.fromJson(getJsonObjectResult(response).get("dnamelist"), new TypeToken<List<Discuss>>() {
+        }.getType());
     }
 
     /**
@@ -301,27 +313,27 @@ public class SmartQQClient implements Closeable {
     public List<Category> getFriendListWithCategory() throws InterruptedException, ExecutionException, TimeoutException {
         LOGGER.debug("开始获取好友列表");
 
-        JSONObject r = new JSONObject();
-        r.put("vfwebqq", vfwebqq);
-        r.put("hash", hash());
+        JsonObject r = new JsonObject();
+        r.addProperty("vfwebqq", vfwebqq);
+        r.addProperty("hash", hash());
 
         ContentResponse response = post(ApiURL.GET_FRIEND_LIST, r);
-        JSONObject result = getJsonObjectResult(response);
+        JsonObject result = getJsonObjectResult(response);
         //获得好友信息
         Map<Long, Friend> friendMap = parseFriendMap(result);
         //获得分组
-        JSONArray categories = result.getJSONArray("categories");
+        JsonArray categories = result.getAsJsonArray("categories");
         Map<Integer, Category> categoryMap = new HashMap<>();
         categoryMap.put(0, Category.defaultCategory());
         for (int i = 0; categories != null && i < categories.size(); i++) {
-            Category category = categories.getObject(i, Category.class);
+            Category category = GsonUtil.gson.fromJson(categories.get(i), Category.class);
             categoryMap.put(category.getIndex(), category);
         }
-        JSONArray friends = result.getJSONArray("friends");
+        JsonArray friends = result.getAsJsonArray("friends");
         for (int i = 0; friends != null && i < friends.size(); i++) {
-            JSONObject item = friends.getJSONObject(i);
-            Friend friend = friendMap.get(item.getLongValue("uin"));
-            categoryMap.get(item.getIntValue("categories")).addFriend(friend);
+            JsonObject item = friends.get(i).getAsJsonObject();
+            Friend friend = friendMap.get(item.get("uin").getAsLong());
+            categoryMap.get(item.get("categories").getAsInt()).addFriend(friend);
         }
         return new ArrayList<>(categoryMap.values());
     }
@@ -334,36 +346,36 @@ public class SmartQQClient implements Closeable {
     public List<Friend> getFriendList() throws InterruptedException, ExecutionException, TimeoutException {
         LOGGER.debug("开始获取好友列表");
 
-        JSONObject r = new JSONObject();
-        r.put("vfwebqq", vfwebqq);
-        r.put("hash", hash());
+        JsonObject r = new JsonObject();
+        r.addProperty("vfwebqq", vfwebqq);
+        r.addProperty("hash", hash());
 
         ContentResponse response = post(ApiURL.GET_FRIEND_LIST, r);
         return new ArrayList<>(parseFriendMap(getJsonObjectResult(response)).values());
     }
 
     //将json解析为好友列表
-    private static Map<Long, Friend> parseFriendMap(JSONObject result) {
+    private static Map<Long, Friend> parseFriendMap(JsonObject result) {
         Map<Long, Friend> friendMap = new HashMap<>();
-        JSONArray info = result.getJSONArray("info");
+        JsonArray info = result.getAsJsonArray("info");
         for (int i = 0; info != null && i < info.size(); i++) {
-            JSONObject item = info.getJSONObject(i);
+            JsonObject item = info.get(i).getAsJsonObject();
             Friend friend = new Friend();
-            friend.setUserId(item.getLongValue("uin"));
-            friend.setNickname(item.getString("nick"));
+            friend.setUserId(item.get("uin").getAsLong());
+            friend.setNickname(item.get("nick").getAsString());
             friendMap.put(friend.getUserId(), friend);
         }
-        JSONArray marknames = result.getJSONArray("marknames");
+        JsonArray marknames = result.getAsJsonArray("marknames");
         for (int i = 0; marknames != null && i < marknames.size(); i++) {
-            JSONObject item = marknames.getJSONObject(i);
-            friendMap.get(item.getLongValue("uin")).setMarkname(item.getString("markname"));
+            JsonObject item = marknames.get(i).getAsJsonObject();
+            friendMap.get(item.get("uin").getAsLong()).setMarkname(item.get("markname").getAsString());
         }
-        JSONArray vipinfo = result.getJSONArray("vipinfo");
+        JsonArray vipinfo = result.getAsJsonArray("vipinfo");
         for (int i = 0; vipinfo != null && i < vipinfo.size(); i++) {
-            JSONObject item = vipinfo.getJSONObject(i);
-            Friend friend = friendMap.get(item.getLongValue("u"));
-            friend.setVip(item.getIntValue("is_vip") == 1);
-            friend.setVipLevel(item.getIntValue("vip_level"));
+            JsonObject item = vipinfo.get(i).getAsJsonObject();
+            Friend friend = friendMap.get(item.get("u").getAsLong());
+            friend.setVip(item.get("is_vip").getAsInt() == 1);
+            friend.setVipLevel(item.get("vip_level").getAsInt());
         }
         return friendMap;
     }
@@ -377,7 +389,7 @@ public class SmartQQClient implements Closeable {
         LOGGER.debug("开始获取登录用户信息");
 
         ContentResponse response = get(ApiURL.GET_ACCOUNT_INFO);
-        return JSON.parseObject(getJsonObjectResult(response).toJSONString(), UserInfo.class);
+        return GsonUtil.gson.fromJson(getJsonElementResult(response), UserInfo.class);
     }
 
     /**
@@ -389,7 +401,7 @@ public class SmartQQClient implements Closeable {
         LOGGER.debug("开始获取好友信息");
 
         ContentResponse response = get(ApiURL.GET_FRIEND_INFO, friendId, vfwebqq, psessionid);
-        return JSON.parseObject(getJsonObjectResult(response).toJSONString(), UserInfo.class);
+        return GsonUtil.gson.fromJson(getJsonElementResult(response), UserInfo.class);
     }
 
     /**
@@ -400,13 +412,14 @@ public class SmartQQClient implements Closeable {
     public List<Recent> getRecentList() throws InterruptedException, ExecutionException, TimeoutException {
         LOGGER.debug("开始获取最近会话列表");
 
-        JSONObject r = new JSONObject();
-        r.put("vfwebqq", vfwebqq);
-        r.put("clientid", Client_ID);
-        r.put("psessionid", "");
+        JsonObject r = new JsonObject();
+        r.addProperty("vfwebqq", vfwebqq);
+        r.addProperty("clientid", Client_ID);
+        r.addProperty("psessionid", "");
 
         ContentResponse response = post(ApiURL.GET_RECENT_LIST, r);
-        return JSON.parseArray(getJsonArrayResult(response).toJSONString(), Recent.class);
+        return GsonUtil.gson.fromJson(getJsonElementResult(response), new TypeToken<List<Recent>>() {
+        }.getType());
     }
 
     /**
@@ -419,7 +432,7 @@ public class SmartQQClient implements Closeable {
         LOGGER.debug("开始获取QQ号");
 
         ContentResponse response = get(ApiURL.GET_QQ_BY_ID, friendId, vfwebqq);
-        return getJsonObjectResult(response).getLongValue("account");
+        return getJsonObjectResult(response).get("account").getAsLong();
     }
 
     /**
@@ -431,7 +444,8 @@ public class SmartQQClient implements Closeable {
         LOGGER.debug("开始获取好友状态");
 
         ContentResponse response = get(ApiURL.GET_FRIEND_STATUS, vfwebqq, psessionid);
-        return JSON.parseArray(getJsonArrayResult(response).toJSONString(), FriendStatus.class);
+        return GsonUtil.gson.fromJson(getJsonElementResult(response), new TypeToken<List<FriendStatus>>() {
+        }.getType());
     }
 
     /**
@@ -444,34 +458,34 @@ public class SmartQQClient implements Closeable {
         LOGGER.debug("开始获取群资料");
 
         ContentResponse response = get(ApiURL.GET_GROUP_INFO, groupCode, vfwebqq);
-        JSONObject result = getJsonObjectResult(response);
-        GroupInfo groupInfo = result.getObject("ginfo", GroupInfo.class);
+        JsonObject result = getJsonObjectResult(response);
+        GroupInfo groupInfo = GsonUtil.gson.fromJson(result.get("ginfo"),GroupInfo.class);
         //获得群成员信息
         Map<Long, GroupUser> groupUserMap = new HashMap<>();
-        JSONArray minfo = result.getJSONArray("minfo");
+        JsonArray minfo = result.getAsJsonArray("minfo");
         for (int i = 0; minfo != null && i < minfo.size(); i++) {
-            GroupUser groupUser = minfo.getObject(i, GroupUser.class);
+            GroupUser groupUser = GsonUtil.gson.fromJson(minfo.get(i), GroupUser.class);
             groupUserMap.put(groupUser.getUin(), groupUser);
             groupInfo.addUser(groupUser);
         }
-        JSONArray stats = result.getJSONArray("stats");
+        JsonArray stats = result.getAsJsonArray("stats");
         for (int i = 0; stats != null && i < stats.size(); i++) {
-            JSONObject item = stats.getJSONObject(i);
-            GroupUser groupUser = groupUserMap.get(item.getLongValue("uin"));
-            groupUser.setClientType(item.getIntValue("client_type"));
-            groupUser.setStatus(item.getIntValue("stat"));
+            JsonObject item = stats.get(i).getAsJsonObject();
+            GroupUser groupUser = groupUserMap.get(item.get("uin").getAsLong());
+            groupUser.setClientType(item.get("client_type").getAsInt());
+            groupUser.setStatus(item.get("stat").getAsInt());
         }
-        JSONArray cards = result.getJSONArray("cards");
+        JsonArray cards = result.getAsJsonArray("cards");
         for (int i = 0; cards != null && i < cards.size(); i++) {
-            JSONObject item = cards.getJSONObject(i);
-            groupUserMap.get(item.getLongValue("muin")).setCard(item.getString("card"));
+            JsonObject item = cards.get(i).getAsJsonObject();
+            groupUserMap.get(item.get("muin").getAsLong()).setCard(item.get("card").getAsString());
         }
-        JSONArray vipinfo = result.getJSONArray("vipinfo");
+        JsonArray vipinfo = result.getAsJsonArray("vipinfo");
         for (int i = 0; vipinfo != null && i < vipinfo.size(); i++) {
-            JSONObject item = vipinfo.getJSONObject(i);
-            GroupUser groupUser = groupUserMap.get(item.getLongValue("u"));
-            groupUser.setVip(item.getIntValue("is_vip") == 1);
-            groupUser.setVipLevel(item.getIntValue("vip_level"));
+            JsonObject item = vipinfo.get(i).getAsJsonObject();
+            GroupUser groupUser = groupUserMap.get(item.get("u").getAsLong());
+            groupUser.setVip(item.get("is_vip").getAsInt() == 1);
+            groupUser.setVipLevel(item.get("vip_level").getAsInt());
         }
         return groupInfo;
     }
@@ -486,22 +500,22 @@ public class SmartQQClient implements Closeable {
         LOGGER.debug("开始获取讨论组资料");
 
         ContentResponse response = get(ApiURL.GET_DISCUSS_INFO, discussId, vfwebqq, psessionid);
-        JSONObject result = getJsonObjectResult(response);
-        DiscussInfo discussInfo = result.getObject("info", DiscussInfo.class);
+        JsonObject result = getJsonObjectResult(response);
+        DiscussInfo discussInfo = GsonUtil.gson.fromJson(result.get("info"), DiscussInfo.class);
         //获得讨论组成员信息
         Map<Long, DiscussUser> discussUserMap = new HashMap<>();
-        JSONArray minfo = result.getJSONArray("mem_info");
+        JsonArray minfo = result.getAsJsonArray("mem_info");
         for (int i = 0; minfo != null && i < minfo.size(); i++) {
-            DiscussUser discussUser = minfo.getObject(i, DiscussUser.class);
+            DiscussUser discussUser = GsonUtil.gson.fromJson(minfo.get(i), DiscussUser.class);
             discussUserMap.put(discussUser.getUin(), discussUser);
             discussInfo.addUser(discussUser);
         }
-        JSONArray stats = result.getJSONArray("mem_status");
+        JsonArray stats = result.getAsJsonArray("mem_status");
         for (int i = 0; stats != null && i < stats.size(); i++) {
-            JSONObject item = stats.getJSONObject(i);
-            DiscussUser discussUser = discussUserMap.get(item.getLongValue("uin"));
-            discussUser.setClientType(item.getIntValue("client_type"));
-            discussUser.setStatus(item.getString("status"));
+            JsonObject item = stats.get(i).getAsJsonObject();
+            DiscussUser discussUser = discussUserMap.get(item.get("uin").getAsLong());
+            discussUser.setClientType(item.get("client_type").getAsInt());
+            discussUser.setStatus(item.get("status").getAsString());
         }
         return discussInfo;
     }
@@ -516,26 +530,39 @@ public class SmartQQClient implements Closeable {
     }
 
     //发送post请求
-    private ContentResponse post(ApiURL url, JSONObject r) throws InterruptedException, ExecutionException, TimeoutException {
+    private ContentResponse post(ApiURL url, JsonObject r) throws InterruptedException, ExecutionException, TimeoutException {
+        return post(url, r, null);
+    }
+
+    //发送post请求
+    private ContentResponse post(ApiURL url, JsonObject r, Timeout timeout) throws InterruptedException, ExecutionException, TimeoutException {
         Fields fields = new Fields();
-        fields.add("r", r.toJSONString());
-        return httpClient.newRequest(url.getUrl())
+        fields.add("r", GsonUtil.gson.toJson(r));
+        Request request = httpClient.newRequest(url.getUrl())
                 .method(HttpMethod.POST)
                 .agent(ApiURL.USER_AGENT)
                 .header("Referer", url.getReferer())
                 .header("Origin", url.getOrigin())
-                .content(new FormContentProvider(fields))
-                .send();
+                .content(new FormContentProvider(fields));
+        if (timeout != null) {
+            request.timeout(timeout.getTime(), timeout.getUnit());
+        }
+        return request.send();
     }
 
-    //获取返回json的result字段（JSONObject类型）
-    private static JSONObject getJsonObjectResult(ContentResponse response) {
-        return getResponseJson(response).getJSONObject("result");
+    //获取返回json的result字段（JsonObject类型）
+    private static JsonObject getJsonObjectResult(ContentResponse response) {
+        return getResponseJson(response).getAsJsonObject().getAsJsonObject("result");
     }
 
-    //获取返回json的result字段（JSONArray类型）
-    private static JSONArray getJsonArrayResult(ContentResponse response) {
-        return getResponseJson(response).getJSONArray("result");
+    //获取返回json的result字段（JsonArray类型）
+    private static JsonArray getJsonArrayResult(ContentResponse response) {
+        return getResponseJson(response).getAsJsonObject().getAsJsonArray("result");
+    }
+
+    //获取返回json的result字段（JsonElement类型）
+    private static JsonElement getJsonElementResult(ContentResponse response){
+        return getResponseJson(response).getAsJsonObject().get("result");
     }
 
     //检查消息是否发送成功
@@ -543,22 +570,22 @@ public class SmartQQClient implements Closeable {
         if (response.getStatus() != 200) {
             LOGGER.error(String.format("发送失败，Http返回码[%d]", response.getStatus()));
         }
-        JSONObject json = JSON.parseObject(response.getContentAsString());
-        Integer errCode = json.getInteger("errCode");
+        JsonElement json = GsonUtil.jsonParser.parse(response.getContentAsString());
+        Integer errCode = json.getAsJsonObject().get("errCode").getAsInt();
         if (errCode != null && errCode == 0) {
             LOGGER.debug("发送成功!");
         } else {
-            LOGGER.error(String.format("发送失败，Api返回码[%d]", json.getInteger("retcode")));
+            LOGGER.error(String.format("发送失败，Api返回码[%d]", json.getAsJsonObject().get("retcode").getAsInt()));
         }
     }
 
     //检验Json返回结果
-    private static JSONObject getResponseJson(ContentResponse response) {
+    private static JsonElement getResponseJson(ContentResponse response) {
         if (response.getStatus() != 200) {
             throw new SmartqqRuntimeException(String.format("请求失败，Http返回码[%d]", response.getStatus()));
         }
-        JSONObject json = JSON.parseObject(response.getContentAsString());
-        Integer retCode = json.getInteger("retcode");
+        JsonElement json = GsonUtil.jsonParser.parse(response.getContentAsString());
+        Integer retCode = json.getAsJsonObject().get("retcode").getAsInt();
         if (retCode == null || retCode != 0) {
             if (retCode != null && retCode == 103) {
                 LOGGER.error("请求失败，Api返回码[103]。你需要进入http://w.qq.com，检查是否能正常接收消息。如果可以的话点击[设置]->[退出登录]后查看是否恢复正常");
@@ -615,6 +642,9 @@ public class SmartQQClient implements Closeable {
         this.pollStarted = false;
         if (this.httpClient != null) {
             try {
+                if (this.pollThread != null) {
+                    this.pollThread.join();
+                }
                 this.httpClient.stop();
             } catch (Exception e) {
                 throw new IOException(e);

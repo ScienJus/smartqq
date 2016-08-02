@@ -1,7 +1,8 @@
 package com.scienjus.smartqq.model;
 
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.scienjus.smartqq.json.GsonUtil;
 
 import java.util.Objects;
 
@@ -25,20 +26,20 @@ public class GroupMessage {
 
     private Font font;
 
-    public GroupMessage(JSONObject json) {
-        JSONArray cont = json.getJSONArray("content");
-        this.font = cont.getJSONArray(0).getObject(1, Font.class);
+    public GroupMessage(JsonObject json) {
+        JsonArray cont = json.getAsJsonArray("content");
+        this.font = GsonUtil.gson.fromJson(cont.get(0).getAsJsonArray().get(1),Font.class);
 
         final int size = cont.size();
         final StringBuilder contentBuilder = new StringBuilder();
         for (int i = 1; i < size; i++) {
-            contentBuilder.append(cont.getString(i));
+            contentBuilder.append(cont.get(i).getAsString());
         }
         this.content = contentBuilder.toString();
 
-        this.time = json.getLongValue("time");
-        this.groupId = json.getLongValue("group_code");
-        this.userId = json.getLongValue("send_uin");
+        this.time = json.get("time").getAsLong();
+        this.groupId = json.get("group_code").getAsLong();
+        this.userId = json.get("send_uin").getAsLong();
     }
 
     public long getGroupId() {

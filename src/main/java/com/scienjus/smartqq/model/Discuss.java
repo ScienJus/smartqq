@@ -1,6 +1,6 @@
 package com.scienjus.smartqq.model;
 
-import com.alibaba.fastjson.annotation.JSONField;
+import com.google.gson.annotations.SerializedName;
 
 import java.util.Objects;
 
@@ -12,7 +12,7 @@ import java.util.Objects;
  */
 public class Discuss {
 
-    @JSONField(name = "did")
+    @SerializedName("did")
     private long id;
 
     private String name;

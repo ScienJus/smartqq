@@ -1,6 +1,6 @@
 package com.scienjus.smartqq.model;
 
-import com.alibaba.fastjson.annotation.JSONField;
+import com.google.gson.annotations.SerializedName;
 
 import java.util.Objects;
 
@@ -28,7 +28,7 @@ public class UserInfo {
 
     private String homepage;
 
-    @JSONField(name = "vip_info")
+    @SerializedName("vip_info")
     private int vipInfo;
 
     private String city;

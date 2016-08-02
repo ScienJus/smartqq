@@ -1,6 +1,6 @@
 package com.scienjus.smartqq.model;
 
-import com.alibaba.fastjson.annotation.JSONField;
+import com.google.gson.annotations.SerializedName;
 
 import java.util.Objects;
 
@@ -16,7 +16,7 @@ public class FriendStatus {
 
     private String status;
 
-    @JSONField(name = "client_type")
+    @SerializedName("client_type")
     private int clientType;
 
     public long getUin() {
