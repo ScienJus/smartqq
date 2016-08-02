@@ -112,6 +112,7 @@ public class SmartQQClient implements Closeable {
         LOGGER.debug("开始获取二维码");
 
         byte[] imageBytes = httpClient.newRequest(ApiURL.GET_QR_CODE.getUrl())
+                .timeout(10,TimeUnit.SECONDS)
                 .method(HttpMethod.GET)
                 .agent(ApiURL.USER_AGENT)
                 .send().getContent();
@@ -518,6 +519,21 @@ public class SmartQQClient implements Closeable {
             discussUser.setStatus(item.get("status").getAsString());
         }
         return discussInfo;
+    }
+
+    /**
+     * 修改用户状态
+     *
+     * @param userStatus 用户状态
+     * @throws InterruptedException
+     * @throws ExecutionException
+     * @throws TimeoutException
+     */
+    public void changeStatus(UserStatus userStatus) throws InterruptedException, ExecutionException, TimeoutException {
+        LOGGER.debug("开始修改状态");
+
+        ContentResponse response = get(ApiURL.CHANGE_STATUS, userStatus.getStatusCode(), psessionid);
+        getResponseJson(response);
     }
 
     //发送get请求

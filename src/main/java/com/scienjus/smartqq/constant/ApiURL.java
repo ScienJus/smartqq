@@ -3,6 +3,7 @@ package com.scienjus.smartqq.constant;
 /**
  * Api的请求地址和Referer
  * @author ScienJus
+ * @author Xianguang Zhou <xianguang.zhou@outlook.com>
  * @date 15/12/19.
  */
 public enum ApiURL {
@@ -88,6 +89,10 @@ public enum ApiURL {
     GET_FRIEND_INFO(
             "http://s.web2.qq.com/api/get_friend_info2?tuin={1}&vfwebqq={2}&clientid=53999199&psessionid={3}&t=0.1",
             "http://s.web2.qq.com/proxy.html?v=20130916001&callback=1&id=1"
+    ),
+    CHANGE_STATUS(
+            "http://d1.web2.qq.com/channel/change_status2?newstatus={1}&clientid=53999199&psessionid={2}&t=0.1",
+            "http://d1.web2.qq.com/proxy.html?v=20151105001&callback=1&id=2"
     );
 
     public static final String USER_AGENT = "Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/45.0.2454.101 Safari/537.36";
