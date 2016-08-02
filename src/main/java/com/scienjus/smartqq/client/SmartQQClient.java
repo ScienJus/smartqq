@@ -42,8 +42,8 @@ public class SmartQQClient implements Closeable {
     //日志
     private static final Logger LOGGER = LoggerFactory.getLogger(SmartQQClient.class);
 
-    //消息id，这个好像可以随便设置，所以设成全局的
-    private static long MESSAGE_ID = 43690001;
+    //消息id，这个好像可以随便设置
+    private long MESSAGE_ID = 43690001;
 
     //客户端id，固定的
     private static final long Client_ID = 53999199;
