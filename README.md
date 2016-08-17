@@ -128,6 +128,14 @@ public class Application {
 
 错误码6：如果是在`getGroupInfo`方法中出现，可能是误把`group.id`当成`group.code`作为参数了，这里的参数应该是`code`。
 
+### 感谢
+
+感谢ScienJus，他在博客中详细的记录了 Web QQ 抓包获取的请求和对应参数信息，他开发了项目： https://github.com/ScienJus/smartqq
+
+2016-2-2：修改了Jar运行时保存二维码失败的Bug，感谢@oldjunyi的反馈！
+
+2016-2-1：程序无法接收消息，同时登录官网后也无法接收消息。大约 15:44 左右恢复正常，程序不需要更新。感谢@WiseClock提供信息！
+
 ### 联系方式
 
 由于 Smart QQ 协议变更比较频繁，而我也不可能时时都去测试 API 的可用性，所以如果您在使用途中发现了问题，欢迎给我提 Issue ，意见和建议也欢迎。
