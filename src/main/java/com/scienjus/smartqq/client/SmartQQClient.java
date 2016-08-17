@@ -5,7 +5,8 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 import com.scienjus.smartqq.constant.ApiURL;
-import com.scienjus.smartqq.exception.SmartqqRuntimeException;
+import com.scienjus.smartqq.exception.ApiException;
+import com.scienjus.smartqq.exception.ResponseException;
 import com.scienjus.smartqq.json.GsonUtil;
 import com.scienjus.smartqq.listener.SmartqqListener;
 import com.scienjus.smartqq.model.*;
@@ -590,28 +591,32 @@ public class SmartQQClient implements Closeable {
     private static void checkSendMsgResult(ContentResponse response) {
         if (response.getStatus() != 200) {
             LOGGER.error(String.format("发送失败，Http返回码[%d]", response.getStatus()));
+            throw new ResponseException(response.getStatus());
         }
         JsonElement json = GsonUtil.jsonParser.parse(response.getContentAsString());
         Integer errCode = json.getAsJsonObject().get("errCode").getAsInt();
         if (errCode != null && errCode == 0) {
             LOGGER.debug("发送成功!");
         } else {
-            LOGGER.error(String.format("发送失败，Api返回码[%d]", json.getAsJsonObject().get("retcode").getAsInt()));
+			int apiReturnCode = json.getAsJsonObject().get("retcode").getAsInt();
+			LOGGER.error(String.format("发送失败，Api返回码[%d]", apiReturnCode));
+			throw new ApiException(apiReturnCode);
         }
     }
 
     //检验Json返回结果
     private static JsonElement getResponseJson(ContentResponse response) {
         if (response.getStatus() != 200) {
-            throw new SmartqqRuntimeException(String.format("请求失败，Http返回码[%d]", response.getStatus()));
+        	throw new ResponseException(response.getStatus());
         }
         JsonElement json = GsonUtil.jsonParser.parse(response.getContentAsString());
         Integer retCode = json.getAsJsonObject().get("retcode").getAsInt();
         if (retCode == null || retCode != 0) {
             if (retCode != null && retCode == 103) {
                 LOGGER.error("请求失败，Api返回码[103]。你需要进入http://w.qq.com，检查是否能正常接收消息。如果可以的话点击[设置]->[退出登录]后查看是否恢复正常");
+            	throw new ApiException("请求失败，Api返回码[103]。你需要进入http://w.qq.com，检查是否能正常接收消息。如果可以的话点击[设置]->[退出登录]后查看是否恢复正常");
             } else {
-                throw new SmartqqRuntimeException(String.format("请求失败，Api返回码[%d]", retCode));
+                throw new ApiException(retCode);
             }
         }
         return json;

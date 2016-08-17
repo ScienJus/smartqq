@@ -5,9 +5,11 @@ package com.scienjus.smartqq.exception;
  * @author Xianguang Zhou <xianguang.zhou@outlook.com>
  * @date 2016/07/30.
  */
-public class SmartqqRuntimeException extends RuntimeException {
+public class SmartqqException extends RuntimeException {
 
-    public SmartqqRuntimeException(String message) {
+	private static final long serialVersionUID = 1260154288832772350L;
+
+	public SmartqqException(String message) {
         super(message);
     }
 }
