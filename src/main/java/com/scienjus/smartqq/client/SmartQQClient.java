@@ -66,6 +66,9 @@ public class SmartQQClient implements Closeable {
     private SmartqqListener listener;
 
     private Thread pollThread;
+    
+    // self info
+    private String selfUserStatus;
 
     public SmartQQClient(final SmartqqListener listener) throws Exception {
         this.listener = listener;
@@ -182,6 +185,7 @@ public class SmartQQClient implements Closeable {
         JsonObject result = getJsonObjectResult(response);
         this.psessionid = result.get("psessionid").getAsString();
         this.uin = result.get("uin").getAsLong();
+        this.selfUserStatus = result.get("status").getAsString();
     }
 
     /**
@@ -534,6 +538,7 @@ public class SmartQQClient implements Closeable {
 
         ContentResponse response = get(ApiURL.CHANGE_STATUS, userStatus.getStatusCode(), psessionid);
         getResponseJson(response);
+        this.selfUserStatus = userStatus.getStatusCode();
     }
 
     //发送get请求
@@ -667,4 +672,8 @@ public class SmartQQClient implements Closeable {
             }
         }
     }
+    
+    public String getSelfUserStatus() {
+		return selfUserStatus;
+	}
 }
