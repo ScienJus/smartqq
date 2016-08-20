@@ -42,4 +42,9 @@ public class Timeout {
         sb.append('}');
         return sb.toString();
     }
+    
+    public long toTime(TimeUnit timeUnit){
+    	return timeUnit.convert(this.time, this.unit);
+    }
+
 }

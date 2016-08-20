@@ -2,6 +2,7 @@ package com.scienjus.smartqq.exception;
 
 /**
  * Smart QQ的API异常
+ * 
  * @author Xianguang Zhou <xianguang.zhou@outlook.com>
  * @date 2016/08/17.
  */

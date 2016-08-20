@@ -57,9 +57,9 @@ public class Application {
                 System.out.println("————" + friend.getNickname());
             }
         }
-        //使用后调用close方法关闭，你也可以使用try-with-resource创建该对象并自动关闭
+        //使用后调用close或closeNow方法关闭，你也可以使用try-with-resource创建该对象并自动关闭
         try {
-            client.close();
+            client.closeNow();
         } catch (IOException e) {
             e.printStackTrace();
         }
