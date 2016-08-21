@@ -101,11 +101,11 @@ public class SmartQQClient implements Closeable {
 	// self info
 	private String selfUserStatus;
 
-	public SmartQQClient(final SmartqqListener listener) throws Exception {
-		if (listener == null) {
-			throw new NullPointerException("Listener can't be null.");
+	public SmartQQClient(SmartqqListener smartqqListener) throws Exception {
+		if (smartqqListener == null) {
+			throw new NullPointerException("SmartqqListener can't be null.");
 		}
-		this.listener = listener;
+		this.listener = new SmartqqListenerDecorator(smartqqListener);
 
 		this.httpClient = new HttpClient(new SslContextFactory());
 		this.httpClient.setUserAgentField(new HttpField(HttpHeader.USER_AGENT, ApiURL.USER_AGENT));
