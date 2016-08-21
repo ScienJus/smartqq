@@ -6,6 +6,7 @@ import com.scienjus.smartqq.model.Message;
 
 /**
  * Smart QQ的监听器
+ * 
  * @author ScienJus
  * @author Xianguang Zhou <xianguang.zhou@outlook.com>
  * @date 2015/12/18.
@@ -36,4 +37,5 @@ public interface SmartqqListener {
      */
     void onQrCodeImage(byte[] imageBytes);
 
+    void onException(Throwable exception, ExceptionThreadType exceptionThreadType);
 }

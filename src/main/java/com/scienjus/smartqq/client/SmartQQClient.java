@@ -2,7 +2,6 @@ package com.scienjus.smartqq.client;
 
 import java.io.Closeable;
 import java.io.IOException;
-import java.lang.Thread.UncaughtExceptionHandler;
 import java.net.HttpCookie;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -38,6 +37,7 @@ import com.scienjus.smartqq.exception.ApiException;
 import com.scienjus.smartqq.exception.RequestAbortException;
 import com.scienjus.smartqq.exception.ResponseException;
 import com.scienjus.smartqq.json.GsonUtil;
+import com.scienjus.smartqq.listener.ExceptionThreadType;
 import com.scienjus.smartqq.listener.SmartqqListener;
 import com.scienjus.smartqq.model.Category;
 import com.scienjus.smartqq.model.Discuss;
@@ -117,26 +117,17 @@ public class SmartQQClient implements Closeable {
 		pollThread = new Thread(new Runnable() {
 			@Override
 			public void run() {
-				final Thread currentThread = Thread.currentThread();
-				currentThread.setUncaughtExceptionHandler(new UncaughtExceptionHandler() {
-					@Override
-					public void uncaughtException(Thread thread, Throwable exception) {
-						LOGGER.error(String.format("Uncaught exception of thread[id=%d]: ", thread.getId()), exception);
-					}
-				});
 				while (polling) {
 					try {
 						synchronized (pollWaitObject) {
 							if (polling) {
 								pollMessage(listener);
-								try {
-									pollWaitObject.wait();
-								} catch (InterruptedException ex) {
-								}
+								pollWaitObject.wait();
 							}
 						}
-					} catch (Exception ignore) {
-						LOGGER.error(ignore.getMessage(), ignore);
+					} catch (Exception ex) {
+						LOGGER.error(ex.getMessage(), ex);
+						listener.onException(ex, ExceptionThreadType.POLL_THREAD);
 					}
 				}
 			}
@@ -273,6 +264,7 @@ public class SmartQQClient implements Closeable {
 						Throwable failure = result.getFailure();
 						if (!(failure instanceof RequestAbortException)) {
 							LOGGER.error(failure.getMessage(), failure);
+							listener.onException(failure, ExceptionThreadType.POLL_IO_THREAD);
 						}
 					} else {
 						Response response = result.getResponse();
@@ -293,6 +285,7 @@ public class SmartQQClient implements Closeable {
 					}
 				} catch (Exception ex) {
 					LOGGER.error(ex.getMessage(), ex);
+					listener.onException(ex, ExceptionThreadType.POLL_RESPONSE_LISTENER_THREAD);
 				} finally {
 					synchronized (pollWaitObject) {
 						pollWaitObject.notify();
@@ -764,8 +757,8 @@ public class SmartQQClient implements Closeable {
 	 * @throws IOException
 	 */
 	public void closeNow() throws IOException {
+		this.polling = false;
 		try {
-			this.polling = false;
 			synchronized (this.pollWaitObject) {
 				if (this.pollRequest != null) {
 					this.pollRequest.abort(new RequestAbortException());
