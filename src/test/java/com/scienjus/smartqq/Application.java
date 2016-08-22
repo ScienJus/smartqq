@@ -10,9 +10,12 @@ import com.scienjus.smartqq.listener.ExceptionThreadType;
 import com.scienjus.smartqq.listener.SmartqqListener;
 import com.scienjus.smartqq.model.Category;
 import com.scienjus.smartqq.model.DiscussMessage;
+import com.scienjus.smartqq.model.Face;
 import com.scienjus.smartqq.model.Friend;
 import com.scienjus.smartqq.model.GroupMessage;
 import com.scienjus.smartqq.model.Message;
+import com.scienjus.smartqq.model.MessageContentElement;
+import com.scienjus.smartqq.model.Text;
 
 /**
  * @author ScienJus
@@ -27,7 +30,16 @@ public class Application {
 		SmartQQClient client = new SmartQQClient(new SmartqqListener() {
 			@Override
 			public void onMessage(Message message) {
-				System.out.println(message.getContent());
+				for (MessageContentElement contentElement : message.getContentElements()) {
+					if (contentElement instanceof Text) {
+						System.out.print(((Text) contentElement).getString());
+					} else if (contentElement instanceof Face) {
+						System.out.print(String.format("[表情(%d)]", ((Face) contentElement).getCode()));
+					} else {
+						System.out.print("[未知的消息内容元素]");
+					}
+				}
+				System.out.println();
 			}
 
 			@Override

@@ -2,7 +2,7 @@
 
 Smart QQ（WebQQ）的API，从https://github.com/ScienJus/smartqq 修改而来
 
-该项目目前（2016年8月21日）为止还可以正常使用，我也会尽量一直维护这个项目。
+该项目目前（2016年8月22日）为止还可以正常使用，我也会尽量一直维护这个项目。
 
 该项目仅提供了最基本的通信协议，你可以在此基础上实现自己的业务逻辑，包括且不限于：
 
@@ -55,7 +55,16 @@ public class Application {
 		SmartQQClient client = new SmartQQClient(new SmartqqListener() {
 			@Override
 			public void onMessage(Message message) {
-				System.out.println(message.getContent());
+				for (MessageContentElement contentElement : message.getContentElements()) {
+					if (contentElement instanceof Text) {
+						System.out.print(((Text) contentElement).getString());
+					} else if (contentElement instanceof Face) {
+						System.out.print(String.format("[表情(%d)]", ((Face) contentElement).getCode()));
+					} else {
+						System.out.print("[未知的消息内容元素]");
+					}
+				}
+				System.out.println();
 			}
 
 			@Override
