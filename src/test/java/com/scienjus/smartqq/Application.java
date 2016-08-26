@@ -53,7 +53,7 @@ public class Application {
 
 			@Override
 			public void onDiscussMessage(DiscussMessage message) {
-				System.out.println(message.getContent());
+				println(message.getContentElements());
 			}
 
 			@Override

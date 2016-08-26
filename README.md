@@ -2,7 +2,7 @@
 
 Smart QQ（WebQQ）的API，从https://github.com/ScienJus/smartqq 修改而来
 
-该项目目前（2016年8月22日）为止还可以正常使用，我也会尽量一直维护这个项目。
+该项目目前（2016年8月26日）为止还可以正常使用，我也会尽量一直维护这个项目。
 
 该项目仅提供了最基本的通信协议，你可以在此基础上实现自己的业务逻辑，包括且不限于：
 
@@ -78,7 +78,7 @@ public class Application {
 
 			@Override
 			public void onDiscussMessage(DiscussMessage message) {
-				System.out.println(message.getContent());
+				println(message.getContentElements());
 			}
 
 			@Override

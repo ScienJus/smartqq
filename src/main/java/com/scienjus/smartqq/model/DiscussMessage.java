@@ -4,6 +4,8 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.scienjus.smartqq.json.GsonUtil;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -18,19 +20,26 @@ public class DiscussMessage {
 
     private long time;
 
-    private String content;
+    private List<MessageContentElement> contentElements;
 
     private long userId;
 
     private Font font;
 
-    public DiscussMessage(JsonObject json) {
-        JsonArray content = json.getAsJsonArray("content");
-        this.font = GsonUtil.gson.fromJson(content.get(0).getAsJsonArray().get(1), Font.class);
-        this.content = content.get(1).getAsString();
-        this.time = json.get("time").getAsLong();
-        this.discussId = json.get("did").getAsLong();
-        this.userId = json.get("send_uin").getAsLong();
+    public DiscussMessage(JsonObject jsonObject) {
+        JsonArray contentJsonArray = jsonObject.getAsJsonArray("content");
+
+        this.font = GsonUtil.gson.fromJson(contentJsonArray.get(0).getAsJsonArray().get(1), Font.class);
+
+	    final int contentJsonArraySize = contentJsonArray.size();
+	    contentElements = new ArrayList<>(contentJsonArraySize - 1);
+	    for (int i = 1; i < contentJsonArraySize; i++) {
+		    contentElements.add(MessageContentElement.fromJson(contentJsonArray.get(i)));
+	    }
+
+	    this.time = jsonObject.get("time").getAsLong();
+        this.discussId = jsonObject.get("did").getAsLong();
+        this.userId = jsonObject.get("send_uin").getAsLong();
     }
 
     public long getDiscussId() {
@@ -49,13 +58,13 @@ public class DiscussMessage {
         this.time = time;
     }
 
-    public String getContent() {
-        return content;
-    }
+	public List<MessageContentElement> getContentElements() {
+		return contentElements;
+	}
 
-    public void setContent(String content) {
-        this.content = content;
-    }
+	public void setContentElements(List<MessageContentElement> content) {
+		this.contentElements = contentElements;
+	}
 
     public long getUserId() {
         return userId;
@@ -81,13 +90,13 @@ public class DiscussMessage {
         return discussId == that.discussId &&
                 time == that.time &&
                 userId == that.userId &&
-                Objects.equals(content, that.content) &&
+                Objects.equals(contentElements, that.contentElements) &&
                 Objects.equals(font, that.font);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(discussId, time, content, userId, font);
+        return Objects.hash(discussId, time, contentElements, userId, font);
     }
 
     @Override
@@ -95,7 +104,7 @@ public class DiscussMessage {
         final StringBuilder sb = new StringBuilder("DiscussMessage{");
         sb.append("discussId=").append(discussId);
         sb.append(", time=").append(time);
-        sb.append(", content='").append(content).append('\'');
+	    sb.append(", contentElements=").append(contentElements);
         sb.append(", userId=").append(userId);
         sb.append(", font=").append(font);
         sb.append('}');
