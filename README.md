@@ -49,27 +49,31 @@ mvn clean source:jar install
 ```
 public class Application {
 
+	private static void println(List<MessageContentElement> messageContentElements) {
+		for (MessageContentElement contentElement : messageContentElements) {
+			if (contentElement instanceof Text) {
+				System.out.print(((Text) contentElement).getString());
+			} else if (contentElement instanceof Face) {
+				System.out.print(String.format("[表情(%d)]", ((Face) contentElement).getCode()));
+			} else {
+				System.out.print("[未知的消息内容元素]");
+			}
+		}
+		System.out.println();
+	}
+
 	public static void main(String[] args) throws Exception {
 		// 创建一个新对象时需要扫描二维码登录，并且传一个处理接收到消息的监听器
 		@SuppressWarnings("resource")
 		SmartQQClient client = new SmartQQClient(new SmartqqListener() {
 			@Override
 			public void onMessage(Message message) {
-				for (MessageContentElement contentElement : message.getContentElements()) {
-					if (contentElement instanceof Text) {
-						System.out.print(((Text) contentElement).getString());
-					} else if (contentElement instanceof Face) {
-						System.out.print(String.format("[表情(%d)]", ((Face) contentElement).getCode()));
-					} else {
-						System.out.print("[未知的消息内容元素]");
-					}
-				}
-				System.out.println();
+				println(message.getContentElements());
 			}
 
 			@Override
 			public void onGroupMessage(GroupMessage message) {
-				System.out.println(message.getContent());
+				println(message.getContentElements());
 			}
 
 			@Override
