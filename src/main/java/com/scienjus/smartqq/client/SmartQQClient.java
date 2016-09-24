@@ -7,6 +7,7 @@ import com.scienjus.smartqq.callback.MessageCallback;
 import com.scienjus.smartqq.constant.ApiURL;
 import com.scienjus.smartqq.model.*;
 import net.dongliu.requests.Client;
+import net.dongliu.requests.HeadOnlyRequestBuilder;
 import net.dongliu.requests.Response;
 import net.dongliu.requests.Session;
 import net.dongliu.requests.exception.RequestException;
@@ -483,10 +484,12 @@ public class SmartQQClient implements Closeable {
 
     //发送get请求
     private Response<String> get(ApiURL url, Object... params) {
-        return session.get(url.buildUrl(params))
-                .addHeader("User-Agent", ApiURL.USER_AGENT)
-                .addHeader("Referer", url.getReferer())
-                .text();
+        HeadOnlyRequestBuilder request =  session.get(url.buildUrl(params))
+                .addHeader("User-Agent", ApiURL.USER_AGENT);
+        if (url.getReferer() != null) {
+            request.addHeader("Referer", url.getReferer());
+        }
+        return request.text();
     }
 
     //发送post请求

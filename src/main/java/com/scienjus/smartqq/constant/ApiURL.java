@@ -23,7 +23,7 @@ public enum ApiURL {
     ),
     GET_PTWEBQQ(
             "{1}",
-            ""
+            null
     ),
     GET_VFWEBQQ(
             "http://s.web2.qq.com/api/getvfwebqq?ptwebqq={1}&clientid=53999199&psessionid=&t=0.1",
