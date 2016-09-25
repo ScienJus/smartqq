@@ -64,7 +64,7 @@ public class GroupMessage {
         return contentElements;
     }
 
-    public void setContentElements(List<MessageContentElement> content) {
+    public void setContentElements(List<MessageContentElement> contentElements) {
         this.contentElements = contentElements;
     }
 
