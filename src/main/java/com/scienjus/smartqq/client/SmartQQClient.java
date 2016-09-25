@@ -52,6 +52,7 @@ import com.scienjus.smartqq.model.GroupInfo;
 import com.scienjus.smartqq.model.GroupMessage;
 import com.scienjus.smartqq.model.GroupUser;
 import com.scienjus.smartqq.model.Message;
+import com.scienjus.smartqq.model.MessageContentElement;
 import com.scienjus.smartqq.model.Recent;
 import com.scienjus.smartqq.model.UserInfo;
 import com.scienjus.smartqq.model.UserStatus;
@@ -303,13 +304,13 @@ public class SmartQQClient implements Closeable {
 	 * @param msg
 	 *            消息内容
 	 */
-	public void sendMessageToGroup(long groupId, String msg)
+	public void sendMessageToGroup(long groupId, List<MessageContentElement> messageContentElements, Font font)
 			throws InterruptedException, ExecutionException, TimeoutException {
 		LOGGER.debug("开始发送群消息");
 
 		JsonObject r = new JsonObject();
 		r.addProperty("group_uin", groupId);
-		r.addProperty("content", GsonUtil.gson.toJson(Arrays.asList(msg, Arrays.asList("font", Font.DEFAULT_FONT)))); // 注意这里虽然格式是Json，但是实际是String
+		r.addProperty("content", MessageContentElement.toContentJson(messageContentElements, font)); // 注意这里虽然格式是Json，但是实际是String
 		r.addProperty("face", 573);
 		r.addProperty("clientid", Client_ID);
 		r.addProperty("msg_id", MESSAGE_ID++);
@@ -327,13 +328,13 @@ public class SmartQQClient implements Closeable {
 	 * @param msg
 	 *            消息内容
 	 */
-	public void sendMessageToDiscuss(long discussId, String msg)
+	public void sendMessageToDiscuss(long discussId, List<MessageContentElement> messageContentElements, Font font)
 			throws InterruptedException, ExecutionException, TimeoutException {
 		LOGGER.debug("开始发送讨论组消息");
 
 		JsonObject r = new JsonObject();
 		r.addProperty("did", discussId);
-		r.addProperty("content", GsonUtil.gson.toJson(Arrays.asList(msg, Arrays.asList("font", Font.DEFAULT_FONT)))); // 注意这里虽然格式是Json，但是实际是String
+		r.addProperty("content", MessageContentElement.toContentJson(messageContentElements, font)); // 注意这里虽然格式是Json，但是实际是String
 		r.addProperty("face", 573);
 		r.addProperty("clientid", Client_ID);
 		r.addProperty("msg_id", MESSAGE_ID++);
@@ -351,13 +352,13 @@ public class SmartQQClient implements Closeable {
 	 * @param msg
 	 *            消息内容
 	 */
-	public void sendMessageToFriend(long friendId, String msg)
+	public void sendMessageToFriend(long friendId, List<MessageContentElement> messageContentElements, Font font)
 			throws InterruptedException, ExecutionException, TimeoutException {
 		LOGGER.debug("开始发送消息");
 
 		JsonObject r = new JsonObject();
 		r.addProperty("to", friendId);
-		r.addProperty("content", GsonUtil.gson.toJson(Arrays.asList(msg, Arrays.asList("font", Font.DEFAULT_FONT)))); // 注意这里虽然格式是Json，但是实际是String
+		r.addProperty("content", MessageContentElement.toContentJson(messageContentElements, font)); // 注意这里虽然格式是Json，但是实际是String
 		r.addProperty("face", 573);
 		r.addProperty("clientid", Client_ID);
 		r.addProperty("msg_id", MESSAGE_ID++);
