@@ -620,8 +620,11 @@ public class SmartQQClient implements Closeable {
 	// 发送get请求
 	private ContentResponse get(ApiURL url, Object... params)
 			throws InterruptedException, ExecutionException, TimeoutException {
-		return httpClient.newRequest(url.buildUrl(params)).method(HttpMethod.GET).agent(ApiURL.USER_AGENT)
-				.header("Referer", url.getReferer()).send();
+		Request request = httpClient.newRequest(url.buildUrl(params)).method(HttpMethod.GET).agent(ApiURL.USER_AGENT);
+		if (url.getReferer() != null) {
+			request.header("Referer", url.getReferer());
+		}
+		return request.send();
 	}
 
 	// 发送post请求
@@ -640,8 +643,11 @@ public class SmartQQClient implements Closeable {
 		Fields fields = new Fields();
 		fields.add("r", GsonUtil.gson.toJson(r));
 		Request request = httpClient.newRequest(url.getUrl()).method(HttpMethod.POST).agent(ApiURL.USER_AGENT)
-				.header("Referer", url.getReferer()).header("Origin", url.getOrigin())
+				.header("Origin", url.getOrigin())
 				.content(new FormContentProvider(fields));
+		if (url.getReferer() != null) {
+			request.header("Referer", url.getReferer());
+		}
 		if (timeout != null) {
 			request.timeout(timeout.getTime(), timeout.getUnit());
 		}

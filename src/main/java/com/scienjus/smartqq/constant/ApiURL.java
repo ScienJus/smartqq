@@ -10,7 +10,7 @@ public enum ApiURL {
 
     GET_QR_CODE(
             "https://ssl.ptlogin2.qq.com/ptqrshow?appid=501004106&e=0&l=M&s=5&d=72&v=4&t=0.1",
-            ""
+            null
     ),
     VERIFY_QR_CODE(
             "https://ssl.ptlogin2.qq.com/ptqrlogin?" +
@@ -24,7 +24,7 @@ public enum ApiURL {
     ),
     GET_PTWEBQQ(
             "{1}",
-            ""
+            null
     ),
     GET_VFWEBQQ(
             "http://s.web2.qq.com/api/getvfwebqq?ptwebqq={1}&clientid=53999199&psessionid=&t=0.1",
