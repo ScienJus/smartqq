@@ -36,6 +36,9 @@ public class SmartQQClient implements Closeable {
     //客户端id，固定的
     private static final long Client_ID = 53999199;
 
+    //消息发送失败重发次数
+    private static final long RETRY_TIMES = 5;
+
     //客户端
     private Client client;
 
@@ -50,9 +53,6 @@ public class SmartQQClient implements Closeable {
     private long uin;
 
     private String psessionid;
-
-    //消息发送失败重发次数
-    private static final long retryCount = 5;
 
     //线程开关
     private volatile boolean pollStarted;
