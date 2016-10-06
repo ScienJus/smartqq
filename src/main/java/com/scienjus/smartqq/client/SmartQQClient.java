@@ -20,7 +20,7 @@ import java.util.*;
 
 /**
  * Api客户端.
- * 
+ *
  * @author ScienJus
  * @author <a href="http://88250.b3log.org">Liang Ding</a>
  * @date 2015/12/18.
@@ -36,9 +36,12 @@ public class SmartQQClient implements Closeable {
     //客户端id，固定的
     private static final long Client_ID = 53999199;
 
+    //消息发送失败重发次数
+    private static final long RETRY_TIMES = 5;
+
     //客户端
     private Client client;
-    
+
     //会话
     private Session session;
 
@@ -119,7 +122,7 @@ public class SmartQQClient implements Closeable {
                 for (String content : result.split("','")) {
                     if (content.startsWith("http")) {
                         LOGGER.info("正在登录，请稍后");
-                        
+
                         return content;
                     }
                 }
@@ -223,7 +226,7 @@ public class SmartQQClient implements Closeable {
         r.put("msg_id", MESSAGE_ID++);
         r.put("psessionid", psessionid);
 
-        Response<String> response = post(ApiURL.SEND_MESSAGE_TO_GROUP, r);
+        Response<String> response = postWithRetry(ApiURL.SEND_MESSAGE_TO_GROUP, r);
         checkSendMsgResult(response);
     }
 
@@ -243,7 +246,7 @@ public class SmartQQClient implements Closeable {
         r.put("msg_id", MESSAGE_ID++);
         r.put("psessionid", psessionid);
 
-        Response<String> response = post(ApiURL.SEND_MESSAGE_TO_DISCUSS, r);
+        Response<String> response = postWithRetry(ApiURL.SEND_MESSAGE_TO_DISCUSS, r);
         checkSendMsgResult(response);
     }
 
@@ -263,7 +266,7 @@ public class SmartQQClient implements Closeable {
         r.put("msg_id", MESSAGE_ID++);
         r.put("psessionid", psessionid);
 
-        Response<String> response = post(ApiURL.SEND_MESSAGE_TO_FRIEND, r);
+        Response<String> response = postWithRetry(ApiURL.SEND_MESSAGE_TO_FRIEND, r);
         checkSendMsgResult(response);
     }
 
@@ -402,6 +405,60 @@ public class SmartQQClient implements Closeable {
     }
 
     /**
+     * 获得好友的qq号
+     * @param friend    好友对象
+     * @return
+     */
+    public long getQQById(Friend friend) {
+        return getQQById(friend.getUserId());
+    }
+
+    /**
+     * 获得群友的qq号
+     * @param user    群友对象
+     * @return
+     */
+    public long getQQById(GroupUser user) {
+        return getQQById(user.getUin());
+    }
+
+    /**
+     * 获得讨论组成员的qq号
+     * @param user    讨论组成员对象
+     * @return
+     */
+    public long getQQById(DiscussUser user) {
+        return getQQById(user.getUin());
+    }
+
+    /**
+     * 获得私聊消息发送者的qq号
+     * @param msg    私聊消息
+     * @return
+     */
+    public long getQQById(Message msg) {
+        return getQQById(msg.getUserId());
+    }
+
+    /**
+     * 获得群消息发送者的qq号
+     * @param msg    群消息
+     * @return
+     */
+    public long getQQById(GroupMessage msg) {
+        return getQQById(msg.getUserId());
+    }
+
+    /**
+     * 获得讨论组消息发送者的qq号
+     * @param msg    讨论组消息
+     * @return
+     */
+    public long getQQById(DiscussMessage msg) {
+        return getQQById(msg.getUserId());
+    }
+
+    /**
      * 获得登录状态
      * @return
      */
@@ -500,6 +557,17 @@ public class SmartQQClient implements Closeable {
                 .addHeader("Origin", url.getOrigin())
                 .addForm("r", r.toJSONString())
                 .text();
+    }
+
+    //发送post请求，失败时重试
+    private Response<String> postWithRetry(ApiURL url, JSONObject r) {
+        int times = 0;
+        Response<String> response;
+        do {
+            response = post(url, r);
+            times++;
+        } while (times < RETRY_TIMES && response.getStatusCode() != 200);
+        return response;
     }
 
     //获取返回json的result字段（JSONObject类型）
