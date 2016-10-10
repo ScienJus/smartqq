@@ -4,7 +4,6 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.net.HttpCookie;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -70,6 +69,9 @@ public class SmartQQClient implements Closeable {
 	// 日志
 	private static final Logger LOGGER = LoggerFactory.getLogger(SmartQQClient.class);
 
+	// 消息发送失败重发次数
+	private static final long RETRY_TIMES = 5;
+	
 	// 消息id，这个好像可以随便设置
 	private long MESSAGE_ID = 43690001;
 
@@ -316,7 +318,7 @@ public class SmartQQClient implements Closeable {
 		r.addProperty("msg_id", MESSAGE_ID++);
 		r.addProperty("psessionid", psessionid);
 
-		ContentResponse response = post(ApiURL.SEND_MESSAGE_TO_GROUP, r);
+		ContentResponse response = postWithRetry(ApiURL.SEND_MESSAGE_TO_GROUP, r);
 		checkSendMsgResult(response);
 	}
 
@@ -340,7 +342,7 @@ public class SmartQQClient implements Closeable {
 		r.addProperty("msg_id", MESSAGE_ID++);
 		r.addProperty("psessionid", psessionid);
 
-		ContentResponse response = post(ApiURL.SEND_MESSAGE_TO_DISCUSS, r);
+		ContentResponse response = postWithRetry(ApiURL.SEND_MESSAGE_TO_DISCUSS, r);
 		checkSendMsgResult(response);
 	}
 
@@ -364,7 +366,7 @@ public class SmartQQClient implements Closeable {
 		r.addProperty("msg_id", MESSAGE_ID++);
 		r.addProperty("psessionid", psessionid);
 
-		ContentResponse response = post(ApiURL.SEND_MESSAGE_TO_FRIEND, r);
+		ContentResponse response = postWithRetry(ApiURL.SEND_MESSAGE_TO_FRIEND, r);
 		checkSendMsgResult(response);
 	}
 
@@ -628,6 +630,17 @@ public class SmartQQClient implements Closeable {
 		return request.send();
 	}
 
+	// 发送post请求，失败时重试
+	private ContentResponse postWithRetry(ApiURL url, JsonObject r) throws InterruptedException, ExecutionException, TimeoutException {
+		int times = 0;
+		ContentResponse response;
+		do {
+			response = post(url, r);
+			times++;
+		} while (times < RETRY_TIMES && response.getStatus() != 200);
+		return response;
+	}
+	
 	// 发送post请求
 	private ContentResponse post(ApiURL url, JsonObject r)
 			throws InterruptedException, ExecutionException, TimeoutException {
