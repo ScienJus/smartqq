@@ -16,7 +16,7 @@ import java.util.Objects;
  * @author Xianguang Zhou <xianguang.zhou@outlook.com>
  * @date 15/12/19.
  */
-public class GroupMessage {
+public class GroupMessage implements WithUserId {
 
     private long groupId;
 
@@ -112,4 +112,5 @@ public class GroupMessage {
         sb.append('}');
         return sb.toString();
     }
+
 }

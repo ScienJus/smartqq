@@ -16,7 +16,7 @@ import java.util.Objects;
  * @author Xianguang Zhou <xianguang.zhou@outlook.com>
  * @date 15/12/19.
  */
-public class Message {
+public class Message implements WithUserId {
 
     private long time;
 
@@ -99,4 +99,5 @@ public class Message {
 		sb.append('}');
 		return sb.toString();
 	}
+
 }

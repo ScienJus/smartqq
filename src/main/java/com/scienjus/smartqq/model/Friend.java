@@ -8,7 +8,7 @@ import java.util.Objects;
  * @author Xianguang Zhou <xianguang.zhou@outlook.com>
  * @date 2015/12/18.
  */
-public class Friend {
+public class Friend implements WithUserId {
 
     private long userId;
 
@@ -87,4 +87,5 @@ public class Friend {
     public int hashCode() {
         return Objects.hash(userId, markname, nickname, vip, vipLevel);
     }
+
 }

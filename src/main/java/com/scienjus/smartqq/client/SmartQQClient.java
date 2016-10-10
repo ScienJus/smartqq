@@ -53,6 +53,7 @@ import com.scienjus.smartqq.model.GroupUser;
 import com.scienjus.smartqq.model.Message;
 import com.scienjus.smartqq.model.MessageContentElement;
 import com.scienjus.smartqq.model.Recent;
+import com.scienjus.smartqq.model.WithUserId;
 import com.scienjus.smartqq.model.UserInfo;
 import com.scienjus.smartqq.model.UserStatus;
 
@@ -501,6 +502,21 @@ public class SmartQQClient implements Closeable {
 		}.getType());
 	}
 
+	/**
+	 * 获得qq号
+	 * 
+	 * @param modelWithUserId
+	 *            The model that contains the user id.
+	 * @return
+	 * @throws InterruptedException
+	 * @throws ExecutionException
+	 * @throws TimeoutException
+	 */
+	public long getQQById(WithUserId modelWithUserId)
+			throws InterruptedException, ExecutionException, TimeoutException {
+		return getQQById(modelWithUserId.getUserId());
+	}
+	
 	/**
 	 * 获得qq号
 	 *

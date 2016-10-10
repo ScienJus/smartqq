@@ -8,7 +8,7 @@ import java.util.Objects;
  * @author Xianguang Zhou <xianguang.zhou@outlook.com>
  * @date 2015/12/24.
  */
-public class DiscussUser {
+public class DiscussUser implements WithUserId {
 
     private long uin;
 
@@ -75,5 +75,10 @@ public class DiscussUser {
     public int hashCode() {
         return Objects.hash(uin, nick, clientType, status);
     }
+
+	@Override
+	public long getUserId() {
+		return uin;
+	}
 
 }

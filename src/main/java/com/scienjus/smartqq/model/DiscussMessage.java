@@ -14,7 +14,7 @@ import java.util.Objects;
  * @author Xianguang Zhou <xianguang.zhou@outlook.com>
  * @date 15/12/19.
  */
-public class DiscussMessage {
+public class DiscussMessage implements WithUserId {
 
     private long discussId;
 
@@ -110,4 +110,5 @@ public class DiscussMessage {
         sb.append('}');
         return sb.toString();
     }
+
 }
