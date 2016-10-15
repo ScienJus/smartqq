@@ -93,7 +93,7 @@ public class SmartQQClient implements Closeable, WithUserId {
 	private String psessionid;
 
 	// 线程开关
-	private volatile boolean polling;
+	private volatile boolean polling = true;
 
 	private SmartqqListener listener;
 
@@ -109,7 +109,7 @@ public class SmartQQClient implements Closeable, WithUserId {
 	private Random faceDomainSuffixRandom = new Random();
 
 	public SmartQQClient(SmartqqListener smartqqListener) throws Exception {
-		if (smartqqListener == null) {
+		if (null == smartqqListener) {
 			throw new NullPointerException("SmartqqListener can't be null.");
 		}
 		this.listener = new SmartqqListenerDecorator(smartqqListener);
@@ -118,10 +118,51 @@ public class SmartQQClient implements Closeable, WithUserId {
 		this.httpClient.setUserAgentField(new HttpField(HttpHeader.USER_AGENT, ApiURL.USER_AGENT));
 		this.httpClient.setFollowRedirects(true);
 		this.httpClient.start();
+	}
+	
+	/**
+	 * 获取二维码
+	 * 
+	 * @return 二维码图片的内容
+	 * @throws InterruptedException
+	 * @throws ExecutionException
+	 * @throws TimeoutException
+	 */
+	// 登录流程1：获取二维码
+	public byte[] getQRCode() throws InterruptedException, ExecutionException, TimeoutException {
+		LOGGER.debug("开始获取二维码");
 
-		login();
-		
-		this.polling = true;
+		byte[] imageBytes = httpClient.newRequest(ApiURL.GET_QR_CODE.getUrl()).timeout(10, TimeUnit.SECONDS)
+				.method(HttpMethod.GET).agent(ApiURL.USER_AGENT).send().getContent();
+
+		LOGGER.debug("二维码已获取");
+
+		return imageBytes;
+	}
+	
+	/**
+	 * 登录，阻塞直到确认二维码认证成功
+	 * 
+	 * @return 二维码是否失效。true表示二维码已失效，登录失败；false表示登录成功。
+	 * @throws InterruptedException
+	 * @throws ExecutionException
+	 * @throws TimeoutException
+	 */
+	public boolean login() throws InterruptedException, ExecutionException, TimeoutException {
+		String url = verifyQRCode();
+		if (url != null) {
+			getPtwebqq(url);
+			getVfwebqq();
+			getUinAndPsessionid();
+			getFriendStatus();
+			startPolling();
+			return false;
+		} else {
+			return true;
+		}
+	}
+	
+	private void startPolling() {
 		pollThread = new Thread(new Runnable() {
 			@Override
 			public void run() {
@@ -140,30 +181,7 @@ public class SmartQQClient implements Closeable, WithUserId {
 				}
 			}
 		});
-		pollThread.start();
-	}
-
-	/**
-	 * 登录
-	 */
-	private void login() throws InterruptedException, ExecutionException, TimeoutException {
-		getQRCode();
-		String url = verifyQRCode();
-		getPtwebqq(url);
-		getVfwebqq();
-		getUinAndPsessionid();
-		getFriendStatus();
-	}
-
-	// 登录流程1：获取二维码
-	private void getQRCode() throws InterruptedException, ExecutionException, TimeoutException {
-		LOGGER.debug("开始获取二维码");
-
-		byte[] imageBytes = httpClient.newRequest(ApiURL.GET_QR_CODE.getUrl()).timeout(10, TimeUnit.SECONDS)
-				.method(HttpMethod.GET).agent(ApiURL.USER_AGENT).send().getContent();
-		listener.onQrCodeImage(imageBytes);
-
-		LOGGER.info("二维码已获取");
+		pollThread.start();	
 	}
 
 	// 登录流程2：校验二维码
@@ -184,11 +202,10 @@ public class SmartQQClient implements Closeable, WithUserId {
 					}
 				}
 			} else if (result.contains("已失效")) {
-				LOGGER.info("二维码已失效，尝试重新获取二维码");
-				getQRCode();
+				LOGGER.info("二维码已失效");
+				return null;
 			}
 		}
-
 	}
 
 	// 登录流程3：获取ptwebqq
@@ -797,11 +814,26 @@ public class SmartQQClient implements Closeable, WithUserId {
 		return V1;
 	}
 
+	public String getSelfUserStatus() {
+		return selfUserStatus;
+	}
+
+	public long getSelfUserId() {
+		return uin;
+	}
+	
+	@Override
+	public long getUserId() {
+		return uin;
+	}
+
 	@Override
 	public void close() throws IOException {
 		this.polling = false;
 		try {
-			this.pollThread.join();
+			if (this.pollThread != null) {
+				this.pollThread.join();
+			}
 			this.httpClient.stop();
 		} catch (Exception e) {
 			throw new IOException(e);
@@ -821,23 +853,13 @@ public class SmartQQClient implements Closeable, WithUserId {
 					this.pollRequest.abort(new RequestAbortException());
 				}
 			}
-			this.pollThread.join();
+			if (this.pollThread != null) {
+				this.pollThread.join();
+			}
 			this.httpClient.stop();
 		} catch (Exception e) {
 			throw new IOException(e);
 		}
 	}
 
-	public String getSelfUserStatus() {
-		return selfUserStatus;
-	}
-
-	public long getSelfUserId() {
-		return uin;
-	}
-	
-	@Override
-	public long getUserId() {
-		return uin;
-	}
 }

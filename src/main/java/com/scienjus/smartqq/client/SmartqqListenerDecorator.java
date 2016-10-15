@@ -53,15 +53,6 @@ class SmartqqListenerDecorator implements SmartqqListener {
 	}
 
 	@Override
-	public void onQrCodeImage(byte[] imageBytes) {
-		try {
-			decoratedListener.onQrCodeImage(imageBytes);
-		} catch (Exception ex) {
-			logger.error(ex.getMessage(), ex);
-		}
-	}
-
-	@Override
 	public void onException(Throwable exception, ExceptionThreadType exceptionThreadType) {
 		try {
 			decoratedListener.onException(exception, exceptionThreadType);

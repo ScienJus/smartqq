@@ -31,11 +31,5 @@ public interface SmartqqListener {
      */
     void onDiscussMessage(DiscussMessage message);
 
-    /**
-     * 收到二维码后的回调
-     * @param imageBytes
-     */
-    void onQrCodeImage(byte[] imageBytes);
-
     void onException(Throwable exception, ExceptionThreadType exceptionThreadType);
 }

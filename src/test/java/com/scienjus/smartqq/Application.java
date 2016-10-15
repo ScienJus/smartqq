@@ -23,6 +23,25 @@ import com.scienjus.smartqq.model.Text;
  * @date 2015/12/18.
  */
 public class Application {
+	
+	/**
+	 * 本地存储二维码图片
+	 * 
+	 * @param qrCodeImageBytes
+	 */
+	private static void saveQrCodeImage(byte[] qrCodeImageBytes) {
+		try {
+			File imageFile = new File("qrcode.png");
+			try (FileOutputStream fos = new FileOutputStream(imageFile)) {
+				fos.write(qrCodeImageBytes);
+			}
+			String filePath = imageFile.getCanonicalPath();
+			System.out.println("二维码已保存在 " + filePath + " 文件中，请打开手机QQ并扫描二维码");
+		} catch (IOException e) {
+			System.out.println("二维码保存失败：");
+			e.printStackTrace();
+		}
+	}
 
 	private static void println(List<MessageContentElement> messageContentElements) {
 		for (MessageContentElement contentElement : messageContentElements) {
@@ -38,7 +57,7 @@ public class Application {
 	}
 
 	public static void main(String[] args) throws Exception {
-		// 创建一个新对象时需要扫描二维码登录，并且传一个处理接收到消息的监听器
+		// 创建一个新客户端时需要传一个处理接收到消息的监听器
 		@SuppressWarnings("resource")
 		SmartQQClient client = new SmartQQClient(new SmartqqListener() {
 			@Override
@@ -57,26 +76,16 @@ public class Application {
 			}
 
 			@Override
-			public void onQrCodeImage(byte[] imageBytes) {
-				// 本地存储二维码图片
-				try {
-					File imageFile = new File("qrcode.png");
-					try (FileOutputStream fos = new FileOutputStream(imageFile)) {
-						fos.write(imageBytes);
-					}
-					String filePath = imageFile.getCanonicalPath();
-					System.out.println("二维码已保存在 " + filePath + " 文件中，请打开手机QQ并扫描二维码");
-				} catch (IOException e) {
-					System.out.println("二维码保存失败：");
-					e.printStackTrace();
-				}
-			}
-
-			@Override
 			public void onException(Throwable exception, ExceptionThreadType exceptionThreadType) {
 			}
 		});
 		try {
+			// 扫描二维码登录
+			do {
+				byte[] qrCodeImageBytes = client.getQRCode();
+				saveQrCodeImage(qrCodeImageBytes);
+			} while (client.login());
+			
 			// 登录成功后便可以编写你自己的业务逻辑了
 			List<Category> categories = client.getFriendListWithCategory();
 			for (Category category : categories) {

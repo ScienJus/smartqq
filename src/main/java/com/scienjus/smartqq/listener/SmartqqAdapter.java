@@ -47,15 +47,6 @@ public class SmartqqAdapter implements SmartqqListener {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see com.scienjus.smartqq.listener.SmartqqListener#onQrCodeImage(byte[])
-	 */
-	@Override
-	public void onQrCodeImage(byte[] imageBytes) {
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
 	 * @see com.scienjus.smartqq.listener.SmartqqListener#onException(java.lang.
 	 * Throwable, com.scienjus.smartqq.listener.ExceptionThreadType)
 	 */
