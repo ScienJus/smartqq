@@ -101,7 +101,7 @@ public class SmartQQClient implements Closeable, WithUserId {
 	
 	private final Object pollWaitObject = new Object();
 	
-	private volatile Request pollRequest = null;
+	private Request pollRequest = null;
 
 	// self info
 	private String selfUserStatus;
@@ -111,7 +111,7 @@ public class SmartQQClient implements Closeable, WithUserId {
 	/**
 	 * 是否使用HTTPS加密聊天内容
 	 */
-	private boolean httpsChatMessage;
+	private boolean httpsChatMessage = false;
 
 	/**
 	 * 创建一个Smart QQ的客户端
@@ -121,30 +121,24 @@ public class SmartQQClient implements Closeable, WithUserId {
 	 * @throws Exception
 	 */
 	public SmartQQClient(SmartqqListener smartqqListener) throws Exception {
-		this(smartqqListener, false);
-	}
-
-	/**
-	 * 创建一个Smart QQ的客户端
-	 * 
-	 * @param smartqqListener
-	 *            Smart QQ的监听器
-	 * @param httpsChatMessage
-	 *            是否使用HTTPS加密聊天内容
-	 * @throws Exception
-	 */
-	public SmartQQClient(SmartqqListener smartqqListener, boolean httpsChatMessage) throws Exception {
 		if (null == smartqqListener) {
 			throw new NullPointerException("SmartqqListener can't be null.");
 		}
 		this.listener = new SmartqqListenerDecorator(smartqqListener);
-	
-		this.httpsChatMessage = httpsChatMessage;
 
 		this.httpClient = new HttpClient(new SslContextFactory());
 		this.httpClient.setUserAgentField(new HttpField(HttpHeader.USER_AGENT, ApiURL.USER_AGENT));
 		this.httpClient.setFollowRedirects(true);
 		this.httpClient.start();
+	}
+
+	/**
+	 * 设置是否使用HTTPS加密聊天内容
+	 * 
+	 * @param httpsChatMessage
+	 */
+	public void setHttpsChatMessage(boolean httpsChatMessage) {
+		this.httpsChatMessage = httpsChatMessage;
 	}
 	
 	/**
