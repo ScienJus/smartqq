@@ -108,11 +108,38 @@ public class SmartQQClient implements Closeable, WithUserId {
 	
 	private Random faceDomainSuffixRandom = new Random();
 
+	/**
+	 * 是否使用HTTPS加密聊天内容
+	 */
+	private boolean httpsChatMessage;
+
+	/**
+	 * 创建一个Smart QQ的客户端
+	 * 
+	 * @param smartqqListener
+	 *            Smart QQ的监听器
+	 * @throws Exception
+	 */
 	public SmartQQClient(SmartqqListener smartqqListener) throws Exception {
+		this(smartqqListener, false);
+	}
+
+	/**
+	 * 创建一个Smart QQ的客户端
+	 * 
+	 * @param smartqqListener
+	 *            Smart QQ的监听器
+	 * @param httpsChatMessage
+	 *            是否使用HTTPS加密聊天内容
+	 * @throws Exception
+	 */
+	public SmartQQClient(SmartqqListener smartqqListener, boolean httpsChatMessage) throws Exception {
 		if (null == smartqqListener) {
 			throw new NullPointerException("SmartqqListener can't be null.");
 		}
 		this.listener = new SmartqqListenerDecorator(smartqqListener);
+	
+		this.httpsChatMessage = httpsChatMessage;
 
 		this.httpClient = new HttpClient(new SslContextFactory());
 		this.httpClient.setUserAgentField(new HttpField(HttpHeader.USER_AGENT, ApiURL.USER_AGENT));
@@ -281,7 +308,8 @@ public class SmartQQClient implements Closeable, WithUserId {
 		r.addProperty("psessionid", psessionid);
 		r.addProperty("key", "");
 		
-		pollRequest = postRequest(ApiURL.POLL_MESSAGE, r, new Timeout(3, TimeUnit.MINUTES));
+		pollRequest = postRequest(httpsChatMessage ? ApiURL.POLL_MESSAGE_HTTPS : ApiURL.POLL_MESSAGE, r,
+				new Timeout(3, TimeUnit.MINUTES));
 		pollRequest.send(new BufferingResponseListener() {
 			@Override
 			public void onComplete(Result result) {
@@ -326,8 +354,10 @@ public class SmartQQClient implements Closeable, WithUserId {
 	 *
 	 * @param groupId
 	 *            群id
-	 * @param msg
+	 * @param messageContentElements
 	 *            消息内容
+	 * @param font
+	 *            消息字体
 	 */
 	public void sendMessageToGroup(long groupId, List<MessageContentElement> messageContentElements, Font font)
 			throws InterruptedException, ExecutionException, TimeoutException {
@@ -341,7 +371,8 @@ public class SmartQQClient implements Closeable, WithUserId {
 		r.addProperty("msg_id", MESSAGE_ID++);
 		r.addProperty("psessionid", psessionid);
 
-		ContentResponse response = postWithRetry(ApiURL.SEND_MESSAGE_TO_GROUP, r);
+		ContentResponse response = postWithRetry(
+				httpsChatMessage ? ApiURL.SEND_MESSAGE_TO_GROUP_HTTPS : ApiURL.SEND_MESSAGE_TO_GROUP, r);
 		checkSendMsgResult(response);
 	}
 
@@ -350,8 +381,10 @@ public class SmartQQClient implements Closeable, WithUserId {
 	 *
 	 * @param discussId
 	 *            讨论组id
-	 * @param msg
+	 * @param messageContentElements
 	 *            消息内容
+	 * @param font
+	 *            消息字体
 	 */
 	public void sendMessageToDiscuss(long discussId, List<MessageContentElement> messageContentElements, Font font)
 			throws InterruptedException, ExecutionException, TimeoutException {
@@ -365,7 +398,8 @@ public class SmartQQClient implements Closeable, WithUserId {
 		r.addProperty("msg_id", MESSAGE_ID++);
 		r.addProperty("psessionid", psessionid);
 
-		ContentResponse response = postWithRetry(ApiURL.SEND_MESSAGE_TO_DISCUSS, r);
+		ContentResponse response = postWithRetry(
+				httpsChatMessage ? ApiURL.SEND_MESSAGE_TO_DISCUSS_HTTPS : ApiURL.SEND_MESSAGE_TO_DISCUSS, r);
 		checkSendMsgResult(response);
 	}
 
@@ -374,8 +408,10 @@ public class SmartQQClient implements Closeable, WithUserId {
 	 *
 	 * @param friendId
 	 *            好友id
-	 * @param msg
+	 * @param messageContentElements
 	 *            消息内容
+	 * @param font
+	 *            消息字体
 	 */
 	public void sendMessageToFriend(long friendId, List<MessageContentElement> messageContentElements, Font font)
 			throws InterruptedException, ExecutionException, TimeoutException {
@@ -389,7 +425,8 @@ public class SmartQQClient implements Closeable, WithUserId {
 		r.addProperty("msg_id", MESSAGE_ID++);
 		r.addProperty("psessionid", psessionid);
 
-		ContentResponse response = postWithRetry(ApiURL.SEND_MESSAGE_TO_FRIEND, r);
+		ContentResponse response = postWithRetry(
+				httpsChatMessage ? ApiURL.SEND_MESSAGE_TO_FRIEND_HTTPS : ApiURL.SEND_MESSAGE_TO_FRIEND, r);
 		checkSendMsgResult(response);
 	}
 

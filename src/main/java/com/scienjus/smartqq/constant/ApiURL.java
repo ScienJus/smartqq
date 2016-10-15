@@ -42,9 +42,17 @@ public enum ApiURL {
             "http://d1.web2.qq.com/channel/poll2",
             "http://d1.web2.qq.com/proxy.html?v=20151105001&callback=1&id=2"
     ),
+    POLL_MESSAGE_HTTPS(
+            "https://d1.web2.qq.com/channel/poll2",
+            "https://d1.web2.qq.com/proxy.html?v=20151105001&callback=1&id=2"
+    ),
     SEND_MESSAGE_TO_GROUP(
             "http://d1.web2.qq.com/channel/send_qun_msg2",
             "http://d1.web2.qq.com/proxy.html?v=20151105001&callback=1&id=2"
+    ),
+    SEND_MESSAGE_TO_GROUP_HTTPS(
+            "https://d1.web2.qq.com/channel/send_qun_msg2",
+            "https://d1.web2.qq.com/proxy.html?v=20151105001&callback=1&id=2"
     ),
     GET_FRIEND_LIST(
             "http://s.web2.qq.com/api/get_user_friends2",
@@ -54,6 +62,10 @@ public enum ApiURL {
             "http://d1.web2.qq.com/channel/send_buddy_msg2",
             "http://d1.web2.qq.com/proxy.html?v=20151105001&callback=1&id=2"
     ),
+    SEND_MESSAGE_TO_FRIEND_HTTPS(
+            "https://d1.web2.qq.com/channel/send_buddy_msg2",
+            "https://d1.web2.qq.com/proxy.html?v=20151105001&callback=1&id=2"
+    ),
     GET_DISCUSS_LIST(
             "http://s.web2.qq.com/api/get_discus_list?clientid=53999199&psessionid={1}&vfwebqq={2}&t=0.1",
             "http://s.web2.qq.com/proxy.html?v=20130916001&callback=1&id=1"
@@ -61,6 +73,10 @@ public enum ApiURL {
     SEND_MESSAGE_TO_DISCUSS(
             "http://d1.web2.qq.com/channel/send_discu_msg2",
             "http://d1.web2.qq.com/proxy.html?v=20151105001&callback=1&id=2"
+    ),
+    SEND_MESSAGE_TO_DISCUSS_HTTPS(
+            "https://d1.web2.qq.com/channel/send_discu_msg2",
+            "https://d1.web2.qq.com/proxy.html?v=20151105001&callback=1&id=2"
     ),
     GET_ACCOUNT_INFO(
             "http://s.web2.qq.com/api/get_self_info2?t=0.1",
@@ -113,7 +129,6 @@ public enum ApiURL {
     public String getUrl() {
         return url;
     }
-
 
     public String getReferer() {
         return referer;
