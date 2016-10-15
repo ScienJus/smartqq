@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -65,7 +66,7 @@ import com.scienjus.smartqq.model.UserStatus;
  * @author Xianguang Zhou <xianguang.zhou@outlook.com>
  * @date 2015/12/18.
  */
-public class SmartQQClient implements Closeable {
+public class SmartQQClient implements Closeable, WithUserId {
 
 	// 日志
 	private static final Logger LOGGER = LoggerFactory.getLogger(SmartQQClient.class);
@@ -104,6 +105,8 @@ public class SmartQQClient implements Closeable {
 
 	// self info
 	private String selfUserStatus;
+	
+	private Random faceDomainSuffixRandom = new Random();
 
 	public SmartQQClient(SmartqqListener smartqqListener) throws Exception {
 		if (smartqqListener == null) {
@@ -113,6 +116,7 @@ public class SmartQQClient implements Closeable {
 
 		this.httpClient = new HttpClient(new SslContextFactory());
 		this.httpClient.setUserAgentField(new HttpField(HttpHeader.USER_AGENT, ApiURL.USER_AGENT));
+		this.httpClient.setFollowRedirects(true);
 		this.httpClient.start();
 
 		login();
@@ -521,14 +525,14 @@ public class SmartQQClient implements Closeable {
 	/**
 	 * 获得qq号
 	 *
-	 * @param friendId
+	 * @param userId
 	 *            用户id
 	 * @return
 	 */
-	public long getQQById(long friendId) throws InterruptedException, ExecutionException, TimeoutException {
+	public long getQQById(long userId) throws InterruptedException, ExecutionException, TimeoutException {
 		LOGGER.debug("开始获取QQ号");
 
-		ContentResponse response = get(ApiURL.GET_QQ_BY_ID, friendId, vfwebqq);
+		ContentResponse response = get(ApiURL.GET_QQ_BY_ID, userId, vfwebqq);
 		return getJsonObjectResult(response).get("account").getAsLong();
 	}
 
@@ -637,12 +641,28 @@ public class SmartQQClient implements Closeable {
 		this.selfUserStatus = userStatus.getStatusCode();
 	}
 
+	/**
+	 * 获取用户头像
+	 * 
+	 * @param userId
+	 *            用户ID
+	 * @return 用户头像的图片内容
+	 * @throws InterruptedException
+	 * @throws TimeoutException
+	 * @throws ExecutionException
+	 */
+	public byte[] getUserFace(long userId) throws InterruptedException, TimeoutException, ExecutionException {
+		return httpClient.newRequest(ApiURL.GET_USER_FACE.buildUrl(faceDomainSuffixRandom.nextInt(10), userId, vfwebqq))
+				.method(HttpMethod.GET).agent(ApiURL.USER_AGENT).header(HttpHeader.REFERER, ApiURL.GET_USER_FACE.getReferer())
+				.send().getContent();
+	}
+
 	// 发送get请求
 	private ContentResponse get(ApiURL url, Object... params)
 			throws InterruptedException, ExecutionException, TimeoutException {
 		Request request = httpClient.newRequest(url.buildUrl(params)).method(HttpMethod.GET).agent(ApiURL.USER_AGENT);
 		if (url.getReferer() != null) {
-			request.header("Referer", url.getReferer());
+			request.header(HttpHeader.REFERER, url.getReferer());
 		}
 		return request.send();
 	}
@@ -677,7 +697,7 @@ public class SmartQQClient implements Closeable {
 				.header("Origin", url.getOrigin())
 				.content(new FormContentProvider(fields));
 		if (url.getReferer() != null) {
-			request.header("Referer", url.getReferer());
+			request.header(HttpHeader.REFERER, url.getReferer());
 		}
 		if (timeout != null) {
 			request.timeout(timeout.getTime(), timeout.getUnit());
@@ -810,5 +830,14 @@ public class SmartQQClient implements Closeable {
 
 	public String getSelfUserStatus() {
 		return selfUserStatus;
+	}
+
+	public long getSelfUserId() {
+		return uin;
+	}
+	
+	@Override
+	public long getUserId() {
+		return uin;
 	}
 }

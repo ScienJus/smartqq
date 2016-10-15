@@ -23,7 +23,7 @@ Smart QQ（WebQQ）的API，从https://github.com/ScienJus/smartqq 修改而来
 ```
 git clone https://github.com/Xianguang-Zhou/smartqq-client
 cd smartqq-client
-mvn source:jar install
+mvn source:jar install -Dmaven.test.skip=true
 ```
 
 更新：
@@ -31,7 +31,7 @@ mvn source:jar install
 ```
 cd smartqq-client
 git pull
-mvn clean source:jar install
+mvn clean source:jar install -Dmaven.test.skip=true
 ```
 
 依赖：
@@ -108,6 +108,16 @@ public class Application {
 				System.out.println(category.getName());
 				for (Friend friend : category.getFriends()) {
 					System.out.println("————" + friend.getNickname());
+				}
+			}
+			
+			{
+				// 获取自己的头像并保存在“./tmp/face/self.jpg”
+				byte[] faceImageBytes = client.getUserFace(client.getSelfUserId());
+				File faceImageFile = new File("tmp/face/self.jpg");
+				faceImageFile.getParentFile().mkdirs();
+				try (FileOutputStream fos = new FileOutputStream(faceImageFile)) {
+					fos.write(faceImageBytes);
 				}
 			}
 		} catch (Exception e) {

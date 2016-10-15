@@ -85,6 +85,16 @@ public class Application {
 					System.out.println("————" + friend.getNickname());
 				}
 			}
+			
+			{
+				// 获取自己的头像并保存在“./tmp/face/self.jpg”
+				byte[] faceImageBytes = client.getUserFace(client.getSelfUserId());
+				File faceImageFile = new File("tmp/face/self.jpg");
+				faceImageFile.getParentFile().mkdirs();
+				try (FileOutputStream fos = new FileOutputStream(faceImageFile)) {
+					fos.write(faceImageBytes);
+				}
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {

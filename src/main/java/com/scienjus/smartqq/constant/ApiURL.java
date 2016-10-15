@@ -93,6 +93,10 @@ public enum ApiURL {
     CHANGE_STATUS(
             "http://d1.web2.qq.com/channel/change_status2?newstatus={1}&clientid=53999199&psessionid={2}&t=0.1",
             "http://d1.web2.qq.com/proxy.html?v=20151105001&callback=1&id=2"
+    ),
+    GET_USER_FACE(
+    		"http://face{1}.web.qq.com/cgi/svr/face/getface?cache=1&type=1&f=40&uin={2}&t=0.1&vfwebqq={3}",
+    		"http://w.qq.com/"
     );
 
     public static final String USER_AGENT = "Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/45.0.2454.101 Safari/537.36";
