@@ -9,8 +9,8 @@ import java.util.Objects;
 /**
  * 讨论组资料
  * @author ScienJus
- * @author Xianguang Zhou <xianguang.zhou@outlook.com>
- * @date 2015/12/24.
+ * @author <a href="mailto:xianguang.zhou@outlook.com">Xianguang Zhou</a>
+ * @since 2015/12/24.
  */
 public class DiscussInfo {
 

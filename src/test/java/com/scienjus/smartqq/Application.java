@@ -19,8 +19,8 @@ import com.scienjus.smartqq.model.Text;
 
 /**
  * @author ScienJus
- * @author Xianguang Zhou <xianguang.zhou@outlook.com>
- * @date 2015/12/18.
+ * @author <a href="mailto:xianguang.zhou@outlook.com">Xianguang Zhou</a>
+ * @since 2015/12/18.
  */
 public class Application {
 	

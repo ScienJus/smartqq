@@ -3,8 +3,8 @@ package com.scienjus.smartqq.client;
 import java.util.concurrent.TimeUnit;
 
 /**
- * @author Xianguang Zhou <xianguang.zhou@outlook.com>
- * @date 2016/08/02.
+ * @author <a href="mailto:xianguang.zhou@outlook.com">Xianguang Zhou</a>
+ * @since 2016/08/02.
  */
 public class Timeout {
     private long time;

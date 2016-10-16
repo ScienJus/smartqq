@@ -23,7 +23,7 @@ Smart QQ（WebQQ）的API，从https://github.com/ScienJus/smartqq 修改而来
 ```
 git clone https://github.com/Xianguang-Zhou/smartqq-client
 cd smartqq-client
-mvn source:jar install -Dmaven.test.skip=true
+mvn source:jar javadoc:jar install -Dmaven.test.skip=true
 ```
 
 更新：
@@ -31,7 +31,7 @@ mvn source:jar install -Dmaven.test.skip=true
 ```
 cd smartqq-client
 git pull
-mvn clean source:jar install -Dmaven.test.skip=true
+mvn clean source:jar javadoc:jar install -Dmaven.test.skip=true
 ```
 
 依赖：

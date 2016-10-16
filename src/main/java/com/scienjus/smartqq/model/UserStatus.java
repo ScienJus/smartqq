@@ -6,8 +6,8 @@ import java.util.Map;
 /**
  * QQ user status
  *
- * @author Xianguang Zhou <xianguang.zhou@outlook.com>
- * @date 2016/08/02.
+ * @author <a href="mailto:xianguang.zhou@outlook.com">Xianguang Zhou</a>
+ * @since 2016/08/02.
  */
 public enum UserStatus {
 	// 在线

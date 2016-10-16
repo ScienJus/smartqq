@@ -7,8 +7,8 @@ import com.scienjus.smartqq.model.Message;
 /**
  * adapter of SmartqqListener
  *
- * @author Xianguang Zhou <xianguang.zhou@outlook.com>
- * @date 2016/08/21.
+ * @author <a href="mailto:xianguang.zhou@outlook.com">Xianguang Zhou</a>
+ * @since 2016/08/21.
  */
 public class SmartqqAdapter implements SmartqqListener {
 

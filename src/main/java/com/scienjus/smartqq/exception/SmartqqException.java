@@ -3,8 +3,8 @@ package com.scienjus.smartqq.exception;
 /**
  * Smart QQ的运行时异常
  * 
- * @author Xianguang Zhou <xianguang.zhou@outlook.com>
- * @date 2016/07/30.
+ * @author <a href="mailto:xianguang.zhou@outlook.com">Xianguang Zhou</a>
+ * @since 2016/07/30.
  */
 public class SmartqqException extends RuntimeException {
 

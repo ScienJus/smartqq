@@ -13,8 +13,8 @@ import java.util.Objects;
  *
  * @author ScienJus
  * @author <a href="http://88250.b3log.org">Liang Ding</a>
- * @author Xianguang Zhou <xianguang.zhou@outlook.com>
- * @date 15/12/19.
+ * @author <a href="mailto:xianguang.zhou@outlook.com">Xianguang Zhou</a>
+ * @since 15/12/19.
  */
 public class GroupMessage implements WithUserId {
 

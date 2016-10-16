@@ -63,8 +63,8 @@ import com.scienjus.smartqq.model.UserStatus;
  *
  * @author ScienJus
  * @author <a href="http://88250.b3log.org">Liang Ding</a>
- * @author Xianguang Zhou <xianguang.zhou@outlook.com>
- * @date 2015/12/18.
+ * @author <a href="mailto:xianguang.zhou@outlook.com">Xianguang Zhou</a>
+ * @since 2015/12/18.
  */
 public class SmartQQClient implements Closeable, WithUserId {
 
@@ -119,6 +119,7 @@ public class SmartQQClient implements Closeable, WithUserId {
 	 * @param smartqqListener
 	 *            Smart QQ的监听器
 	 * @throws Exception
+	 *             如果httpClient启动失败
 	 */
 	public SmartQQClient(SmartqqListener smartqqListener) throws Exception {
 		if (null == smartqqListener) {
@@ -135,7 +136,7 @@ public class SmartQQClient implements Closeable, WithUserId {
 	/**
 	 * 设置是否使用HTTPS加密聊天内容
 	 * 
-	 * @param httpsChatMessage
+	 * @param httpsChatMessage 是否使用HTTPS加密聊天内容
 	 */
 	public void setHttpsChatMessage(boolean httpsChatMessage) {
 		this.httpsChatMessage = httpsChatMessage;
@@ -145,9 +146,9 @@ public class SmartQQClient implements Closeable, WithUserId {
 	 * 获取二维码
 	 * 
 	 * @return 二维码图片的内容
-	 * @throws InterruptedException
-	 * @throws ExecutionException
-	 * @throws TimeoutException
+	 * @throws InterruptedException if send thread is interrupted
+	 * @throws ExecutionException if execution fails
+	 * @throws TimeoutException if send times out
 	 */
 	// 登录流程1：获取二维码
 	public byte[] getQRCode() throws InterruptedException, ExecutionException, TimeoutException {
@@ -165,9 +166,9 @@ public class SmartQQClient implements Closeable, WithUserId {
 	 * 登录，阻塞直到确认二维码认证成功
 	 * 
 	 * @return 二维码是否失效。true表示二维码已失效，登录失败；false表示登录成功。
-	 * @throws InterruptedException
-	 * @throws ExecutionException
-	 * @throws TimeoutException
+	 * @throws InterruptedException if send thread is interrupted
+	 * @throws ExecutionException if execution fails
+	 * @throws TimeoutException if send times out
 	 */
 	public boolean login() throws InterruptedException, ExecutionException, TimeoutException {
 		String url = verifyQRCode();
@@ -271,7 +272,10 @@ public class SmartQQClient implements Closeable, WithUserId {
 	/**
 	 * 获取群列表
 	 *
-	 * @return
+	 * @return 群列表
+	 * @throws InterruptedException if send thread is interrupted
+	 * @throws ExecutionException if execution fails
+	 * @throws TimeoutException if send times out
 	 */
 	public List<Group> getGroupList() throws InterruptedException, ExecutionException, TimeoutException {
 		LOGGER.debug("开始获取群列表");
@@ -352,6 +356,9 @@ public class SmartQQClient implements Closeable, WithUserId {
 	 *            消息内容
 	 * @param font
 	 *            消息字体
+	 * @throws InterruptedException if send thread is interrupted
+	 * @throws ExecutionException if execution fails
+	 * @throws TimeoutException if send times out
 	 */
 	public void sendMessageToGroup(long groupId, List<MessageContentElement> messageContentElements, Font font)
 			throws InterruptedException, ExecutionException, TimeoutException {
@@ -379,6 +386,9 @@ public class SmartQQClient implements Closeable, WithUserId {
 	 *            消息内容
 	 * @param font
 	 *            消息字体
+	 * @throws InterruptedException if send thread is interrupted
+	 * @throws ExecutionException if execution fails
+	 * @throws TimeoutException if send times out
 	 */
 	public void sendMessageToDiscuss(long discussId, List<MessageContentElement> messageContentElements, Font font)
 			throws InterruptedException, ExecutionException, TimeoutException {
@@ -406,6 +416,9 @@ public class SmartQQClient implements Closeable, WithUserId {
 	 *            消息内容
 	 * @param font
 	 *            消息字体
+	 * @throws InterruptedException if send thread is interrupted
+	 * @throws ExecutionException if execution fails
+	 * @throws TimeoutException if send times out
 	 */
 	public void sendMessageToFriend(long friendId, List<MessageContentElement> messageContentElements, Font font)
 			throws InterruptedException, ExecutionException, TimeoutException {
@@ -427,7 +440,10 @@ public class SmartQQClient implements Closeable, WithUserId {
 	/**
 	 * 获得讨论组列表
 	 *
-	 * @return
+	 * @return 讨论组列表
+	 * @throws InterruptedException if send thread is interrupted
+	 * @throws ExecutionException if execution fails
+	 * @throws TimeoutException if send times out
 	 */
 	public List<Discuss> getDiscussList() throws InterruptedException, ExecutionException, TimeoutException {
 		LOGGER.debug("开始获取讨论组列表");
@@ -440,7 +456,10 @@ public class SmartQQClient implements Closeable, WithUserId {
 	/**
 	 * 获得好友列表（包含分组信息）
 	 *
-	 * @return
+	 * @return 好友列表（包含分组信息）
+	 * @throws InterruptedException if send thread is interrupted
+	 * @throws ExecutionException if execution fails
+	 * @throws TimeoutException if send times out
 	 */
 	public List<Category> getFriendListWithCategory()
 			throws InterruptedException, ExecutionException, TimeoutException {
@@ -474,7 +493,10 @@ public class SmartQQClient implements Closeable, WithUserId {
 	/**
 	 * 获取好友列表
 	 *
-	 * @return
+	 * @return 好友列表
+	 * @throws InterruptedException if send thread is interrupted
+	 * @throws ExecutionException if execution fails
+	 * @throws TimeoutException if send times out
 	 */
 	public List<Friend> getFriendList() throws InterruptedException, ExecutionException, TimeoutException {
 		LOGGER.debug("开始获取好友列表");
@@ -516,7 +538,10 @@ public class SmartQQClient implements Closeable, WithUserId {
 	/**
 	 * 获得当前登录用户的详细信息
 	 *
-	 * @return
+	 * @return 当前登录用户的详细信息
+	 * @throws InterruptedException if send thread is interrupted
+	 * @throws ExecutionException if execution fails
+	 * @throws TimeoutException if send times out
 	 */
 	public UserInfo getAccountInfo() throws InterruptedException, ExecutionException, TimeoutException {
 		LOGGER.debug("开始获取登录用户信息");
@@ -528,7 +553,11 @@ public class SmartQQClient implements Closeable, WithUserId {
 	/**
 	 * 获得好友的详细信息
 	 *
-	 * @return
+	 * @param friendId 好友ID
+	 * @return 好友的详细信息
+	 * @throws InterruptedException if send thread is interrupted
+	 * @throws ExecutionException if execution fails
+	 * @throws TimeoutException if send times out
 	 */
 	public UserInfo getFriendInfo(long friendId) throws InterruptedException, ExecutionException, TimeoutException {
 		LOGGER.debug("开始获取好友信息");
@@ -540,7 +569,10 @@ public class SmartQQClient implements Closeable, WithUserId {
 	/**
 	 * 获得最近会话列表
 	 *
-	 * @return
+	 * @return 最近会话列表
+	 * @throws InterruptedException if send thread is interrupted
+	 * @throws ExecutionException if execution fails
+	 * @throws TimeoutException if send times out
 	 */
 	public List<Recent> getRecentList() throws InterruptedException, ExecutionException, TimeoutException {
 		LOGGER.debug("开始获取最近会话列表");
@@ -556,14 +588,14 @@ public class SmartQQClient implements Closeable, WithUserId {
 	}
 
 	/**
-	 * 获得qq号
+	 * 获得QQ号
 	 * 
 	 * @param modelWithUserId
 	 *            The model that contains the user id.
-	 * @return
-	 * @throws InterruptedException
-	 * @throws ExecutionException
-	 * @throws TimeoutException
+	 * @return QQ号
+	 * @throws InterruptedException if send thread is interrupted
+	 * @throws ExecutionException if execution fails
+	 * @throws TimeoutException if send times out
 	 */
 	public long getQQById(WithUserId modelWithUserId)
 			throws InterruptedException, ExecutionException, TimeoutException {
@@ -571,11 +603,14 @@ public class SmartQQClient implements Closeable, WithUserId {
 	}
 	
 	/**
-	 * 获得qq号
+	 * 获得QQ号
 	 *
 	 * @param userId
 	 *            用户id
-	 * @return
+	 * @return QQ号
+	 * @throws InterruptedException if send thread is interrupted
+	 * @throws ExecutionException if execution fails
+	 * @throws TimeoutException if send times out
 	 */
 	public long getQQById(long userId) throws InterruptedException, ExecutionException, TimeoutException {
 		LOGGER.debug("开始获取QQ号");
@@ -585,9 +620,12 @@ public class SmartQQClient implements Closeable, WithUserId {
 	}
 
 	/**
-	 * 获得登录状态
+	 * 获得好友的状态
 	 *
-	 * @return
+	 * @return 好友的状态
+	 * @throws InterruptedException if send thread is interrupted
+	 * @throws ExecutionException if execution fails
+	 * @throws TimeoutException if send times out
 	 */
 	public List<FriendStatus> getFriendStatus() throws InterruptedException, ExecutionException, TimeoutException {
 		LOGGER.debug("开始获取好友状态");
@@ -602,7 +640,10 @@ public class SmartQQClient implements Closeable, WithUserId {
 	 *
 	 * @param groupCode
 	 *            群编号
-	 * @return
+	 * @return 群的详细信息
+	 * @throws InterruptedException if send thread is interrupted
+	 * @throws ExecutionException if execution fails
+	 * @throws TimeoutException if send times out
 	 */
 	public GroupInfo getGroupInfo(long groupCode) throws InterruptedException, ExecutionException, TimeoutException {
 		LOGGER.debug("开始获取群资料");
@@ -645,7 +686,10 @@ public class SmartQQClient implements Closeable, WithUserId {
 	 *
 	 * @param discussId
 	 *            讨论组id
-	 * @return
+	 * @return 讨论组的详细信息
+	 * @throws InterruptedException if send thread is interrupted
+	 * @throws ExecutionException if execution fails
+	 * @throws TimeoutException if send times out
 	 */
 	public DiscussInfo getDiscussInfo(long discussId)
 			throws InterruptedException, ExecutionException, TimeoutException {
@@ -677,9 +721,9 @@ public class SmartQQClient implements Closeable, WithUserId {
 	 *
 	 * @param userStatus
 	 *            用户状态
-	 * @throws InterruptedException
-	 * @throws ExecutionException
-	 * @throws TimeoutException
+	 * @throws InterruptedException if send thread is interrupted
+	 * @throws ExecutionException if execution fails
+	 * @throws TimeoutException if send times out
 	 */
 	public void changeStatus(UserStatus userStatus) throws InterruptedException, ExecutionException, TimeoutException {
 		LOGGER.debug("开始修改状态");
@@ -695,9 +739,9 @@ public class SmartQQClient implements Closeable, WithUserId {
 	 * @param userId
 	 *            用户ID
 	 * @return 用户头像的图片内容
-	 * @throws InterruptedException
-	 * @throws TimeoutException
-	 * @throws ExecutionException
+	 * @throws InterruptedException if send thread is interrupted
+	 * @throws ExecutionException if execution fails
+	 * @throws TimeoutException if send times out
 	 */
 	public byte[] getUserFace(long userId) throws InterruptedException, TimeoutException, ExecutionException {
 		return httpClient.newRequest(ApiURL.GET_USER_FACE.buildUrl(faceDomainSuffixRandom.nextInt(10), userId, vfwebqq))
@@ -874,7 +918,7 @@ public class SmartQQClient implements Closeable, WithUserId {
 	/**
 	 * Cancels request and stops HTTP client.
 	 * 
-	 * @throws IOException
+	 * @throws IOException If the client fails to close
 	 */
 	public void closeNow() throws IOException {
 		this.polling = false;

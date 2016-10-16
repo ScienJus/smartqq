@@ -3,8 +3,8 @@ package com.scienjus.smartqq.exception;
 /**
  * Smart QQ的API异常
  * 
- * @author Xianguang Zhou <xianguang.zhou@outlook.com>
- * @date 2016/08/17.
+ * @author <a href="mailto:xianguang.zhou@outlook.com">Xianguang Zhou</a>
+ * @since 2016/08/17.
  */
 public class ApiException extends SmartqqException {
 
