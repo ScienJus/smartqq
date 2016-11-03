@@ -1,13 +1,12 @@
 package com.scienjus.smartqq.model;
 
-import lombok.Data;
-
 /**
- * 字体
+ * 字体.
+ *
  * @author ScienJus
+ * @author <a href="http://88250.b3log.org">Liang Ding</a>
  * @date 15/12/19.
  */
-@Data
 public class Font {
 
     public static final Font DEFAULT_FONT = defaultFont();
@@ -28,5 +27,37 @@ public class Font {
     private String name;
 
     private int size;
+
+    public int[] getStyle() {
+        return style;
+    }
+
+    public void setStyle(int[] style) {
+        this.style = style;
+    }
+
+    public String getColor() {
+        return color;
+    }
+
+    public void setColor(String color) {
+        this.color = color;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public int getSize() {
+        return size;
+    }
+
+    public void setSize(int size) {
+        this.size = size;
+    }
 
 }
