@@ -2,7 +2,6 @@ package com.scienjus.smartqq.model;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import lombok.Data;
 
 /**
  * 群消息.
@@ -11,7 +10,6 @@ import lombok.Data;
  * @author <a href="http://88250.b3log.org">Liang Ding</a>
  * @date 15/12/19.
  */
-@Data
 public class GroupMessage {
 
     private long groupId;
@@ -38,6 +36,46 @@ public class GroupMessage {
         this.time = json.getLongValue("time");
         this.groupId = json.getLongValue("group_code");
         this.userId = json.getLongValue("send_uin");
+    }
+
+    public long getGroupId() {
+        return groupId;
+    }
+
+    public void setGroupId(long groupId) {
+        this.groupId = groupId;
+    }
+
+    public long getTime() {
+        return time;
+    }
+
+    public void setTime(long time) {
+        this.time = time;
+    }
+
+    public String getContent() {
+        return content;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
+    }
+
+    public long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(long userId) {
+        this.userId = userId;
+    }
+
+    public Font getFont() {
+        return font;
+    }
+
+    public void setFont(Font font) {
+        this.font = font;
     }
 
 }
