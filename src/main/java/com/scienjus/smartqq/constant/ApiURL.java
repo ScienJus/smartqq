@@ -90,7 +90,7 @@ public enum ApiURL {
             "http://s.web2.qq.com/proxy.html?v=20130916001&callback=1&id=1"
     );
 
-    public static final String USER_AGENT = "Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/45.0.2454.101 Safari/537.36";
+    public static final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/54.0.2840.99 Safari/537.36";
 
     private String url;
 
@@ -120,6 +120,6 @@ public enum ApiURL {
     }
 
     public String getOrigin() {
-        return this.url.substring(0, url.lastIndexOf("/"));
+        return this.url.substring(0, url.indexOf("/",url.indexOf("://")+3));
     }
 }
