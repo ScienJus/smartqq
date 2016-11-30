@@ -17,17 +17,18 @@ public class Application {
         //创建一个新对象时需要扫描二维码登录，并且传一个处理接收到消息的回调，如果你不需要接收消息，可以传null
         SmartQQClient client = new SmartQQClient(new MessageCallback() {
             @Override
-            public void onMessage(Message message) {
+            public void onMessage(SmartQQClient client, Message message) {
+                System.out.println(message.getContent());
+                //client.sendMessageToFriend(message.getUserId(),message.getContent());
+            }
+
+            @Override
+            public void onGroupMessage(SmartQQClient client, GroupMessage message) {
                 System.out.println(message.getContent());
             }
 
             @Override
-            public void onGroupMessage(GroupMessage message) {
-                System.out.println(message.getContent());
-            }
-
-            @Override
-            public void onDiscussMessage(DiscussMessage message) {
+            public void onDiscussMessage(SmartQQClient client, DiscussMessage message) {
                 System.out.println(message.getContent());
             }
         });
@@ -39,11 +40,7 @@ public class Application {
                 System.out.println("————" + friend.getNickname());
             }
         }
-        //使用后调用close方法关闭，你也可以使用try-with-resource创建该对象并自动关闭
-        try {
-            client.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+
+        while (true) ;
     }
 }
