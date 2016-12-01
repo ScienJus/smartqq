@@ -102,7 +102,7 @@ public class SmartQQClient implements Closeable {
             throw new IllegalStateException("二维码保存失败");
         }
 
-        RawResponse response = session.get(ApiURL.GET_QR_CODE.getUrl()).userAgent(ApiURL.USER_AGENT).send();
+        RawResponse response = session.get(ApiURL.GET_QR_CODE.buildUrl(Math.random())).userAgent(ApiURL.USER_AGENT).send();
         for(Cookie cookie:response.getCookies()){
             this.cookies.put(cookie.getName(),cookie.getValue());
         }
@@ -146,7 +146,7 @@ public class SmartQQClient implements Closeable {
     private void getVfwebqq() {
         LOGGER.debug("开始获取vfwebqq");
 
-        Response<String> response = get(ApiURL.GET_VFWEBQQ, ptwebqq);
+        Response<String> response = get(ApiURL.GET_VFWEBQQ, ptwebqq, Math.random());
         this.vfwebqq = getJsonObjectResult(response).getString("vfwebqq");
     }
 
