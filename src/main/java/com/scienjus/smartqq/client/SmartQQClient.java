@@ -278,7 +278,7 @@ public class SmartQQClient implements Closeable {
     public List<Discuss> getDiscussList() {
         LOGGER.debug("开始获取讨论组列表");
 
-        Response<String> response = get(ApiURL.GET_DISCUSS_LIST, psessionid, vfwebqq);
+        Response<String> response = get(ApiURL.GET_DISCUSS_LIST, psessionid, vfwebqq, Math.random());
         return JSON.parseArray(getJsonObjectResult(response).getJSONArray("dnamelist").toJSONString(), Discuss.class);
     }
 
@@ -362,7 +362,7 @@ public class SmartQQClient implements Closeable {
     public UserInfo getAccountInfo() {
         LOGGER.debug("开始获取登录用户信息");
 
-        Response<String> response = get(ApiURL.GET_ACCOUNT_INFO);
+        Response<String> response = get(ApiURL.GET_ACCOUNT_INFO, Math.random());
         return JSON.parseObject(getJsonObjectResult(response).toJSONString(), UserInfo.class);
     }
 
@@ -373,7 +373,7 @@ public class SmartQQClient implements Closeable {
     public UserInfo getFriendInfo(long friendId) {
         LOGGER.debug("开始获取好友信息");
 
-        Response<String> response = get(ApiURL.GET_FRIEND_INFO, friendId, vfwebqq, psessionid);
+        Response<String> response = get(ApiURL.GET_FRIEND_INFO, friendId, vfwebqq, psessionid, Math.random());
         return JSON.parseObject(getJsonObjectResult(response).toJSONString(), UserInfo.class);
     }
 
@@ -401,7 +401,7 @@ public class SmartQQClient implements Closeable {
     public long getQQById(long friendId) {
         LOGGER.debug("开始获取QQ号");
 
-        Response<String> response = get(ApiURL.GET_QQ_BY_ID, friendId, vfwebqq);
+        Response<String> response = get(ApiURL.GET_QQ_BY_ID, friendId, vfwebqq, Math.random());
         return getJsonObjectResult(response).getLongValue("account");
     }
 
@@ -466,7 +466,7 @@ public class SmartQQClient implements Closeable {
     public List<FriendStatus> getFriendStatus() {
         LOGGER.debug("开始获取好友状态");
 
-        Response<String> response = get(ApiURL.GET_FRIEND_STATUS, vfwebqq, psessionid);
+        Response<String> response = get(ApiURL.GET_FRIEND_STATUS, vfwebqq, psessionid, Math.random());
         return JSON.parseArray(getJsonArrayResult(response).toJSONString(), FriendStatus.class);
     }
 
@@ -478,7 +478,7 @@ public class SmartQQClient implements Closeable {
     public GroupInfo getGroupInfo(long groupCode) {
         LOGGER.debug("开始获取群资料");
 
-        Response<String> response = get(ApiURL.GET_GROUP_INFO, groupCode, vfwebqq);
+        Response<String> response = get(ApiURL.GET_GROUP_INFO, groupCode, vfwebqq, Math.random());
         JSONObject result = getJsonObjectResult(response);
         GroupInfo groupInfo = result.getObject("ginfo", GroupInfo.class);
         //获得群成员信息
@@ -519,7 +519,7 @@ public class SmartQQClient implements Closeable {
     public DiscussInfo getDiscussInfo(long discussId) {
         LOGGER.debug("开始获取讨论组资料");
 
-        Response<String> response = get(ApiURL.GET_DISCUSS_INFO, discussId, vfwebqq, psessionid);
+        Response<String> response = get(ApiURL.GET_DISCUSS_INFO, discussId, vfwebqq, psessionid, Math.random());
         JSONObject result = getJsonObjectResult(response);
         DiscussInfo discussInfo = result.getObject("info", DiscussInfo.class);
         //获得讨论组成员信息
