@@ -122,6 +122,12 @@ public class Application {
 
 现在使用[requests][7]进行 Http 请求
 
+### 其他版本
+
+1. @lonhay 提供了一个基于最新版 Requests 和 Java 8 的[版本][9]
+
+2. @88250 提供了一个可以直接使用的 Web 服务，参见[b3log/xiaov][10]
+
 ### 联系方式
 
 由于 Web QQ 协议变更比较频繁，而我也不可能时时都去测试 Api 的可用性，所以如果您在使用途中发现了问题，欢迎给我提 Issue ，或是通过邮件联系我：`i@scienjus.com`，意见和建议也欢迎。
@@ -135,3 +141,5 @@ public class Application {
 [6]: http://www.scienjus.com/webqq-analysis-6/
 [7]: https://github.com/caoqianli/requests
 [8]: http://w.qq.com
+[9]: https://github.com/ScienJus/smartqq/tree/java8
+[10]: https://github.com/b3log/xiaov
