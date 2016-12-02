@@ -2,7 +2,7 @@
 
 基于 Smart QQ（Web QQ） 的 Api 封装，你可以用这个 Api 制作属于自己的 QQ 机器人！
 
-该项目目前（2016年2月）为止还可以正常使用，我也会尽量一直维护这个项目，[Ruby版][ruby]也是如此。
+该项目目前（2016年11月30日）为止还可以正常使用，我也会尽量一直维护这个项目，[Ruby版][ruby]也是如此。
 
 该项目仅提供了最基本的通信协议，你可以在此基础上实现自己的业务逻辑，包括且不限于：
 
@@ -50,17 +50,17 @@ public class Application {
         //创建一个新对象时需要扫描二维码登录，并且传一个处理接收到消息的回调，如果你不需要接收消息，可以传null
         SmartQQClient client = new SmartQQClient(new MessageCallback() {
             @Override
-            public void onMessage(Message message) {
+            public void onMessage(SmartQQClient client, Message message) {
                 System.out.println(message.getContent());
             }
-
+        
             @Override
-            public void onGroupMessage(GroupMessage message) {
+            public void onGroupMessage(SmartQQClient client, GroupMessage message) {
                 System.out.println(message.getContent());
             }
-
+        
             @Override
-            public void onDiscussMessage(DiscussMessage message) {
+            public void onDiscussMessage(SmartQQClient client, DiscussMessage message) {
                 System.out.println(message.getContent());
             }
         });
@@ -72,12 +72,8 @@ public class Application {
                 System.out.println("————" + friend.getNickname());
             }
         }
-        //使用后调用close方法关闭，你也可以使用try-with-resource创建该对象并自动关闭
-        try {
-            client.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        
+        while (true) ;
     }
 }
 ```
@@ -117,6 +113,8 @@ public class Application {
 2016-2-1：程序无法接收消息，同时登录[官网][8]后也无法接收消息。大约 15:44 左右恢复正常，程序不需要更新。感谢@WiseClock提供信息！
 
 2016-11-3：由于很多人不知 Lombok 为何物而导致编译错误，所以去除了，真为不会使用工具的人感到悲哀！
+
+2016-11-30：本仓库代码已根据最新WEBQQ协议做了更新，经过简单测试程序可用
 
 ### 感谢
 
