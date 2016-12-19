@@ -72,7 +72,9 @@ public class SmartQQClient implements Closeable {
                         }
                         try {
                             pollMessage(callback);
-                        } catch (Exception ignore) {
+                        } catch (SocketTimeoutException ignore) {
+                            // Ignore
+                        } catch (Exception e) {
                             LOGGER.error(ignore.getMessage());
                         }
                     }
