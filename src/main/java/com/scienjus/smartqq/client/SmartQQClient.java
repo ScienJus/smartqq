@@ -16,6 +16,7 @@ import org.apache.log4j.Logger;
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
+import java.net.SocketTimeoutException;
 import java.util.*;
 
 /**
@@ -72,10 +73,13 @@ public class SmartQQClient implements Closeable {
                         }
                         try {
                             pollMessage(callback);
-                        } catch (SocketTimeoutException ignore) {
-                            // Ignore
+                        } catch (RequestException e) {
+                            // Ignore SocketTimeoutException
+                            if (!(e.getCause() instanceof SocketTimeoutException)) {
+                                LOGGER.error(e.getMessage());
+                            }
                         } catch (Exception e) {
-                            LOGGER.error(ignore.getMessage());
+                            LOGGER.error(e.getMessage());
                         }
                     }
                 }
