@@ -36,7 +36,7 @@ public class GroupMessage implements WithUserId {
 	    final int contentJsonArraySize = contentJsonArray.size();
 	    contentElements = new ArrayList<>(contentJsonArraySize - 1);
 	    for (int i = 1; i < contentJsonArraySize; i++) {
-		    contentElements.add(MessageContentElement.fromJson(contentJsonArray.get(i)));
+		    contentElements.add(MessageContentElementUtil.fromJson(contentJsonArray.get(i)));
 	    }
 
         this.time = jsonObject.get("time").getAsLong();

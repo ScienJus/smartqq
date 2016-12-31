@@ -2,7 +2,7 @@
 
 Smart QQ（WebQQ）的API，从https://github.com/ScienJus/smartqq 修改而来
 
-该项目目前（2016年8月26日）为止还可以正常使用，我也会尽量一直维护这个项目。
+该项目目前（2016年12月31日）为止还可以正常使用，我也会尽量一直维护这个项目。
 
 该项目仅提供了最基本的通信协议，你可以在此基础上实现自己的业务逻辑，包括且不限于：
 
@@ -48,39 +48,6 @@ mvn clean source:jar javadoc:jar install -Dmaven.test.skip=true
 
 ```
 public class Application {
-	
-	/**
-	 * 本地存储二维码图片
-	 * 
-	 * @param qrCodeImageBytes
-	 */
-	private static void saveQrCodeImage(byte[] qrCodeImageBytes) {
-		try {
-			File imageFile = new File("qrcode.png");
-			try (FileOutputStream fos = new FileOutputStream(imageFile)) {
-				fos.write(qrCodeImageBytes);
-			}
-			String filePath = imageFile.getCanonicalPath();
-			System.out.println("二维码已保存在 " + filePath + " 文件中，请打开手机QQ并扫描二维码");
-		} catch (IOException e) {
-			System.out.println("二维码保存失败：");
-			e.printStackTrace();
-		}
-	}
-
-	private static void println(List<MessageContentElement> messageContentElements) {
-		for (MessageContentElement contentElement : messageContentElements) {
-			if (contentElement instanceof Text) {
-				System.out.print(((Text) contentElement).getString());
-			} else if (contentElement instanceof Face) {
-				System.out.print(String.format("[表情(%d)]", ((Face) contentElement).getCode()));
-			} else {
-				System.out.print("[未知的消息内容元素]");
-			}
-		}
-		System.out.println();
-	}
-
 	public static void main(String[] args) throws Exception {
 		// 创建一个新客户端时需要传一个处理接收到消息的监听器
 		@SuppressWarnings("resource")
@@ -105,12 +72,13 @@ public class Application {
 			}
 		});
 		try {
+			client.start();
 			// 扫描二维码登录
 			do {
 				byte[] qrCodeImageBytes = client.getQRCode();
 				saveQrCodeImage(qrCodeImageBytes);
 			} while (client.login());
-			
+
 			// 登录成功后便可以编写你自己的业务逻辑了
 			List<Category> categories = client.getFriendListWithCategory();
 			for (Category category : categories) {
@@ -119,21 +87,43 @@ public class Application {
 					System.out.println("————" + friend.getNickname());
 				}
 			}
-			
-			{
-				// 获取自己的头像并保存在“./tmp/face/self.jpg”
-				byte[] faceImageBytes = client.getUserFace(client.getSelfUserId());
-				File faceImageFile = new File("tmp/face/self.jpg");
-				faceImageFile.getParentFile().mkdirs();
-				try (FileOutputStream fos = new FileOutputStream(faceImageFile)) {
-					fos.write(faceImageBytes);
-				}
-			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
 			// 使用后调用close或closeNow方法关闭，你也可以使用try-with-resource创建该对象并自动关闭
 			client.closeNow();
+		}
+	}
+
+	private static void println(List<MessageContentElement> messageContentElements) {
+		for (MessageContentElement contentElement : messageContentElements) {
+			if (contentElement instanceof Text) {
+				System.out.print(((Text) contentElement).getString());
+			} else if (contentElement instanceof Face) {
+				System.out.print(String.format("[表情(%d)]", ((Face) contentElement).getCode()));
+			} else {
+				System.out.print("[未知的消息内容元素]");
+			}
+		}
+		System.out.println();
+	}
+
+	/**
+	 * 本地存储二维码图片
+	 * 
+	 * @param qrCodeImageBytes
+	 */
+	private static void saveQrCodeImage(byte[] qrCodeImageBytes) {
+		try {
+			File imageFile = new File("qrcode.png");
+			try (FileOutputStream fos = new FileOutputStream(imageFile)) {
+				fos.write(qrCodeImageBytes);
+			}
+			String filePath = imageFile.getCanonicalPath();
+			System.out.println("二维码已保存在 " + filePath + " 文件中，请打开手机QQ并扫描二维码");
+		} catch (IOException e) {
+			System.out.println("二维码保存失败：");
+			e.printStackTrace();
 		}
 	}
 }
