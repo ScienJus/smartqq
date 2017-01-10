@@ -196,6 +196,7 @@ public class SmartQQClient implements Closeable, WithUserId {
 			getPtwebqq(url);
 			getVfwebqq();
 			getUinAndPsessionid();
+			avoidRetcode103();
 			getFriendStatus();
 			startPolling();
 			return false;
@@ -303,6 +304,12 @@ public class SmartQQClient implements Closeable, WithUserId {
 		this.psessionid = result.get("psessionid").getAsString();
 		this.uin = result.get("uin").getAsLong();
 		this.selfUserStatus = result.get("status").getAsString();
+	}
+	
+	private void avoidRetcode103() throws InterruptedException, ExecutionException, TimeoutException {
+		LOGGER.debug("Send request to avoid receiving return code 103.");
+		
+		getResponseJson(get(ApiURL.AVOID_RETCODE_103, vfwebqq, Client_ID, psessionid));
 	}
 
 	/**
