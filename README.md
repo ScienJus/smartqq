@@ -2,15 +2,9 @@
 
 Smart QQ（WebQQ）的API，从https://github.com/ScienJus/smartqq 修改而来
 
-该项目目前（2017年1月10日）为止还可以正常使用，我也会尽量一直维护这个项目。
+该项目目前（2017年1月11日）为止还可以正常使用，我也会尽量一直维护这个项目。
 
-该项目仅提供了最基本的通信协议，你可以在此基础上实现自己的业务逻辑，包括且不限于：
-
-- 拥有 GUI 的 QQ 客户端（Android 或桌面版）
-- 自动聊天回复的 QQ 机器人
-- 汇总聊天记录并同步在云上
-- 通过 QQ 写邮件、发短信、执行远程服务器的命令
-- 等等……
+该项目仅提供了最基本的通信协议。
 
 注：由于 Smart QQ 不支持收发图片等功能，所以此 API 也只可以发送文字消息（不包含 @ 命令）。
 
@@ -44,89 +38,10 @@ mvn clean source:jar javadoc:jar install -Dmaven.test.skip=true
 </dependency>
 ```
 
-如果你只是想要尝试一下，可以直接clone本项目并随便写个Main方法运行。
+如果你只是想要尝试一下，可以直接clone本项目并运行：
 
 ```
-public class Application {
-	public static void main(String[] args) throws Exception {
-		// 创建一个新客户端时需要传一个处理接收到消息的监听器
-		@SuppressWarnings("resource")
-		SmartQQClient client = new SmartQQClient(new SmartqqListener() {
-			@Override
-			public void onMessage(Message message) {
-				println(message.getContentElements());
-			}
-
-			@Override
-			public void onGroupMessage(GroupMessage message) {
-				println(message.getContentElements());
-			}
-
-			@Override
-			public void onDiscussMessage(DiscussMessage message) {
-				println(message.getContentElements());
-			}
-
-			@Override
-			public void onException(Throwable exception, ExceptionThreadType exceptionThreadType) {
-			}
-		});
-		try {
-			client.start();
-			// 扫描二维码登录
-			do {
-				byte[] qrCodeImageBytes = client.getQRCode();
-				saveQrCodeImage(qrCodeImageBytes);
-			} while (client.login());
-
-			// 登录成功后便可以编写你自己的业务逻辑了
-			List<Category> categories = client.getFriendListWithCategory();
-			for (Category category : categories) {
-				System.out.println(category.getName());
-				for (Friend friend : category.getFriends()) {
-					System.out.println("————" + friend.getNickname());
-				}
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		} finally {
-			// 使用后调用close或closeNow方法关闭，你也可以使用try-with-resource创建该对象并自动关闭
-			client.closeNow();
-		}
-	}
-
-	private static void println(List<MessageContentElement> messageContentElements) {
-		for (MessageContentElement contentElement : messageContentElements) {
-			if (contentElement instanceof Text) {
-				System.out.print(((Text) contentElement).getString());
-			} else if (contentElement instanceof Face) {
-				System.out.print(String.format("[表情(%d)]", ((Face) contentElement).getCode()));
-			} else {
-				System.out.print("[未知的消息内容元素]");
-			}
-		}
-		System.out.println();
-	}
-
-	/**
-	 * 本地存储二维码图片
-	 * 
-	 * @param qrCodeImageBytes
-	 */
-	private static void saveQrCodeImage(byte[] qrCodeImageBytes) {
-		try {
-			File imageFile = new File("qrcode.png");
-			try (FileOutputStream fos = new FileOutputStream(imageFile)) {
-				fos.write(qrCodeImageBytes);
-			}
-			String filePath = imageFile.getCanonicalPath();
-			System.out.println("二维码已保存在 " + filePath + " 文件中，请打开手机QQ并扫描二维码");
-		} catch (IOException e) {
-			System.out.println("二维码保存失败：");
-			e.printStackTrace();
-		}
-	}
-}
+mvn test -Dtest=com.scienjus.smartqq.test.LoginTest#testLogin
 ```
 
 ### API 列表
@@ -146,10 +61,6 @@ public class Application {
 [Web QQ协议分析（六）：其他][6]
 
 ### 常见错误
-
-**程序无法控制的错误**
-
-错误码103：这个是由于Smart QQ多点登录，后端校验失败。需要手动进入[官网][7]，检查是否能正常接收消息。如果可以的话点击[设置]->[退出登录]后查看是否恢复正常
 
 **正常流程不应该发生的错误**
 

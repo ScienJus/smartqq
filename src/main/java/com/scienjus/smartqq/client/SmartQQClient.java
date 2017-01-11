@@ -189,6 +189,7 @@ public class SmartQQClient implements Closeable, WithUserId {
 	 * @throws TimeoutException
 	 *             if send times out
 	 * @throws URISyntaxException
+	 *             if a string could not be parsed as a URI reference
 	 */
 	public boolean login() throws InterruptedException, ExecutionException, TimeoutException, URISyntaxException {
 		String url = verifyQRCode();
