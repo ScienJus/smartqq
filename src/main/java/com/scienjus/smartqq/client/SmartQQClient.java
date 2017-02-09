@@ -11,6 +11,7 @@ import net.dongliu.requests.HeadOnlyRequestBuilder;
 import net.dongliu.requests.Response;
 import net.dongliu.requests.Session;
 import net.dongliu.requests.exception.RequestException;
+import net.dongliu.requests.struct.Cookie;
 import org.apache.log4j.Logger;
 
 import java.io.Closeable;
@@ -45,6 +46,9 @@ public class SmartQQClient implements Closeable {
 
     //会话
     private Session session;
+
+    //QR码的Token
+    private String qrsig;
 
     //鉴权参数
     private String ptwebqq;
@@ -109,10 +113,24 @@ public class SmartQQClient implements Closeable {
         } catch (IOException e) {
             throw new IllegalStateException("二维码保存失败");
         }
-        session.get(ApiURL.GET_QR_CODE.getUrl())
+        Response response = session.get(ApiURL.GET_QR_CODE.getUrl())
                 .addHeader("User-Agent", ApiURL.USER_AGENT)
                 .file(filePath);
+        for(Cookie cookie:response.getCookies()){
+            if (Objects.equals(cookie.getName(), "qrsig")) {
+                qrsig = cookie.getValue();
+                break;
+            }
+        }
         LOGGER.info("二维码已保存在 " + filePath + " 文件中，请打开手机QQ并扫描二维码");
+    }
+
+    //用于生成ptqrtoken的哈希函数
+    private static int hash33(String s) {
+        int e = 0, i = 0, n  = s.length();
+        for (; n > i; ++i)
+            e += (e << 5) + s.charAt(i);
+        return 2147483647 & e;
     }
 
     //登录流程2：校验二维码
@@ -122,7 +140,7 @@ public class SmartQQClient implements Closeable {
         //阻塞直到确认二维码认证成功
         while (true) {
             sleep(1);
-            Response<String> response = get(ApiURL.VERIFY_QR_CODE);
+            Response<String> response = get(ApiURL.VERIFY_QR_CODE, hash33(qrsig));
             String result = response.getBody();
             if (result.contains("成功")) {
                 for (String content : result.split("','")) {
