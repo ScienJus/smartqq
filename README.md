@@ -130,6 +130,8 @@ public class Application {
 
 3. @sjdy521 提供了一个可以通过HTTP协议api接口完成接收、发送QQ消息等功能的项目，参见[Mojo-Webqq][11]
 
+4. @TJYSunset 提供了一个本项目的 C# [版本][12]
+
 ### 联系方式
 
 由于 Web QQ 协议变更比较频繁，而我也不可能时时都去测试 Api 的可用性，所以如果您在使用途中发现了问题，欢迎给我提 Issue ，或是通过邮件联系我：`i@scienjus.com`，意见和建议也欢迎。
@@ -146,3 +148,4 @@ public class Application {
 [9]: https://github.com/ScienJus/smartqq/tree/java8
 [10]: https://github.com/b3log/xiaov
 [11]: https://github.com/sjdy521/Mojo-Webqq
+[12]: https://github.com/TJYSunset/DumbQQ
