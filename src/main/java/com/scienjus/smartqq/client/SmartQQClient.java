@@ -100,6 +100,8 @@ public class SmartQQClient implements Closeable {
         getPtwebqq(url);
         getVfwebqq();
         getUinAndPsessionid();
+        // for fixes 103
+        getFriendStatus();
     }
 
     //登录流程1：获取二维码
