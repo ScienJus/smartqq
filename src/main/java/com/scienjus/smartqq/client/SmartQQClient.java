@@ -86,6 +86,11 @@ public class SmartQQClient implements Closeable, WithUserId {
 
 	// HTTP客户端
 	private HttpClient httpClient;
+	
+	/**
+	 * QR码的Token
+	 */
+	private String qrsig;
 
 	// 鉴权参数
 	private String ptwebqq;
@@ -170,8 +175,16 @@ public class SmartQQClient implements Closeable, WithUserId {
 	public byte[] getQRCode() throws InterruptedException, ExecutionException, TimeoutException {
 		LOGGER.debug("开始获取二维码");
 
-		byte[] imageBytes = httpClient.newRequest(ApiURL.GET_QR_CODE.getUrl()).timeout(10, TimeUnit.SECONDS)
-				.method(HttpMethod.GET).agent(ApiURL.USER_AGENT).send().getContent();
+		ContentResponse response = httpClient.newRequest(ApiURL.GET_QR_CODE.getUrl()).timeout(10, TimeUnit.SECONDS)
+				.method(HttpMethod.GET).agent(ApiURL.USER_AGENT).send();
+		byte[] imageBytes = response.getContent();
+		List<HttpCookie> httpCookieList = httpClient.getCookieStore().get(response.getRequest().getURI());
+		for (HttpCookie httpCookie : httpCookieList) {
+			if ("qrsig".equals(httpCookie.getName())) {
+				this.qrsig = httpCookie.getValue();
+				break;
+			}
+		}
 
 		LOGGER.debug("二维码已获取");
 
@@ -228,6 +241,14 @@ public class SmartQQClient implements Closeable, WithUserId {
 		pollThread.start();
 	}
 
+	// 用于生成ptqrtoken的哈希函数
+	private static int hash33(String s) {
+		int e = 0, i = 0, n = s.length();
+		for (; n > i; ++i)
+			e += (e << 5) + s.charAt(i);
+		return 2147483647 & e;
+	}
+
 	// 登录流程2：校验二维码
 	private String verifyQRCode() throws InterruptedException, ExecutionException, TimeoutException {
 		LOGGER.debug("等待扫描二维码");
@@ -235,7 +256,7 @@ public class SmartQQClient implements Closeable, WithUserId {
 		// 阻塞直到确认二维码认证成功
 		while (true) {
 			sleep(1);
-			ContentResponse response = get(ApiURL.VERIFY_QR_CODE);
+			ContentResponse response = get(ApiURL.VERIFY_QR_CODE, hash33(qrsig));
 			String result = response.getContentAsString();
 			if (result.contains("成功")) {
 				for (String content : result.split("','")) {
