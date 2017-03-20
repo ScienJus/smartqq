@@ -627,11 +627,22 @@ public class SmartQQClient implements Closeable {
         }
         JSONObject json = JSON.parseObject(response.getBody());
         Integer retCode = json.getInteger("retcode");
-        if (retCode == null || retCode != 0) {
-            if (retCode != null && retCode == 103) {
-                LOGGER.error("请求失败，Api返回码[103]。你需要进入http://w.qq.com，检查是否能正常接收消息。如果可以的话点击[设置]->[退出登录]后查看是否恢复正常");
-            } else {
-                throw new RequestException(String.format("请求失败，Api返回码[%d]", retCode));
+        if (retCode == null) {
+            throw new RequestException(String.format("请求失败，Api返回异常", retCode));
+        } else if (retCode != 0) {
+            switch (retCode) {
+                case 103: {
+                    LOGGER.error("请求失败，Api返回码[103]。你需要进入http://w.qq.com，检查是否能正常接收消息。如果可以的话点击[设置]->[退出登录]后查看是否恢复正常"); 
+                    break;
+                }
+                case 100100: {
+                    LOGGER.debug("请求失败，Api返回码[100100]");
+                    break;
+                }
+                default: {
+                    throw new RequestException(String.format("请求失败，Api返回码[%d]", retCode));
+                    break;
+                }
             }
         }
         return json;
