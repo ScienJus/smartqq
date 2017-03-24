@@ -14,6 +14,7 @@ import net.dongliu.requests.exception.RequestException;
 import net.dongliu.requests.struct.Cookie;
 import org.apache.log4j.Logger;
 
+import java.awt.Desktop;
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
@@ -47,16 +48,13 @@ public class SmartQQClient implements Closeable {
     //会话
     private Session session;
 
-    //QR码的Token
+    //二维码令牌
     private String qrsig;
 
     //鉴权参数
     private String ptwebqq;
-
     private String vfwebqq;
-
     private long uin;
-
     private String psessionid;
 
     //线程开关
@@ -78,7 +76,7 @@ public class SmartQQClient implements Closeable {
                         try {
                             pollMessage(callback);
                         } catch (RequestException e) {
-                            // Ignore SocketTimeoutException
+                            //忽略SocketTimeoutException
                             if (!(e.getCause() instanceof SocketTimeoutException)) {
                                 LOGGER.error(e.getMessage());
                             }
@@ -100,8 +98,10 @@ public class SmartQQClient implements Closeable {
         getPtwebqq(url);
         getVfwebqq();
         getUinAndPsessionid();
-        // for fixes 103
-        getFriendStatus();
+        getFriendStatus(); //修复Api返回码[103]的问题
+        //登录成功欢迎语
+        UserInfo userInfo = getAccountInfo();
+        LOGGER.info(userInfo.getNick() + "，欢迎！");
     }
 
     //登录流程1：获取二维码
@@ -118,19 +118,28 @@ public class SmartQQClient implements Closeable {
         Response response = session.get(ApiURL.GET_QR_CODE.getUrl())
                 .addHeader("User-Agent", ApiURL.USER_AGENT)
                 .file(filePath);
-        for(Cookie cookie:response.getCookies()){
+        for (Cookie cookie : response.getCookies()) {
             if (Objects.equals(cookie.getName(), "qrsig")) {
                 qrsig = cookie.getValue();
                 break;
             }
         }
         LOGGER.info("二维码已保存在 " + filePath + " 文件中，请打开手机QQ并扫描二维码");
+
+        //使用默认软件打开二维码
+        Desktop desk = Desktop.getDesktop();
+        try {
+            File file = new File(filePath);
+            desk.open(file);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     //用于生成ptqrtoken的哈希函数
     private static int hash33(String s) {
-        int e = 0, i = 0, n  = s.length();
-        for (; n > i; ++i)
+        int e = 0, n = s.length();
+        for (int i = 0; n > i; ++i)
             e += (e << 5) + s.charAt(i);
         return 2147483647 & e;
     }
@@ -194,6 +203,7 @@ public class SmartQQClient implements Closeable {
 
     /**
      * 获取群列表
+     *
      * @return
      */
     public List<Group> getGroupList() {
@@ -210,7 +220,8 @@ public class SmartQQClient implements Closeable {
 
     /**
      * 拉取消息
-     * @param callback  获取消息后的回调
+     *
+     * @param callback 获取消息后的回调
      */
     private void pollMessage(MessageCallback callback) {
         LOGGER.debug("开始接收消息");
@@ -238,8 +249,9 @@ public class SmartQQClient implements Closeable {
 
     /**
      * 发送群消息
-     * @param groupId   群id
-     * @param msg       消息内容
+     *
+     * @param groupId 群id
+     * @param msg     消息内容
      */
     public void sendMessageToGroup(long groupId, String msg) {
         LOGGER.debug("开始发送群消息");
@@ -258,6 +270,7 @@ public class SmartQQClient implements Closeable {
 
     /**
      * 发送讨论组消息
+     *
      * @param discussId 讨论组id
      * @param msg       消息内容
      */
@@ -278,8 +291,9 @@ public class SmartQQClient implements Closeable {
 
     /**
      * 发送消息
-     * @param friendId  好友id
-     * @param msg       消息内容
+     *
+     * @param friendId 好友id
+     * @param msg      消息内容
      */
     public void sendMessageToFriend(long friendId, String msg) {
         LOGGER.debug("开始发送消息");
@@ -298,6 +312,7 @@ public class SmartQQClient implements Closeable {
 
     /**
      * 获得讨论组列表
+     *
      * @return
      */
     public List<Discuss> getDiscussList() {
@@ -309,6 +324,7 @@ public class SmartQQClient implements Closeable {
 
     /**
      * 获得好友列表（包含分组信息）
+     *
      * @return
      */
     public List<Category> getFriendListWithCategory() {
@@ -341,6 +357,7 @@ public class SmartQQClient implements Closeable {
 
     /**
      * 获取好友列表
+     *
      * @return
      */
     public List<Friend> getFriendList() {
@@ -382,6 +399,7 @@ public class SmartQQClient implements Closeable {
 
     /**
      * 获得当前登录用户的详细信息
+     *
      * @return
      */
     public UserInfo getAccountInfo() {
@@ -393,6 +411,7 @@ public class SmartQQClient implements Closeable {
 
     /**
      * 获得好友的详细信息
+     *
      * @return
      */
     public UserInfo getFriendInfo(long friendId) {
@@ -404,6 +423,7 @@ public class SmartQQClient implements Closeable {
 
     /**
      * 获得最近会话列表
+     *
      * @return
      */
     public List<Recent> getRecentList() {
@@ -420,7 +440,8 @@ public class SmartQQClient implements Closeable {
 
     /**
      * 获得qq号
-     * @param friendId    用户id
+     *
+     * @param friendId 用户id
      * @return
      */
     public long getQQById(long friendId) {
@@ -432,7 +453,8 @@ public class SmartQQClient implements Closeable {
 
     /**
      * 获得好友的qq号
-     * @param friend    好友对象
+     *
+     * @param friend 好友对象
      * @return
      */
     public long getQQById(Friend friend) {
@@ -441,7 +463,8 @@ public class SmartQQClient implements Closeable {
 
     /**
      * 获得群友的qq号
-     * @param user    群友对象
+     *
+     * @param user 群友对象
      * @return
      */
     public long getQQById(GroupUser user) {
@@ -450,7 +473,8 @@ public class SmartQQClient implements Closeable {
 
     /**
      * 获得讨论组成员的qq号
-     * @param user    讨论组成员对象
+     *
+     * @param user 讨论组成员对象
      * @return
      */
     public long getQQById(DiscussUser user) {
@@ -459,7 +483,8 @@ public class SmartQQClient implements Closeable {
 
     /**
      * 获得私聊消息发送者的qq号
-     * @param msg    私聊消息
+     *
+     * @param msg 私聊消息
      * @return
      */
     public long getQQById(Message msg) {
@@ -468,7 +493,8 @@ public class SmartQQClient implements Closeable {
 
     /**
      * 获得群消息发送者的qq号
-     * @param msg    群消息
+     *
+     * @param msg 群消息
      * @return
      */
     public long getQQById(GroupMessage msg) {
@@ -477,7 +503,8 @@ public class SmartQQClient implements Closeable {
 
     /**
      * 获得讨论组消息发送者的qq号
-     * @param msg    讨论组消息
+     *
+     * @param msg 讨论组消息
      * @return
      */
     public long getQQById(DiscussMessage msg) {
@@ -486,6 +513,7 @@ public class SmartQQClient implements Closeable {
 
     /**
      * 获得登录状态
+     *
      * @return
      */
     public List<FriendStatus> getFriendStatus() {
@@ -497,6 +525,7 @@ public class SmartQQClient implements Closeable {
 
     /**
      * 获得群的详细信息
+     *
      * @param groupCode 群编号
      * @return
      */
@@ -538,6 +567,7 @@ public class SmartQQClient implements Closeable {
 
     /**
      * 获得讨论组的详细信息
+     *
      * @param discussId 讨论组id
      * @return
      */
@@ -567,7 +597,7 @@ public class SmartQQClient implements Closeable {
 
     //发送get请求
     private Response<String> get(ApiURL url, Object... params) {
-        HeadOnlyRequestBuilder request =  session.get(url.buildUrl(params))
+        HeadOnlyRequestBuilder request = session.get(url.buildUrl(params))
                 .addHeader("User-Agent", ApiURL.USER_AGENT);
         if (url.getReferer() != null) {
             request.addHeader("Referer", url.getReferer());
@@ -614,7 +644,7 @@ public class SmartQQClient implements Closeable {
         JSONObject json = JSON.parseObject(response.getBody());
         Integer errCode = json.getInteger("errCode");
         if (errCode != null && errCode == 0) {
-            LOGGER.debug("发送成功!");
+            LOGGER.debug("发送成功");
         } else {
             LOGGER.error(String.format("发送失败，Api返回码[%d]", json.getInteger("retcode")));
         }
@@ -657,7 +687,9 @@ public class SmartQQClient implements Closeable {
     private static void sleep(long seconds) {
         try {
             Thread.sleep(seconds * 1000);
-        } catch (InterruptedException ignored) {}
+        } catch (InterruptedException e) {
+            //忽略InterruptedException
+        }
     }
 
     //hash加密方法
