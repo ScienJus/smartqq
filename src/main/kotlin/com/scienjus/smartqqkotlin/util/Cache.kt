@@ -38,6 +38,7 @@ internal class Cache<E>(timeout: Duration) {
     fun getValue(initializer: (Unit) -> E?): E? {
         if (!isValid) {
             value = initializer(Unit)
+            isValid = true
         }
         return value
     }
