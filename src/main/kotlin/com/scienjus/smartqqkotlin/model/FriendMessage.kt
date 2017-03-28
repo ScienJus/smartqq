@@ -14,15 +14,15 @@ data class FriendMessage internal constructor(
         internal val senderId: Long = 0,
         override val content: String,
         override val timestamp: Long) : Message {
-    override val sender: User
-        get() = TODO() // TODO
+    override val sender: Friend
+        get() = client.friends.find { it.id == senderId }!!
 
     override fun reply(content: String) {
         client.message(SmartQqClient.TargetType.FRIEND, senderId, content)
     }
 
-    override val replyableTarget: MessageTarget
-        get() = TODO() // TODO
+    override val replyableTarget: Friend
+        get() = sender
 
     internal constructor(client: SmartQqClient, obj: JSONObject) : this(
             client,

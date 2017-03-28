@@ -17,10 +17,13 @@ data class DiscussionMessage internal constructor(
         override val timestamp: Long) : Message {
 
     override val replyableTarget: MessageTarget
-        get() = TODO() // TODO
+        get() = discussion
 
-    override val sender: User
-        get() = TODO() // TODO
+    override val sender: DiscussionMember
+        get() = discussion.members.find { it.id == senderId }!!
+
+    val discussion: Discussion
+        get() = client.discussions.find { it.id == discussionId }!!
 
     override fun reply(content: String) {
         client.message(SmartQqClient.TargetType.DISCUSSION, discussionId, content)

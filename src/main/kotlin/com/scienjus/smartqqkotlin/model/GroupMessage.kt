@@ -15,10 +15,13 @@ data class GroupMessage internal constructor(
         internal val senderId: Long,
         override val content: String,
         override val timestamp: Long) : Message {
-    override val replyableTarget: MessageTarget
-        get() = TODO() // TODO
-    override val sender: User
-        get() = TODO() // TODO
+    override val replyableTarget: Group
+        get() = group
+    override val sender: GroupMember
+        get() = group.members.find { it.id == senderId }!!
+
+    val group: Group
+        get() = client.groups.find { it.id == groupId }!!
 
     override fun reply(content: String) {
         client.message(SmartQqClient.TargetType.GROUP, groupId, content)
