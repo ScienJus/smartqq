@@ -1,0 +1,19 @@
+﻿package com.scienjus.smartqqkotlin.model
+
+import com.scienjus.smartqqkotlin.client.SmartQqClient
+
+/**
+ * 讨论组成员.
+ * @author ScienJus
+ * @author [Liang Ding](http://88250.b3log.org)
+ * @date 2015/12/24.
+ */
+data class DiscussionMember internal constructor(
+        val client: SmartQqClient,
+        override val id: Long,
+        override val nickname: String?,
+        val clientType: Int,
+        val status: String?) : User() {
+    override val qqNumber: Long
+        get() = client.getQqNumber(id)
+}
