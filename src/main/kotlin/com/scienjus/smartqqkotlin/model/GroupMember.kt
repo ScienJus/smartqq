@@ -10,7 +10,7 @@ import com.scienjus.smartqqkotlin.client.SmartQqClient
  */
 
 data class GroupMember internal constructor(
-        val client: SmartQqClient,
+        override val client: SmartQqClient,
         override val nickname: String?,
         val province: String?,
         val gender: String?,
@@ -22,7 +22,4 @@ data class GroupMember internal constructor(
         val status: Int,
         val isVip: Boolean,
         val vipLevel: Int
-) : User() {
-    override val qqNumber: Long
-        get() = client.getQqNumber(id)
-}
+) : User()

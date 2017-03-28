@@ -9,7 +9,7 @@ import com.scienjus.smartqqkotlin.client.SmartQqClient
  * @date 2015/12/18.
  */
 data class Group internal constructor(
-        val client: SmartQqClient,
+        override val client: SmartQqClient,
         override val id: Long,
         internal val code: Long,
         override val name: String?

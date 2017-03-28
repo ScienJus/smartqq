@@ -10,7 +10,7 @@ import com.scienjus.smartqqkotlin.client.SmartQqClient
  * @date 15/12/19.
  */
 data class GroupMessage internal constructor(
-        val client: SmartQqClient,
+        override val client: SmartQqClient,
         internal val groupId: Long,
         internal val senderId: Long,
         override val content: String,

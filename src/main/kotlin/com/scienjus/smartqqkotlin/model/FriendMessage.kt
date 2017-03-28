@@ -10,7 +10,7 @@ import com.scienjus.smartqqkotlin.client.SmartQqClient
  * @date 15/12/19.
  */
 data class FriendMessage internal constructor(
-        val client: SmartQqClient,
+        override val client: SmartQqClient,
         internal val senderId: Long = 0,
         override val content: String,
         override val timestamp: Long) : Message {

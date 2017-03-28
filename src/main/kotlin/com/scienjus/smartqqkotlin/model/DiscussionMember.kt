@@ -9,11 +9,8 @@ import com.scienjus.smartqqkotlin.client.SmartQqClient
  * @date 2015/12/24.
  */
 data class DiscussionMember internal constructor(
-        val client: SmartQqClient,
+        override val client: SmartQqClient,
         override val id: Long,
         override val nickname: String?,
         val clientType: Int,
-        val status: String?) : User() {
-    override val qqNumber: Long
-        get() = client.getQqNumber(id)
-}
+        val status: String?) : User()

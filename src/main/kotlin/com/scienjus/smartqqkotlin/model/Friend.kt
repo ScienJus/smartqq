@@ -9,7 +9,7 @@ import com.scienjus.smartqqkotlin.client.SmartQqClient
  * @date 2015/12/18.
  */
 data class Friend internal constructor(
-        val client: SmartQqClient,
+        override val client: SmartQqClient,
         override val id: Long,
         internal val categoryIndex: Int,
         override val nickname: String?,
@@ -18,8 +18,6 @@ data class Friend internal constructor(
         val clientType: Int?,
         val isVip: Boolean,
         val vipLevel: Int) : MessageTarget, User() {
-    override val qqNumber: Long
-        get() = client.getQqNumber(id)
     override val name: String?
         get() = nickname
     val category: FriendCategory

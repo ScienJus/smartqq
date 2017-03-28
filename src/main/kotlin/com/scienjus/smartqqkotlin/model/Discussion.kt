@@ -9,7 +9,7 @@ import com.scienjus.smartqqkotlin.client.SmartQqClient
  * @date 2015/12/23.
  */
 data class Discussion internal constructor(
-        val client: SmartQqClient,
+        override val client: SmartQqClient,
         override val id: Long,
         override val name: String?
 ) : MessageTarget {
