@@ -70,27 +70,31 @@ public class TestApplication {
         try {
             System.out.println("好友数: " + client.getFriends().size());
             for (Friend friend : client.getFriends()) {
-                System.out.println(friend.getNickname());
+                System.out.println(friend);
             }
             Thread.sleep(1);
             System.out.println("分组数: " + client.getFriendCategories().size());
             for (FriendCategory category : client.getFriendCategories()) {
-                System.out.println(category.getName());
+                System.out.println(category);
             }
             Thread.sleep(1);
             System.out.println("群数: " + client.getGroups().size());
             for (Group group : client.getGroups()) {
-                System.out.println(group.getName());
+                System.out.println(group);
             }
             Thread.sleep(1);
             System.out.println("讨论组数: " + client.getDiscussions().size());
             for (Discussion discussion : client.getDiscussions()) {
-                System.out.println(discussion.getName());
+                System.out.println(discussion);
             }
             Thread.sleep(1);
             System.out.println("最近会话数: " + client.getChatHistories().size());
             for (ChatHistory history : client.getChatHistories()) {
-                System.out.println(history.getTarget().getName());
+                try {
+                    System.out.println(history.getTarget().getName());
+                } catch (Exception ex) {
+                    System.out.println("[出错了]");
+                }
             }
             Thread.sleep(1);
         } catch (InterruptedException ex) {

@@ -10,7 +10,7 @@ import com.scienjus.smartqqkotlin.client.SmartQqClient
  */
 data class ChatHistory internal constructor(
         val client: SmartQqClient,
-        internal val id: Long,
+        val id: Long,
         internal val type: HistoryType) {
     internal enum class HistoryType {
         FRIEND,
@@ -31,6 +31,7 @@ data class ChatHistory internal constructor(
 
     @Suppress("Destructure")
     val target: MessageTarget
+        @Throws(NullPointerException::class)
         get() = when (type) {
             HistoryType.FRIEND -> client.friends.find { friend -> friend.id == id }!!
             HistoryType.GROUP -> client.groups.find { group -> group.id == id }!!
