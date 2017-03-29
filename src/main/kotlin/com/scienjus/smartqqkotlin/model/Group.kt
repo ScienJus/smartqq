@@ -18,6 +18,10 @@ data class Group internal constructor(
         client.message(SmartQqClient.TargetType.GROUP, id, content)
     }
 
+    override fun equals(other: Any?): Boolean = if (other is Group) other.id == id else false
+
+    override fun hashCode(): Int = id.hashCode()
+
     private val info: GroupInfo by lazy {
         client.getGroupInfo(code)
     }
