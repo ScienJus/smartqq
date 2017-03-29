@@ -11,13 +11,13 @@ import com.scienjus.smartqqkotlin.client.SmartQqClient
 
 data class GroupMember internal constructor(
         override val client: SmartQqClient,
-        override val nickname: String?,
-        val province: String?,
-        val gender: String?,
         override val id: Long,
+        override val nickname: String?,
+        val alias: String?,
+        val gender: String?,
         val country: String?,
+        val province: String?,
         val city: String?,
-        val card: String?,
         val clientType: Int,
         val status: Int,
         val isVip: Boolean,

@@ -72,7 +72,7 @@ class SmartQqClient constructor(var retryTimes: Long, _cacheTimeout: Duration) :
     private lateinit var hash: String
 
     // 线程开关
-    private @Volatile var pollStarted: Boolean = false
+    private @Volatile var pollStarted = false
 
     // 事件
     val friendMessageReceived = Event<FriendMessage>()
@@ -81,63 +81,59 @@ class SmartQqClient constructor(var retryTimes: Long, _cacheTimeout: Duration) :
     val messageSent = Event<MessageSentEventArgs>()
     val connectionClosed = Event<Unit>()
 
-    private val _friends: Cache<List<Friend>> = Cache(cacheTimeout)
-    private val _friendCategories: Cache<List<FriendCategory>> = Cache(cacheTimeout)
-    private val _groups: Cache<List<Group>> = Cache(cacheTimeout)
-    private val _discussions: Cache<List<Discussion>> = Cache(cacheTimeout)
-    private val _chatHistories: Cache<List<ChatHistory>> = Cache(cacheTimeout)
-    private val _myInfo: Cache<FriendInfo> = Cache(cacheTimeout)
+    private val _friends = Cache<List<Friend>>(cacheTimeout)
+    private val _friendCategories = Cache<List<FriendCategory>>(cacheTimeout)
+    private val _groups = Cache<List<Group>>(cacheTimeout)
+    private val _discussions = Cache<List<Discussion>>(cacheTimeout)
+    private val _chatHistories = Cache<List<ChatHistory>>(cacheTimeout)
+    private val _myInfo = Cache<FriendInfo>(cacheTimeout)
 
-    var friends: List<Friend> = ArrayList()
+    val friends: List<Friend>
         get() = _friends.getValue {
             requireLoggedIn()
             LOGGER.debug("开始获取好友列表")
-
-            val statusArray = ApiUrl.GET_FRIEND_STATUS.get(this, vfwebqq, psessionid)
-                    .getJson().getJSONArray("result")
-            val idToStatus = HashMap<Long, Pair<String, Int>>()
-            statusArray.indices.map { statusArray.getJSONObject(it) }
-                    .forEach { idToStatus.put(it.getLong("uin"), Pair(it.getString("status"), it.getInteger("client_type"))) }
 
             val result = ApiUrl.GET_FRIEND_LIST.post(this, JSONObject(mapOf(
                     "vfwebqq" to vfwebqq,
                     "hash" to hash
             ))).getJson().getJSONObject("result")!!
 
-            val categoryArray = result.getJSONArray("friends")
-            val idToCategoryIndex = HashMap<Long, Int>()
-            categoryArray.indices.map { categoryArray.getJSONObject(it) }
-                    .forEach { idToCategoryIndex.put(it.getLong("uin"), it.getInteger("categories")) }
+            val statusArray = ApiUrl.GET_FRIEND_STATUS.get(this, vfwebqq, psessionid)
+                    .getJson().getJSONArray("result")
+            val idToStatus = statusArray.indices.map { statusArray.getJSONObject(it) }.map {
+                it.getLong("uin") to Pair(it.getString("status"), it.getInteger("client_type"))
+            }.toMap()
 
-            val infoArray = result.getJSONArray("info")
+            val categoryArray = result.getJSONArray("friends")
+            val idToCategoryIndex = categoryArray.indices.map { categoryArray.getJSONObject(it) }.map {
+                it.getLong("uin") to it.getInteger("categories")
+            }.toMap()
 
             val aliasArray = result.getJSONArray("marknames")
-            val idToAlias = HashMap<Long, String>()
-            aliasArray.indices.map { aliasArray.getJSONObject(it) }
-                    .forEach { idToAlias.put(it.getLong("uin"), it.getString("markname")) }
+            val idToAlias = aliasArray.indices.map { aliasArray.getJSONObject(it) }.map {
+                it.getLong("uin") to it.getString("markname")
+            }.toMap()
 
             val vipArray = result.getJSONArray("vipinfo")
-            val idToVip = HashMap<Long, Pair<Boolean, Int>>()
-            vipArray.indices.map { vipArray.getJSONObject(it) }
-                    .forEach { idToVip.put(it.getLong("uin"), Pair(it.getInteger("is_vip") == 1, it.getInteger("vip_level"))) }
+            val idToVip = vipArray.indices.map { vipArray.getJSONObject(it) }.map {
+                it.getLong("uin") to Pair(it.getInteger("is_vip") == 1, it.getInteger("vip_level"))
+            }.toMap()
 
-            val friends = ArrayList<Friend>()
-            infoArray.indices.map { infoArray.getJSONObject(it) }
-                    .forEach {
-                        friends.add(Friend(
-                                this,
-                                it.getLong("uin"),
-                                idToCategoryIndex[it.getLong("uin")]!!,
-                                it.getString("nick"),
-                                idToAlias[it.getLong("uin")],
-                                idToStatus[it.getLong("uin")]?.first,
-                                idToStatus[it.getLong("uin")]?.second,
-                                idToVip[it.getLong("uin")]?.first ?: false,
-                                idToVip[it.getLong("uin")]?.second ?: 0))
-                    }
-            friends
+            val infoArray = result.getJSONArray("info")
+            infoArray.indices.map { infoArray.getJSONObject(it) }.map {
+                Friend(
+                        this,
+                        it.getLong("uin"),
+                        idToCategoryIndex[it.getLong("uin")]!!,
+                        it.getString("nick"),
+                        idToAlias[it.getLong("uin")],
+                        idToStatus[it.getLong("uin")]?.first,
+                        idToStatus[it.getLong("uin")]?.second,
+                        idToVip[it.getLong("uin")]?.first ?: false,
+                        idToVip[it.getLong("uin")]?.second ?: 0)
+            }
         }!!
-    var friendCategories: List<FriendCategory> = ArrayList()
+    val friendCategories: List<FriendCategory>
         get() = _friendCategories.getValue {
             requireLoggedIn()
             LOGGER.debug("开始获取好友分组列表")
@@ -153,7 +149,7 @@ class SmartQqClient constructor(var retryTimes: Long, _cacheTimeout: Duration) :
                         if (it == 0) "我的好友" else result.getJSONObject(it).getString("name"))
             }
         }!!
-    var groups: List<Group> = ArrayList()
+    val groups: List<Group>
         get() = _groups.getValue {
             requireLoggedIn()
             LOGGER.debug("开始获取群列表")
@@ -167,13 +163,12 @@ class SmartQqClient constructor(var retryTimes: Long, _cacheTimeout: Duration) :
                 Group(this, obj.getLong("gid"), obj.getLong("code"), obj.getString("name"))
             }
         }!!
-    var discussions: List<Discussion> = ArrayList()
+    val discussions: List<Discussion>
         get() = _discussions.getValue {
             requireLoggedIn()
             LOGGER.debug("开始获取讨论组列表")
 
-            val response = ApiUrl.GET_DISCUSS_LIST.get(this, psessionid, vfwebqq)
-            val result = response.getJson().getJSONObject("result").getJSONArray("dnamelist")
+            val result = ApiUrl.GET_DISCUSS_LIST.get(this, psessionid, vfwebqq).getJson().getJSONObject("result").getJSONArray("dnamelist")
             result.indices.map {
                 val obj = result.getJSONObject(it)
                 Discussion(
@@ -182,16 +177,15 @@ class SmartQqClient constructor(var retryTimes: Long, _cacheTimeout: Duration) :
                         obj.getString("name"))
             }
         }!!
-    var chatHistories: List<ChatHistory> = ArrayList()
+    val chatHistories: List<ChatHistory>
         get() = _chatHistories.getValue {
             requireLoggedIn()
             LOGGER.debug("开始获取最近会话列表")
-            val response = ApiUrl.GET_RECENT_LIST.post(this, JSONObject(mapOf(
+            val result = ApiUrl.GET_RECENT_LIST.post(this, JSONObject(mapOf(
                     "vfwebqq" to vfwebqq,
                     "clientid" to CLIENT_ID,
                     "psessionid" to ""
-            )))
-            val result = response.getJson().getJSONArray("result")
+            ))).getJson().getJSONArray("result")
             result.indices.map { result.getJSONObject(it) }.map {
                 ChatHistory(
                         this,
@@ -199,10 +193,52 @@ class SmartQqClient constructor(var retryTimes: Long, _cacheTimeout: Duration) :
                         ChatHistory.HistoryType.fromInt(it.getInteger("type")))
             }
         }!!
-    private var myInfo: FriendInfo? = null
+    private val myInfo: FriendInfo
         get() = _myInfo.getValue {
-            TODO() // TODO
+            LOGGER.debug("开始获取登录用户信息")
+            FriendInfo(ApiUrl.GET_ACCOUNT_INFO.get(this).getJson().getJSONObject("result"))
         }!!
+
+    val id: Long
+        get() = myInfo.id
+    val nickname: String?
+        get() = myInfo.nickname
+    val bio: String?
+        get() = myInfo.bio
+    val gender: String?
+        get() = myInfo.gender
+    val phone: String?
+        get() = myInfo.phone
+    val cellphone: String?
+        get() = myInfo.cellphone
+    val email: String?
+        get() = myInfo.email
+    val homepage: String?
+        get() = myInfo.homepage
+    val birthday: Date
+        get() = myInfo.birthday
+    val school: String?
+        get() = myInfo.school
+    val job: String?
+        get() = myInfo.job
+    val bloodType: Int
+        get() = myInfo.bloodType
+    val country: String?
+        get() = myInfo.country
+    val province: String?
+        get() = myInfo.province
+    val city: String?
+        get() = myInfo.city
+    val personal: String?
+        get() = myInfo.personal
+    val shengxiao: Int
+        get() = myInfo.shengxiao
+    val account: String?
+        get() = myInfo.account
+    val vipInfo: Int
+        get() = myInfo.vipInfo
+    val qqNumber: Long
+        get() = getQqNumber(id)
 
     private fun requireLoggedIn() {
         if (status != ClientStatus.ACTIVE) throw IllegalStateException("尚未登录，无法进行该操作")
@@ -347,7 +383,7 @@ class SmartQqClient constructor(var retryTimes: Long, _cacheTimeout: Duration) :
 
         // 阻塞直到确认二维码认证成功
         while (true) {
-            sleep(1)
+            Thread.sleep(1000)
             val response = ApiUrl.VERIFY_QR_CODE.get(this, hash33)
             val result = response.body
             if (result.contains("成功")) {
@@ -497,7 +533,7 @@ class SmartQqClient constructor(var retryTimes: Long, _cacheTimeout: Duration) :
         if (response.statusCode != 200) {
             LOGGER.error("消息发送失败，HTTP返回码${response.statusCode}")
         }
-        val json = response.getJson()
+        val json = response.getJson().getJSONObject("result")
         val errCode = json.getInteger("errCode")
         when (errCode) {
             0 -> {
@@ -514,136 +550,82 @@ class SmartQqClient constructor(var retryTimes: Long, _cacheTimeout: Duration) :
         }
     }
 
-//    /**
-//     * 获得当前登录用户的详细信息
-// 
-//     * @return
-//     */
-//    val accountInfo: FriendInfo
-//        get() {
-//            LOGGER.debug("开始获取登录用户信息")
-// 
-//            val response = get(ApiUrl.GET_ACCOUNT_INFO)
-//            return JSON.parseObject<FriendInfo>(getJsonObjectResult(response).toJSONString(), FriendInfo::class.java)
-//        }
+    /**
+     * 获得好友的详细信息
+     */
+    internal fun getFriendInfo(id: Long): FriendInfo {
+        LOGGER.debug("开始获取好友资料")
+        return FriendInfo(ApiUrl.GET_FRIEND_INFO.get(this, id, vfwebqq, psessionid).getJson().getJSONObject("result"))
+    }
 
-//    /**
-//     * 获得好友的详细信息
-// 
-//     * @return
-//     */
-//    fun getFriendInfo(friendId: Long): FriendInfo {
-//        LOGGER.debug("开始获取好友信息")
-// 
-//        val response = get(ApiUrl.GET_FRIEND_INFO, friendId, vfwebqq, psessionid)
-//        return JSON.parseObject<FriendInfo>(getJsonObjectResult(response).toJSONString(), FriendInfo::class.java)
-//    }
+    /**
+     * 获得群的详细信息
+     */
+    internal fun getGroupInfo(code: Long): GroupInfo {
+        LOGGER.debug("开始获取群资料")
 
-//    /**
-//     * 获得群的详细信息
-// 
-//     * @param groupCode 群编号
-//     * *
-//     * @return
-//     */
-//    fun getGroupInfo(groupCode: Long): GroupInfo {
-//        LOGGER.debug("开始获取群资料")
-// 
-//        val response = get(ApiUrl.GET_GROUP_INFO, groupCode, vfwebqq)
-//        val result = getJsonObjectResult(response)
-//        val groupInfo = result.getObject<GroupInfo>("ginfo", GroupInfo::class.java)
-//        // 获得群成员信息
-//        val groupUserMap = HashMap<Long, GroupMember>()
-//        val minfo = result.getJSONArray("minfo")
-//        run({
-//            var i = 0
-//            while (minfo != null && i < minfo!!.size) {
-//                val groupUser = minfo!!.getObject<GroupMember>(i, GroupMember::class.java)
-//                groupUserMap.put(groupUser.uin, groupUser)
-//                groupInfo.addUser(groupUser)
-//                i++
-//            }
-//        })
-//        val stats = result.getJSONArray("stats")
-//        run({
-//            var i = 0
-//            while (stats != null && i < stats!!.size) {
-//                val item = stats!!.getJSONObject(i)
-//                val groupUser = groupUserMap[item.getLongValue("uin"])
-//                groupUser.clientType = item.getIntValue("client_type")
-//                groupUser.status = item.getIntValue("stat")
-//                i++
-//            }
-//        })
-//        val cards = result.getJSONArray("cards")
-//        run({
-//            var i = 0
-//            while (cards != null && i < cards!!.size) {
-//                val item = cards!!.getJSONObject(i)
-//                groupUserMap[item.getLongValue("muin"]).card = item.getString("card")
-//                i++
-//            }
-//        })
-//        val vipinfo = result.getJSONArray("vipinfo")
-//        var i = 0
-//        while (vipinfo != null && i < vipinfo!!.size) {
-//            val item = vipinfo!!.getJSONObject(i)
-//            val groupUser = groupUserMap[item.getLongValue("u"])
-//            groupUser.isVip = item.getIntValue("is_vip") == 1
-//            groupUser.vipLevel = item.getIntValue("vip_level")
-//            i++
-//        }
-//        return groupInfo
-//    }
+        val result = ApiUrl.GET_GROUP_INFO.get(this, code, vfwebqq).getJson().getJSONObject("result")
+        // 获得群成员信息
+        val statusArray = result.getJSONArray("stats")
+        val idToStatus = statusArray.indices.map { statusArray.getJSONObject(it) }.map {
+            it.getLongValue("uin") to Pair(it.getIntValue("client_type"), it.getIntValue("stat"))
+        }.toMap()
 
-//    /**
-//     * 获得讨论组的详细信息
-// 
-//     * @param discussId 讨论组id
-//     * *
-//     * @return
-//     */
-//    fun getDiscussInfo(discussId: Long): DiscussionInfo {
-//        LOGGER.debug("开始获取讨论组资料")
-// 
-//        val response = get(ApiUrl.GET_DISCUSS_INFO, discussId, vfwebqq, psessionid)
-//        val result = getJsonObjectResult(response)
-//        val discussInfo = result.getObject<DiscussionInfo>("info", DiscussionInfo::class.java)
-//        // 获得讨论组成员信息
-//        val discussUserMap = HashMap<Long, DiscussionMember>()
-//        val minfo = result.getJSONArray("mem_info")
-//        run({
-//            var i = 0
-//            while (minfo != null && i < minfo!!.size) {
-//                val discussUser = minfo!!.getObject<DiscussionMember>(i, DiscussionMember::class.java)
-//                discussUserMap.put(discussUser.uin, discussUser)
-//                discussInfo.addUser(discussUser)
-//                i++
-//            }
-//        })
-//        val stats = result.getJSONArray("mem_status")
-//        var i = 0
-//        while (stats != null && i < stats!!.size) {
-//            val item = stats!!.getJSONObject(i)
-//            val discussUser = discussUserMap[item.getLongValue("uin"])
-//            discussUser.clientType = item.getIntValue("client_type")
-//            discussUser.status = item.getString("status")
-//            i++
-//        }
-//        return discussInfo
-//    }
+        val aliasArray = result.getJSONArray("cards")
+        val idToAlias = aliasArray.indices.map { aliasArray.getJSONObject(it) }.map {
+            it.getLongValue("muin") to it.getString("card")
+        }.toMap()
 
-    // 线程暂停
-    private fun sleep(seconds: Long) {
-        try {
-            Thread.sleep(seconds * 1000)
-        } catch (e: InterruptedException) {
-            // 忽略InterruptedException
+        val vipArray = result.getJSONArray("vipinfo")
+        val idToVip = vipArray.indices.map { vipArray.getJSONObject(it) }.map {
+            it.getLongValue("u") to Pair(it.getIntValue("is_vip") == 1, it.getIntValue("vip_level"))
+        }.toMap()
+
+        val memberArray = result.getJSONArray("minfo")
+        val members = memberArray.indices.map { memberArray.getJSONObject(it) }.map {
+            GroupMember(
+                    this,
+                    it.getLong("uin"),
+                    it.getString("nick"),
+                    idToAlias[it.getLong("uin")],
+                    it.getString("gender"),
+                    it.getString("country"),
+                    it.getString("province"),
+                    it.getString("city"),
+                    idToStatus[it.getLong("uin")]?.first ?: 0,
+                    idToStatus[it.getLong("uin")]?.second ?: 0,
+                    idToVip[it.getLong("uin")]?.first ?: false,
+                    idToVip[it.getLong("uin")]?.second ?: 0)
         }
+
+        val info = result.getJSONObject("ginfo")
+        return GroupInfo(info.getLong("gid"), info.getString("name"), info.getLong("owner"), info.getLongValue("createTime"), info.getString("memo"), members)
+    }
+
+    /**
+     * 获得讨论组的详细信息
+     */
+    internal fun getDiscussInfo(discussId: Long): DiscussionInfo {
+        LOGGER.debug("开始获取讨论组资料")
+
+        val result = ApiUrl.GET_DISCUSS_INFO.get(this, discussId, vfwebqq, psessionid).getJson().getJSONObject("result")
+
+        val statusArray = result.getJSONArray("mem_status")
+        val idToStatus = statusArray.indices.map { statusArray.getJSONObject(it) }.map {
+            it.getLong("uin") to Pair(it.getIntValue("client_type"), it.getString("status"))
+        }.toMap()
+
+        val memberArray = result.getJSONArray("mem_info")
+        val members = memberArray.indices.map { memberArray.getJSONObject(it) }.map {
+            DiscussionMember(this, it.getLong("uin"), it.getString("nick"), idToStatus[it.getLong("uin")]?.first ?: 0, idToStatus[it.getLong("uin")]?.second)
+        }
+
+        val info = result.getJSONObject("info")
+        return DiscussionInfo(info.getLong("did"), info.getString("discu_name"), members)
     }
 
     // 检验Json返回结果
-    internal fun Response<String>.getJson(): JSONObject {
+    private fun Response<String>.getJson(): JSONObject {
         if (this.statusCode != 200) {
             throw RequestException("请求失败，HTTP返回码${this.statusCode}")
         }

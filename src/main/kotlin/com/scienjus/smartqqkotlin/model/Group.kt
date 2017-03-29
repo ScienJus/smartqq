@@ -17,4 +17,21 @@ data class Group internal constructor(
     override fun message(content: String) {
         client.message(SmartQqClient.TargetType.GROUP, id, content)
     }
+
+    private val info: GroupInfo by lazy {
+        client.getGroupInfo(code)
+    }
+
+    val ownerId: Long
+        get() = info.ownerId
+    val createTime: Long
+        get() = info.createTime
+    val announcement: String?
+        get() = info.announcement
+    val members: List<GroupMember>
+        get() = info.members
+
+    val owner: GroupMember
+        @Throws(KotlinNullPointerException::class)
+        get() = members.find { id == ownerId }!!
 }

@@ -31,10 +31,10 @@ data class ChatHistory internal constructor(
 
     @Suppress("Destructure")
     val target: MessageTarget
-        @Throws(NullPointerException::class)
+        @Throws(KotlinNullPointerException::class)
         get() = when (type) {
-            HistoryType.FRIEND -> client.friends.find { friend -> friend.id == id }!!
-            HistoryType.GROUP -> client.groups.find { group -> group.id == id }!!
-            HistoryType.DISCUSSION -> client.discussions.find { discussion -> discussion.id == id }!!
-        }
+            HistoryType.FRIEND -> client.friends.find { friend -> friend.id == id }
+            HistoryType.GROUP -> client.groups.find { group -> group.id == id }
+            HistoryType.DISCUSSION -> client.discussions.find { discussion -> discussion.id == id }
+        }!!
 }

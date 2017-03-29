@@ -20,4 +20,11 @@ data class Discussion internal constructor(
     override fun equals(other: Any?): Boolean = if (other is Discussion) other.id == id else false
 
     override fun hashCode(): Int = id.hashCode()
+
+    private val info by lazy {
+        client.getDiscussInfo(id)
+    }
+
+    val members: List<DiscussionMember>
+        get() = info.members
 }

@@ -4,9 +4,7 @@ import com.scienjus.smartqqkotlin.client.SmartQqClient;
 import com.scienjus.smartqqkotlin.model.*;
 import org.apache.commons.io.FileUtils;
 import org.apache.http.cookie.Cookie;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 
 import java.awt.*;
 import java.io.File;
@@ -56,9 +54,13 @@ public class TestApplication {
         }
     }
 
+    @Before
+    public void assumeActive() {
+        Assume.assumeTrue(client.getStatus() == SmartQqClient.ClientStatus.ACTIVE);
+    }
+
     @Test
     public void cookieDumpingAndRestoring() {
-        Assert.assertTrue(client.getStatus() == SmartQqClient.ClientStatus.ACTIVE);
         List<Cookie> cookies = client.dumpCookies();
         client.close();
         Assert.assertTrue(client.start(cookies) == SmartQqClient.LoginResult.SUCCEEDED);
@@ -66,28 +68,27 @@ public class TestApplication {
 
     @Test
     public void fetchingLists() {
-        Assert.assertTrue(client.getStatus() == SmartQqClient.ClientStatus.ACTIVE);
         try {
             System.out.println("好友数: " + client.getFriends().size());
             for (Friend friend : client.getFriends()) {
                 System.out.println(friend);
             }
-            Thread.sleep(1);
+            Thread.sleep(500);
             System.out.println("分组数: " + client.getFriendCategories().size());
             for (FriendCategory category : client.getFriendCategories()) {
                 System.out.println(category);
             }
-            Thread.sleep(1);
+            Thread.sleep(500);
             System.out.println("群数: " + client.getGroups().size());
             for (Group group : client.getGroups()) {
                 System.out.println(group);
             }
-            Thread.sleep(1);
+            Thread.sleep(500);
             System.out.println("讨论组数: " + client.getDiscussions().size());
             for (Discussion discussion : client.getDiscussions()) {
                 System.out.println(discussion);
             }
-            Thread.sleep(1);
+            Thread.sleep(500);
             System.out.println("最近会话数: " + client.getChatHistories().size());
             for (ChatHistory history : client.getChatHistories()) {
                 try {
@@ -96,7 +97,6 @@ public class TestApplication {
                     System.out.println("[出错了]");
                 }
             }
-            Thread.sleep(1);
         } catch (InterruptedException ex) {
             Assert.fail();
         }
@@ -104,7 +104,6 @@ public class TestApplication {
 
     @Test
     public void friendMessage() {
-        Assert.assertTrue(client.getStatus() == SmartQqClient.ClientStatus.ACTIVE);
         done = false;
         client.getFriendMessageReceived().plusAssign(msg -> {
             if (Objects.equals(msg.getContent(), "测试")) {
@@ -120,7 +119,6 @@ public class TestApplication {
 
     @Test
     public void groupMessage() {
-        Assert.assertTrue(client.getStatus() == SmartQqClient.ClientStatus.ACTIVE);
         done = false;
         client.getGroupMessageReceived().plusAssign(msg -> {
             if (Objects.equals(msg.getContent(), "测试")) {
@@ -136,7 +134,6 @@ public class TestApplication {
 
     @Test
     public void discussionMessage() {
-        Assert.assertTrue(client.getStatus() == SmartQqClient.ClientStatus.ACTIVE);
         done = false;
         client.getDiscussionMessageReceived().plusAssign(msg -> {
             if (Objects.equals(msg.getContent(), "测试")) {
@@ -147,6 +144,83 @@ public class TestApplication {
         System.out.println("请向此账号发送一条讨论组消息“测试”以完成测试");
         while (!done) {
             // 等待测试完成
+        }
+    }
+
+    @Test
+    public void myInfo() {
+        System.out.println(String.join(", ",
+                Long.toString(client.getId()),
+                client.getNickname(),
+                client.getBio(),
+                client.getGender(),
+                client.getPhone(),
+                client.getCellphone(),
+                client.getEmail(),
+                client.getHomepage(),
+                client.getBirthday().toString(),
+                client.getSchool(),
+                client.getJob(),
+                Integer.toString(client.getBloodType()),
+                client.getCountry(),
+                client.getProvince(),
+                client.getCity(),
+                client.getPersonal(),
+                Integer.toString(client.getShengxiao()),
+                client.getAccount(),
+                Integer.toString(client.getVipInfo()),
+                Long.toString(client.getQqNumber())));
+    }
+
+    @Test
+    public void friendInfo() {
+        List<Friend> friends = client.getFriends();
+        Assume.assumeFalse(friends.isEmpty());
+        Friend friend = friends.get(0);
+        System.out.println(String.join(", ",
+                Long.toString(friend.getId()),
+                friend.getNickname(),
+                friend.getBio(),
+                friend.getGender(),
+                friend.getPhone(),
+                friend.getCellphone(),
+                friend.getEmail(),
+                friend.getHomepage(),
+                friend.getBirthday().toString(),
+                friend.getSchool(),
+                friend.getJob(),
+                Integer.toString(friend.getBloodType()),
+                friend.getCountry(),
+                friend.getProvince(),
+                friend.getCity(),
+                friend.getPersonal(),
+                Integer.toString(friend.getShengxiao()),
+                friend.getAccount(),
+                Integer.toString(friend.getVipInfo()),
+                Long.toString(friend.getQqNumber())));
+    }
+
+    @Test
+    public void groupInfo() {
+        List<Group> groups = client.getGroups();
+        Assume.assumeFalse(groups.isEmpty());
+        Group group = groups.get(0);
+        System.out.println(String.join(", ",
+                group.getName(),
+                Long.toString(group.getCreateTime()),
+                group.getAnnouncement(),
+                Integer.toString(group.getMembers().size()),
+                group.getMembers().get(0).toString(),
+                Long.toString(group.getOwnerId())));
+    }
+
+    @Test
+    public void discussionInfo() {
+        List<Discussion> discussions = client.getDiscussions();
+        Assume.assumeFalse(discussions.isEmpty());
+        Discussion discussion = discussions.get(0);
+        for (DiscussionMember member : discussion.getMembers()) {
+            System.out.println(member);
         }
     }
 }
