@@ -671,7 +671,6 @@ public class SmartQQClient implements Closeable {
                 }
                 default: {
                     throw new RequestException(String.format("请求失败，Api返回码[%d]", retCode));
-                    break;
                 }
             }
         }
