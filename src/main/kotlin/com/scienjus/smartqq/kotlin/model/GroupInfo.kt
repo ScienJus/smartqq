@@ -1,4 +1,4 @@
-﻿package com.scienjus.smartqqkotlin.model
+﻿package com.scienjus.smartqq.kotlin.model
 
 /**
  * 群资料.

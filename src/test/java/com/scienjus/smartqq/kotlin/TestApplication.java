@@ -1,7 +1,7 @@
-package com.scienjus.smartqqkotlin;
+package com.scienjus.smartqq.kotlin;
 
-import com.scienjus.smartqqkotlin.client.SmartQqClient;
-import com.scienjus.smartqqkotlin.model.*;
+import com.scienjus.smartqq.kotlin.client.SmartQqClient;
+import com.scienjus.smartqq.kotlin.model.*;
 import org.apache.commons.io.FileUtils;
 import org.apache.http.cookie.Cookie;
 import org.junit.*;

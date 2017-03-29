@@ -3,11 +3,11 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.scienjus</groupId>
-    <artifactId>smartqqkotlin</artifactId>
+    <artifactId>smartqq-kotlin</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
-    <name>smartqqkotlin</name>
+    <name>smartqq-kotlin</name>
     <url>http://maven.apache.org</url>
 
     <!-- Properties -->

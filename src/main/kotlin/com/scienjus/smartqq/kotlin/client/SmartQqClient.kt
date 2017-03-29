@@ -1,22 +1,19 @@
-package com.scienjus.smartqqkotlin.client
+package com.scienjus.smartqq.kotlin.client
 
 import com.alibaba.fastjson.JSON
 import com.alibaba.fastjson.JSONArray
 import com.alibaba.fastjson.JSONObject
-import com.scienjus.smartqqkotlin.constant.ApiUrl
-import com.scienjus.smartqqkotlin.model.*
-import com.scienjus.smartqqkotlin.util.Cache
-import com.scienjus.smartqqkotlin.util.Event
+import com.scienjus.smartqq.kotlin.constant.ApiUrl
+import com.scienjus.smartqq.kotlin.model.*
+import com.scienjus.smartqq.kotlin.util.Cache
+import com.scienjus.smartqq.kotlin.util.Event
 import net.dongliu.requests.Client
 import net.dongliu.requests.Response
 import net.dongliu.requests.Session
 import net.dongliu.requests.exception.RequestException
 import org.apache.http.client.protocol.HttpClientContext
 import org.apache.http.cookie.Cookie
-import org.apache.log4j.Logger
-import java.io.Closeable
 import java.net.SocketTimeoutException
-import java.time.Duration
 import java.util.*
 import java.util.function.Consumer
 
@@ -27,11 +24,11 @@ import java.util.function.Consumer
  * @date 2015/12/18.
  */
 
-class SmartQqClient constructor(var retryTimes: Long, _cacheTimeout: Duration) : Closeable {
-    constructor() : this(5, Duration.ofHours(1))
+class SmartQqClient constructor(var retryTimes: Long, _cacheTimeout: java.time.Duration) : java.io.Closeable {
+    constructor() : this(5, java.time.Duration.ofHours(1))
 
     // 缓存超时
-    var cacheTimeout: Duration = _cacheTimeout
+    var cacheTimeout: java.time.Duration = _cacheTimeout
         get
         set(value) {
             field = value
@@ -44,11 +41,11 @@ class SmartQqClient constructor(var retryTimes: Long, _cacheTimeout: Duration) :
         }
 
     // 状态
-    @Volatile var status: ClientStatus = ClientStatus.IDLE
+    @Volatile var status: com.scienjus.smartqq.kotlin.client.SmartQqClient.ClientStatus = com.scienjus.smartqq.kotlin.client.SmartQqClient.ClientStatus.IDLE
         get
         private set
     // 日志
-    internal val LOGGER = Logger.getLogger(SmartQqClient::class.java)
+    internal val LOGGER = org.apache.log4j.Logger.getLogger(SmartQqClient::class.java)
 
     // 客户端id，固定的
     private val CLIENT_ID: Long = 53999199

@@ -1,7 +1,7 @@
-package com.scienjus.smartqqkotlin.model
+package com.scienjus.smartqq.kotlin.model
 
 import com.alibaba.fastjson.JSONObject
-import com.scienjus.smartqqkotlin.client.SmartQqClient
+import com.scienjus.smartqq.kotlin.client.SmartQqClient
 
 /**
  * 消息.

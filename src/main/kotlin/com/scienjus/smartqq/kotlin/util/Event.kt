@@ -1,4 +1,4 @@
-package com.scienjus.smartqqkotlin.util
+package com.scienjus.smartqq.kotlin.util
 
 import java.util.function.Consumer
 

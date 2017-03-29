@@ -1,4 +1,4 @@
-package com.scienjus.smartqqkotlin.model
+package com.scienjus.smartqq.kotlin.model
 
 import com.alibaba.fastjson.JSONObject
 import java.util.*

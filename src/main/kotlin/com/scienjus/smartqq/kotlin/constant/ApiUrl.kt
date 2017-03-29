@@ -1,7 +1,7 @@
-package com.scienjus.smartqqkotlin.constant
+package com.scienjus.smartqq.kotlin.constant
 
 import com.alibaba.fastjson.JSONObject
-import com.scienjus.smartqqkotlin.client.SmartQqClient
+import com.scienjus.smartqq.kotlin.client.SmartQqClient
 import net.dongliu.requests.Response
 
 /**
