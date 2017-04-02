@@ -2,7 +2,7 @@
 
 基于 Smart QQ（Web QQ） 的 Api 封装，你可以用这个 Api 制作属于自己的 QQ 机器人！
 
-该项目目前（2016年11月30日）为止还可以正常使用，我也会尽量一直维护这个项目，[Ruby版][ruby]也是如此。
+该项目目前（2017年3月）为止还可以正常使用，我也会尽量一直维护这个项目，[Ruby版][ruby]也是如此。
 
 该项目仅提供了最基本的通信协议，你可以在此基础上实现自己的业务逻辑，包括且不限于：
 
@@ -41,42 +41,7 @@
 </dependency>
 ```
 
-如果你只是想要尝试一下，可以直接Clone本项目并随便写个Main方法运行。
-
-```
-public class Application {
-
-    public static void main(String[] args) {
-        //创建一个新对象时需要扫描二维码登录，并且传一个处理接收到消息的回调，如果你不需要接收消息，可以传null
-        SmartQQClient client = new SmartQQClient(new MessageCallback() {
-            @Override
-            public void onMessage(SmartQQClient client, Message message) {
-                System.out.println(message.getContent());
-            }
-        
-            @Override
-            public void onGroupMessage(SmartQQClient client, GroupMessage message) {
-                System.out.println(message.getContent());
-            }
-        
-            @Override
-            public void onDiscussMessage(SmartQQClient client, DiscussMessage message) {
-                System.out.println(message.getContent());
-            }
-        });
-        //登录成功后便可以编写你自己的业务逻辑了
-        List<Category> categories = client.getFriendListWithCategory();
-        for (Category category : categories) {
-            System.out.println(category.getName());
-            for (Friend friend : category.getFriends()) {
-                System.out.println("————" + friend.getNickname());
-            }
-        }
-        
-        while (true) ;
-    }
-}
-```
+如果你只是想要尝试一下，可以直接Clone本项目并随便写个Main方法运行。可参考项目中的`Application.java`和 @Dilant 编写的使用范例`Receiver.java`。
 
 ### Api 列表
 
@@ -114,11 +79,21 @@ public class Application {
 
 2016-11-3：由于很多人不知 Lombok 为何物而导致编译错误，所以去除了，真为不会使用工具的人感到悲哀！
 
-2016-11-30：本仓库代码已根据最新WEBQQ协议做了更新，经过简单测试程序可用
+2017-4-1：本仓库代码已根据最新 WebQQ 协议更新，经过简单测试可用
 
 ### 感谢
 
 现在使用[requests][7]进行 Http 请求
+
+### 其他版本
+
+1. @lonhay 提供了一个基于最新版 Requests 和 Java 8 的[版本][9]
+
+2. @88250 提供了一个可以直接使用的 Web 服务，参见[b3log/xiaov][10]
+
+3. @sjdy521 提供了一个可以通过HTTP协议api接口完成接收、发送QQ消息等功能的项目，参见[Mojo-Webqq][11]
+
+4. @TJYSunset 提供了一个本项目的 C# [版本][12]
 
 ### 联系方式
 
@@ -133,3 +108,7 @@ public class Application {
 [6]: http://www.scienjus.com/webqq-analysis-6/
 [7]: https://github.com/caoqianli/requests
 [8]: http://w.qq.com
+[9]: https://github.com/ScienJus/smartqq/tree/java8
+[10]: https://github.com/b3log/xiaov
+[11]: https://github.com/sjdy521/Mojo-Webqq
+[12]: https://github.com/TJYSunset/DumbQQ
