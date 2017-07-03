@@ -181,7 +181,10 @@ public class SmartQQClient implements Closeable {
     private void getVfwebqq() {
         LOGGER.debug("开始获取vfwebqq");
 
-        Response<String> response = get(ApiURL.GET_VFWEBQQ, ptwebqq);
+        Response<String> response = get(ApiURL.GET_VFWEBQQ, ptwebqq); 
+        while(response.getStatusCode()==404){
+          response = get(ApiURL.GET_VFWEBQQ, ptwebqq);
+        };
         this.vfwebqq = getJsonObjectResult(response).getString("vfwebqq");
     }
 
