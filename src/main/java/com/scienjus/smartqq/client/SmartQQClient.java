@@ -34,7 +34,7 @@ public class SmartQQClient implements Closeable {
     private static final Logger LOGGER = Logger.getLogger(SmartQQClient.class);
 
     //发生ngnix 404 时的重试次数
-  	private static int retryTimesOnFailed = 3;
+    private static int retryTimesOnFailed = 3;
     
     //消息id，这个好像可以随便设置，所以设成全局的
     private static long MESSAGE_ID = 43690001;
@@ -186,10 +186,10 @@ public class SmartQQClient implements Closeable {
 
         Response<String> response = get(ApiURL.GET_VFWEBQQ, ptwebqq);
         int retryTimes4Vfwebqq = retryTimesOnFailed;
-		while (response.getStatusCode() == 404 && retryTimes4Vfwebqq > 0) {
-			response = get(ApiURL.GET_VFWEBQQ, ptwebqq);
-			retryTimes4Vfwebqq--; 
-		}
+        while (response.getStatusCode() == 404 && retryTimes4Vfwebqq > 0) {
+            response = get(ApiURL.GET_VFWEBQQ, ptwebqq);
+            retryTimes4Vfwebqq--; 
+        }
         this.vfwebqq = getJsonObjectResult(response).getString("vfwebqq");
     }
 
@@ -223,10 +223,10 @@ public class SmartQQClient implements Closeable {
 
         Response<String> response = post(ApiURL.GET_GROUP_LIST, r);
         int retryTimes4getGroupList = retryTimesOnFailed;
-		while (response.getStatusCode() == 404 && retryTimes4getGroupList > 0) {
-			response = post(ApiURL.GET_GROUP_LIST, r);
-			retryTimes4getGroupList--;
-		}
+        while (response.getStatusCode() == 404 && retryTimes4getGroupList > 0) {
+            response = post(ApiURL.GET_GROUP_LIST, r);
+            retryTimes4getGroupList--;
+        }
         JSONObject result = getJsonObjectResult(response);
         return JSON.parseArray(result.getJSONArray("gnamelist").toJSONString(), Group.class);
     }
@@ -421,9 +421,9 @@ public class SmartQQClient implements Closeable {
         Response<String> response = get(ApiURL.GET_ACCOUNT_INFO);
         int retryTimes4AccountInfo = retryTimesOnFailed;
         while (response.getStatusCode() == 404 && retryTimes4AccountInfo > 0) {
-			response = get(ApiURL.GET_ACCOUNT_INFO);
-			retryTimes4AccountInfo--;
-		}
+            response = get(ApiURL.GET_ACCOUNT_INFO);
+            retryTimes4AccountInfo--;
+        }
         return JSON.parseObject(getJsonObjectResult(response).toJSONString(), UserInfo.class);
     }
 
