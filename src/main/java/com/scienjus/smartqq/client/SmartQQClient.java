@@ -128,15 +128,6 @@ public class SmartQQClient implements Closeable {
             }
         }
         LOGGER.info("二维码已保存在 " + filePath + " 文件中，请打开手机QQ并扫描二维码");
-
-        //使用默认软件打开二维码
-        Desktop desk = Desktop.getDesktop();
-        try {
-            File file = new File(filePath);
-            desk.open(file);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
     //用于生成ptqrtoken的哈希函数

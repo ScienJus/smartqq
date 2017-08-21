@@ -26,6 +26,8 @@ public class DiscussMessage {
         JSONArray content = json.getJSONArray("content");
         this.font = content.getJSONArray(0).getObject(1, Font.class);
         this.content = content.getString(1);
+        if (content.size() > 2)
+			this.content += content.getString(3);
         this.time = json.getLongValue("time");
         this.discussId = json.getLongValue("did");
         this.userId = json.getLongValue("send_uin");
