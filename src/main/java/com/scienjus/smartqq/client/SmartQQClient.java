@@ -63,6 +63,7 @@ public class SmartQQClient implements Closeable {
     //线程开关
     private volatile boolean pollStarted;
 
+
     public SmartQQClient(final MessageCallback callback) {
         this.client = Client.pooled().maxPerRoute(5).maxTotal(10).build();
         this.session = client.session();
@@ -651,7 +652,7 @@ public class SmartQQClient implements Closeable {
             LOGGER.error(String.format("发送失败，Http返回码[%d]", response.getStatusCode()));
         }
         JSONObject json = JSON.parseObject(response.getBody());
-        Integer errCode = json.getInteger("errCode");
+        Integer errCode = json.getInteger("retcode");
         if (errCode != null && errCode == 0) {
             LOGGER.debug("发送成功");
         } else {
