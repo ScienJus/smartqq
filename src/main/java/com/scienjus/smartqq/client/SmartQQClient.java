@@ -651,7 +651,7 @@ public class SmartQQClient implements Closeable {
             LOGGER.error(String.format("发送失败，Http返回码[%d]", response.getStatusCode()));
         }
         JSONObject json = JSON.parseObject(response.getBody());
-        Integer errCode = json.getInteger("errCode");
+        Integer errCode = json.getInteger("redcode");
         if (errCode != null && errCode == 0) {
             LOGGER.debug("发送成功");
         } else {
