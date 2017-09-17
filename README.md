@@ -1,8 +1,8 @@
-# Smart QQ client for Java
+# Smart QQ for Java
 
-Smart QQ（WebQQ）的API，从https://github.com/ScienJus/smartqq 修改而来
+Smart QQ（WebQQ）的Java API
 
-该项目目前（2017年2月24日）为止还可以正常使用，我也会尽量一直维护这个项目。
+该项目目前（2017年09月17日）为止还可以正常使用，我也会尽量一直维护这个项目。
 
 该项目仅提供了最基本的通信协议。
 
@@ -15,15 +15,15 @@ Smart QQ（WebQQ）的API，从https://github.com/ScienJus/smartqq 修改而来
 将项目克隆到本地，并安装到本地的Maven仓库：
 
 ```
-git clone https://github.com/Xianguang-Zhou/smartqq-client
-cd smartqq-client
+git clone https://github.com/Xianguang-Zhou/smartqq
+cd smartqq
 mvn source:jar javadoc:jar install -Dmaven.test.skip=true
 ```
 
 更新：
 
 ```
-cd smartqq-client
+cd smartqq
 git pull
 mvn clean source:jar javadoc:jar install -Dmaven.test.skip=true
 ```
@@ -33,7 +33,7 @@ mvn clean source:jar javadoc:jar install -Dmaven.test.skip=true
 ```
 <dependency>
     <groupId>com.scienjus</groupId>
-    <artifactId>smartqq-client</artifactId>
+    <artifactId>smartqq</artifactId>
     <version>1.0-SNAPSHOT</version>
 </dependency>
 ```
@@ -69,8 +69,6 @@ mvn test -Dtest=com.scienjus.smartqq.test.LoginTest#testLogin
 错误码6：如果是在`getGroupInfo`方法中出现，可能是误把`group.id`当成`group.code`作为参数了，这里的参数应该是`code`。
 
 ### 感谢
-
-感谢ScienJus，他在博客中详细的记录了 Web QQ 抓包获取的请求和对应参数信息，他开发了项目： https://github.com/ScienJus/smartqq
 
 2016-2-2：修改了Jar运行时保存二维码失败的Bug，感谢@oldjunyi的反馈！
 
