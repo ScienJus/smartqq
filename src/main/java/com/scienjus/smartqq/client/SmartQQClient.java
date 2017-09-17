@@ -936,11 +936,10 @@ public class SmartQQClient implements Closeable, WithUserId {
 			throw new ResponseException(response.getStatus());
 		}
 		JsonElement json = GsonUtil.jsonParser.parse(response.getContentAsString());
-		Integer errCode = json.getAsJsonObject().get("errCode").getAsInt();
-		if (errCode != null && errCode == 0) {
+		Integer apiReturnCode = json.getAsJsonObject().get("retcode").getAsInt();
+		if (apiReturnCode != null && apiReturnCode == 0) {
 			LOGGER.debug("发送成功!");
 		} else {
-			int apiReturnCode = json.getAsJsonObject().get("retcode").getAsInt();
 			LOGGER.error(String.format("发送失败，Api返回码[%d]", apiReturnCode));
 			throw new ApiException(apiReturnCode);
 		}
