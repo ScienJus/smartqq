@@ -2,9 +2,9 @@
 
 Smart QQ（WebQQ）的Java API
 
-该项目目前（2017年09月17日）为止还可以正常使用，我也会尽量一直维护这个项目。
+这个分支目前（2017年09月17日）为止还可以正常使用，我也会尽量一直维护这个分支。
 
-该项目仅提供了最基本的通信协议。
+这个分支仅提供了最基本的通信协议，包含一些支持GUI客户端的功能，如头像、表情等等，也支持其他用途，如聊天机器人等等。
 
 注：由于 Smart QQ 不支持收发图片等功能，所以此 API 也只可以发送文字消息（不包含 @ 命令）。
 
@@ -12,23 +12,33 @@ Smart QQ（WebQQ）的Java API
 
 如果你需要将此API嵌入到别的项目，可以使用Maven依赖：
 
-将项目克隆到本地，并安装到本地的Maven仓库：
+* 将分支克隆到本地，并安装到本地的Maven仓库：
 
 ```
-git clone https://github.com/Xianguang-Zhou/smartqq
+git clone -b client https://github.com/ScienJus/smartqq
 cd smartqq
 mvn source:jar javadoc:jar install -Dmaven.test.skip=true
 ```
 
-更新：
+或者
+
+```
+git clone https://github.com/ScienJus/smartqq
+cd smartqq
+git checkout client
+mvn source:jar javadoc:jar install -Dmaven.test.skip=true
+```
+
+* 更新：
 
 ```
 cd smartqq
+git checkout client
 git pull
 mvn clean source:jar javadoc:jar install -Dmaven.test.skip=true
 ```
 
-依赖：
+* 依赖：
 
 ```
 <dependency>
@@ -38,7 +48,7 @@ mvn clean source:jar javadoc:jar install -Dmaven.test.skip=true
 </dependency>
 ```
 
-如果你只是想要尝试一下，可以直接clone本项目并运行：
+* 如果你只是想要尝试一下，可以在这个分支下运行：
 
 ```
 mvn test -Dtest=com.scienjus.smartqq.test.LoginTest#testLogin

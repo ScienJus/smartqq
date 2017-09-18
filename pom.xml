@@ -9,7 +9,7 @@
 
     <name>smartqq</name>
     <description>Smart QQ for Java</description>
-    <url>https://github.com/ScienJus/smartqq</url>
+    <url>https://github.com/ScienJus/smartqq/tree/client</url>
 
     <!-- Properties -->
     <properties>
