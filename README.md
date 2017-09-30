@@ -1,37 +1,44 @@
-# Smart QQ Java
+# Smart QQ for Java
 
-基于 Smart QQ（Web QQ） 的 Api 封装，你可以用这个 Api 制作属于自己的 QQ 机器人！
+Smart QQ（WebQQ）的Java API
 
-该项目目前（2016年2月）为止还可以正常使用，我也会尽量一直维护这个项目，[Ruby版][ruby]也是如此。
+这个分支目前（2017年09月17日）为止还可以正常使用，我也会尽量一直维护这个分支。
 
-该项目仅提供了最基本的通信协议，你可以在此基础上实现自己的业务逻辑，包括且不限于：
+这个分支仅提供了最基本的通信协议，包含一些支持GUI客户端的功能，如头像、表情等等，也支持其他用途，如聊天机器人等等。
 
-- 拥有 GUI 的 QQ 客户端（Android 或桌面版）
-- 自动聊天回复的 QQ 机器人
-- 汇总聊天记录并同步在云上
-- 通过 QQ 写邮件、发短信、执行远程服务器的命令
-- 等等……
-
-注：由于 Smart QQ 不支持收发图片等功能，所以此 Api 也只可以发送文字消息（不包含 @ 命令）。
+注：由于 Smart QQ 不支持收发图片等功能，所以此 API 也只可以发送文字消息（不包含 @ 命令）。
 
 ### 使用方法
 
-如果你需要将此Api嵌入到别的项目，可以使用Maven依赖：
+如果你需要将此API嵌入到别的项目，可以使用Maven依赖：
 
-仓库：
+* 将分支克隆到本地，并安装到本地的Maven仓库：
 
 ```
-<repository>
-    <id>scienjus-mvn-repo</id>
-    <url>https://raw.github.com/ScienJus/maven/snapshot/</url>
-    <snapshots>
-        <enabled>true</enabled>
-        <updatePolicy>always</updatePolicy>
-    </snapshots>
-</repository>
+git clone -b client https://github.com/ScienJus/smartqq
+cd smartqq
+mvn source:jar javadoc:jar install -Dmaven.test.skip=true
 ```
 
-依赖：
+或者
+
+```
+git clone https://github.com/ScienJus/smartqq
+cd smartqq
+git checkout client
+mvn source:jar javadoc:jar install -Dmaven.test.skip=true
+```
+
+* 更新：
+
+```
+cd smartqq
+git checkout client
+git pull
+mvn clean source:jar javadoc:jar install -Dmaven.test.skip=true
+```
+
+* 依赖：
 
 ```
 <dependency>
@@ -41,50 +48,15 @@
 </dependency>
 ```
 
-如果你只是想要尝试一下，可以直接Clone本项目并随便写个Main方法运行。
+* 如果你只是想要尝试一下，可以在这个分支下运行：
 
 ```
-public class Application {
-
-    public static void main(String[] args) {
-        //创建一个新对象时需要扫描二维码登录，并且传一个处理接收到消息的回调，如果你不需要接收消息，可以传null
-        SmartQQClient client = new SmartQQClient(new MessageCallback() {
-            @Override
-            public void onMessage(Message message) {
-                System.out.println(message.getContent());
-            }
-
-            @Override
-            public void onGroupMessage(GroupMessage message) {
-                System.out.println(message.getContent());
-            }
-
-            @Override
-            public void onDiscussMessage(DiscussMessage message) {
-                System.out.println(message.getContent());
-            }
-        });
-        //登录成功后便可以编写你自己的业务逻辑了
-        List<Category> categories = client.getFriendListWithCategory();
-        for (Category category : categories) {
-            System.out.println(category.getName());
-            for (Friend friend : category.getFriends()) {
-                System.out.println("————" + friend.getNickname());
-            }
-        }
-        //使用后调用close方法关闭，你也可以使用try-with-resource创建该对象并自动关闭
-        try {
-            client.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-}
+mvn test -Dtest=com.scienjus.smartqq.test.LoginTest#testLogin
 ```
 
-### Api 列表
+### API 列表
 
-如果你想要了解 Web QQ 的通讯协议，并自己实现一个通讯接口。我在博客中详细的记录了抓包获取的请求和对应参数信息。你可以直接点击下面的目录：
+如果你想要了解 Web QQ 的通讯协议，并自己实现一个通讯接口。ScienJus在博客中详细的记录了抓包获取的请求和对应参数信息。你可以直接点击下面的目录：
 
 [Web QQ协议分析（一）：前言][1]
 
@@ -100,40 +72,26 @@ public class Application {
 
 ### 常见错误
 
-**编译错误**
-
-由于本项目使用了Lombok，一个在编译器自动添加Get/Set/toString等方法的第三方类库，所以如果Clone的项目因为缺少Get/Set方法而编译报错，则需要下载对应的IDE插件。
-
-**程序无法控制的错误**
-
-错误码103：这个是由于Smart QQ多点登录，后端校验失败。需要手动进入[官网][8]，检查是否能正常接收消息。如果可以的话点击[设置]->[退出登录]后查看是否恢复正常
-
 **正常流程不应该发生的错误**
 
 错误码100001、1000000：基本是由于参数错误或者Cookie错误所引起的，如果遇到这种情况，请提交Issue反馈
 
 错误码6：如果是在`getGroupInfo`方法中出现，可能是误把`group.id`当成`group.code`作为参数了，这里的参数应该是`code`。
 
-#### 更新日志
+### 感谢
 
 2016-2-2：修改了Jar运行时保存二维码失败的Bug，感谢@oldjunyi的反馈！
 
-2016-2-1：程序无法接收消息，同时登录[官网][8]后也无法接收消息。大约 15:44 左右恢复正常，程序不需要更新。感谢@WiseClock提供信息！
-
-### 感谢
-
-现在使用[requests][7]进行 Http 请求
+2016-2-1：程序无法接收消息，同时登录官网后也无法接收消息。大约 15:44 左右恢复正常，程序不需要更新。感谢@WiseClock提供信息！
 
 ### 联系方式
 
-由于 Web QQ 协议变更比较频繁，而我也不可能时时都去测试 Api 的可用性，所以如果您在使用途中发现了问题，欢迎给我提 Issue ，或是通过邮件联系我：`i@scienjus.com`，意见和建议也欢迎。
+由于 Smart QQ 协议变更比较频繁，而我也不可能时时都去测试 API 的可用性，所以如果您在使用途中发现了问题，欢迎给我提 Issue ，意见和建议也欢迎。
 
-[ruby]: https://github.com/ScienJus/qqbot
 [1]: http://www.scienjus.com/webqq-analysis-1/
 [2]: http://www.scienjus.com/webqq-analysis-2/
 [3]: http://www.scienjus.com/webqq-analysis-3/
 [4]: http://www.scienjus.com/webqq-analysis-4/
 [5]: http://www.scienjus.com/webqq-analysis-5/
 [6]: http://www.scienjus.com/webqq-analysis-6/
-[7]: https://github.com/caoqianli/requests
-[8]: http://w.qq.com
+[7]: http://w.qq.com

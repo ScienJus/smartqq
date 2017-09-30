@@ -1,2 +1,8 @@
-target
-*.iml
+/target
+/*.iml
+/.idea
+/.classpath
+/.project
+/.settings
+/qrcode.png
+/tmp/

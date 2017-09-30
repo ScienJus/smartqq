@@ -3,27 +3,22 @@ package com.scienjus.smartqq.constant;
 /**
  * Api的请求地址和Referer
  * @author ScienJus
- * @date 15/12/19.
+ * @author <a href="mailto:xianguang.zhou@outlook.com">Xianguang Zhou</a>
+ * @since 15/12/19.
  */
 public enum ApiURL {
 
     GET_QR_CODE(
             "https://ssl.ptlogin2.qq.com/ptqrshow?appid=501004106&e=0&l=M&s=5&d=72&v=4&t=0.1",
-            ""
+            null
     ),
     VERIFY_QR_CODE(
-            "https://ssl.ptlogin2.qq.com/ptqrlogin?" +
-                    "webqq_type=10&remember_uin=1&login2qq=1&aid=501004106&" +
-                    "u1=http%3A%2F%2Fw.qq.com%2Fproxy.html%3Flogin2qq%3D1%26webqq_type%3D10&" +
-                    "ptredirect=0&ptlang=2052&daid=164&from_ui=1&pttype=1&dumy=&fp=loginerroralert&" +
-                    "action=0-0-157510&mibao_css=m_webqq&t=1&g=1&js_type=0&js_ver=10143&login_sig=&pt_randsalt=0",
-            "https://ui.ptlogin2.qq.com/cgi-bin/login?" +
-                    "daid=164&target=self&style=16&mibao_css=m_webqq&appid=501004106&enable_qlogin=0&no_verifyimg=1&" +
-                    "s_url=http%3A%2F%2Fw.qq.com%2Fproxy.html&f_url=loginerroralert&strong_login=1&login_state=10&t=20131024001"
+			"https://ssl.ptlogin2.qq.com/ptqrlogin?ptqrtoken={1}&webqq_type=10&remember_uin=1&login2qq=1&aid=501004106&u1=http%3A%2F%2Fw.qq.com%2Fproxy.html%3Flogin2qq%3D1%26webqq_type%3D10&ptredirect=0&ptlang=2052&daid=164&from_ui=1&pttype=1&dumy=&fp=loginerroralert&0-0-157510&mibao_css=m_webqq&t=undefined&g=1&js_type=0&js_ver=10184&login_sig=&pt_randsalt=3",
+			"https://ui.ptlogin2.qq.com/cgi-bin/login?daid=164&target=self&style=16&mibao_css=m_webqq&appid=501004106&enable_qlogin=0&no_verifyimg=1&s_url=http%3A%2F%2Fw.qq.com%2Fproxy.html&f_url=loginerroralert&strong_login=1&login_state=10&t=20131024001"
     ),
     GET_PTWEBQQ(
             "{1}",
-            ""
+            null
     ),
     GET_VFWEBQQ(
             "http://s.web2.qq.com/api/getvfwebqq?ptwebqq={1}&clientid=53999199&psessionid=&t=0.1",
@@ -41,9 +36,17 @@ public enum ApiURL {
             "http://d1.web2.qq.com/channel/poll2",
             "http://d1.web2.qq.com/proxy.html?v=20151105001&callback=1&id=2"
     ),
+    POLL_MESSAGE_HTTPS(
+            "https://d1.web2.qq.com/channel/poll2",
+            "https://d1.web2.qq.com/proxy.html?v=20151105001&callback=1&id=2"
+    ),
     SEND_MESSAGE_TO_GROUP(
             "http://d1.web2.qq.com/channel/send_qun_msg2",
             "http://d1.web2.qq.com/proxy.html?v=20151105001&callback=1&id=2"
+    ),
+    SEND_MESSAGE_TO_GROUP_HTTPS(
+            "https://d1.web2.qq.com/channel/send_qun_msg2",
+            "https://d1.web2.qq.com/proxy.html?v=20151105001&callback=1&id=2"
     ),
     GET_FRIEND_LIST(
             "http://s.web2.qq.com/api/get_user_friends2",
@@ -53,6 +56,10 @@ public enum ApiURL {
             "http://d1.web2.qq.com/channel/send_buddy_msg2",
             "http://d1.web2.qq.com/proxy.html?v=20151105001&callback=1&id=2"
     ),
+    SEND_MESSAGE_TO_FRIEND_HTTPS(
+            "https://d1.web2.qq.com/channel/send_buddy_msg2",
+            "https://d1.web2.qq.com/proxy.html?v=20151105001&callback=1&id=2"
+    ),
     GET_DISCUSS_LIST(
             "http://s.web2.qq.com/api/get_discus_list?clientid=53999199&psessionid={1}&vfwebqq={2}&t=0.1",
             "http://s.web2.qq.com/proxy.html?v=20130916001&callback=1&id=1"
@@ -60,6 +67,10 @@ public enum ApiURL {
     SEND_MESSAGE_TO_DISCUSS(
             "http://d1.web2.qq.com/channel/send_discu_msg2",
             "http://d1.web2.qq.com/proxy.html?v=20151105001&callback=1&id=2"
+    ),
+    SEND_MESSAGE_TO_DISCUSS_HTTPS(
+            "https://d1.web2.qq.com/channel/send_discu_msg2",
+            "https://d1.web2.qq.com/proxy.html?v=20151105001&callback=1&id=2"
     ),
     GET_ACCOUNT_INFO(
             "http://s.web2.qq.com/api/get_self_info2?t=0.1",
@@ -88,9 +99,21 @@ public enum ApiURL {
     GET_FRIEND_INFO(
             "http://s.web2.qq.com/api/get_friend_info2?tuin={1}&vfwebqq={2}&clientid=53999199&psessionid={3}&t=0.1",
             "http://s.web2.qq.com/proxy.html?v=20130916001&callback=1&id=1"
+    ),
+    CHANGE_STATUS(
+            "http://d1.web2.qq.com/channel/change_status2?newstatus={1}&clientid=53999199&psessionid={2}&t=0.1",
+            "http://d1.web2.qq.com/proxy.html?v=20151105001&callback=1&id=2"
+    ),
+    GET_USER_FACE(
+    		"http://face{1}.web.qq.com/cgi/svr/face/getface?cache=1&type=1&f=40&uin={2}&t=0.1&vfwebqq={3}",
+    		"http://w.qq.com/"
+    ),
+    AVOID_RETCODE_103(
+    		"http://d1.web2.qq.com/channel/get_online_buddies2?vfwebqq={1}&clientid={2}&psessionid={3}&t=1457573118910",
+            "http://d1.web2.qq.com/proxy.html?v=20151105001&callback=1&id=2"
     );
 
-    public static final String USER_AGENT = "Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/45.0.2454.101 Safari/537.36";
+    public static final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/54.0.2840.71 Safari/537.36";
 
     private String url;
 
@@ -104,7 +127,6 @@ public enum ApiURL {
     public String getUrl() {
         return url;
     }
-
 
     public String getReferer() {
         return referer;
