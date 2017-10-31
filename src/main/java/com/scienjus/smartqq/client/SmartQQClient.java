@@ -21,6 +21,8 @@ import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.util.*;
 
+import java.nio.charset.StandardCharsets;
+
 /**
  * Api客户端.
  *
@@ -612,7 +614,7 @@ public class SmartQQClient implements Closeable {
         if (url.getReferer() != null) {
             request.addHeader("Referer", url.getReferer());
         }
-        return request.text();
+        return request.text(StandardCharsets.UTF_8); 
     }
 
     //发送post请求
@@ -622,7 +624,7 @@ public class SmartQQClient implements Closeable {
                 .addHeader("Referer", url.getReferer())
                 .addHeader("Origin", url.getOrigin())
                 .addForm("r", r.toJSONString())
-                .text();
+                .text(StandardCharsets.UTF_8);
     }
 
     //发送post请求，失败时重试
