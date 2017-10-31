@@ -611,7 +611,8 @@ public class SmartQQClient implements Closeable {
         if (url.getReferer() != null) {
             request.addHeader("Referer", url.getReferer());
         }
-        return request.text();
+        Charset responseCharset = Charset.forName("utf8");
+        return request.text(responseCharset); 
     }
 
     //发送post请求
